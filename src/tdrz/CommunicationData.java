@@ -16,12 +16,12 @@ import javax.json.JsonObject;
 import tool.FunctionUtils;
 
 public class CommunicationData {
-	private final long time;
+	public final long time;
 	private final String serverName;
 	private final String uri;
 	private final DataType type;
 	private Map<String, String> fields = null;
-	private JsonObject json = null;
+	public JsonObject json = null;
 
 	public CommunicationData(long time, String serverName, String uri, Map<String, String> headers, ByteArrayOutputStream requestBody, ByteArrayOutputStream responseBody) {
 		this.time = time;
@@ -31,8 +31,10 @@ public class CommunicationData {
 
 		try {
 			this.fields = Arrays.stream(URLDecoder.decode(new String(requestBody.toByteArray()), "utf-8").trim().split("&"))//
-					.map(param -> param.split("=")).filter(pair -> FunctionUtils.isFalse("api_token".equalsIgnoreCase(pair[0])) && FunctionUtils.isFalse("api_verno".equalsIgnoreCase(pair[0])))//
-					.collect(Collectors.toMap(pair -> pair[0], pair -> pair.length == 2 ? pair[1] : null, (a, b) -> String.format("%s,%s", a, b)));
+					.map(param -> param.split("="))//
+					.filter(pair -> pair.length == 2)//
+					.filter(pair -> FunctionUtils.isFalse("api_token".equalsIgnoreCase(pair[0]) || "api_verno".equalsIgnoreCase(pair[0])))//
+					.collect(Collectors.toMap(pair -> pair[0], pair -> pair[1], (a, b) -> String.format("%s,%s", a, b)));
 		} catch (Exception e) {
 			this.fields = null;
 		}
@@ -58,14 +60,10 @@ public class CommunicationData {
 
 	@Override
 	public String toString() {
-		return FunctionUtils.notNull(this.type, DataType::toString, "type==null") + "\r\n"//
-				+ this.uri + "\r\n"//
-				+ FunctionUtils.notNull(this.fields, HashMap<String, String>::new, "fields==null") + "\r\n" //
-				+ FunctionUtils.notNull(this.json, JsonObject::toString, "json==null");
-	}
-
-	public JsonObject getJsonObject() {
-		return this.json;
+		return (this.type == null ? "null" : String.format("%s,%s", this.type, this.type.getDetail())) + "\r\n"//
+				+ this.getUrl() + "\r\n"//
+				+ FunctionUtils.notNull(this.fields, HashMap<String, String>::new, "null") + "\r\n" //
+				+ String.valueOf(this.json);
 	}
 
 	public String getServerName() {
@@ -84,15 +82,7 @@ public class CommunicationData {
 		return this.type;
 	}
 
-	public Map<String, String> getFields() {
-		return this.fields;
-	}
-
 	public String getField(String key) {
 		return this.fields == null ? null : this.fields.get(key);
-	}
-
-	public long getTime() {
-		return this.time;
 	}
 }

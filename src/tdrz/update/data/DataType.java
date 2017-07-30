@@ -1,8 +1,9 @@
-package tdrz;
+package tdrz.update.data;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import tool.FunctionUtils;
 
 public enum DataType {
 	//start battle相关
@@ -41,7 +42,7 @@ public enum DataType {
 	AIRBASE_SETPLANE("/kcsapi/api_req_air_corps/set_plane", "基地航空队-设置飞机"),
 	AIRBASE_CHANGENAME("/kcsapi/api_req_air_corps/change_name", "基地航空队-变更队名"),
 	AIRBASE_EXPAND("/kcsapi/api_req_air_corps/expand_base", "基地航空队-扩张"),
-	AIRBASE__SUPPLY("/kcsapi/api_req_air_corps/supply", "陆航补给"),
+	AIRBASE_SUPPLY("/kcsapi/api_req_air_corps/supply", "陆航补给"),
 
 	SORTIE_CONDITIONS("/kcsapi/api_get_member/sortie_conditions", "活动海域的出击条件", "点击决定按钮与出现[选择出击舰队]界面之间,两次返回母港之间只会发起一次"),
 	MXLTVKPYUKLH("/kcsapi/api_req_ranking/mxltvkpyuklh", "战果排行list"),
@@ -80,10 +81,10 @@ public enum DataType {
 	DESTROYSHIP("/kcsapi/api_req_kousyou/destroyship", " 解体"),
 	DESTROYITEM("/kcsapi/api_req_kousyou/destroyitem2", "废弃"),
 
-	PRESET_DECK("/kcsapi/api_get_member/preset_deck", "编成列表"),
-	PRESET_REGISTER("/kcsapi/api_req_hensei/preset_register", "记录编成到编成列表"),
-	PRESET_DELETE("/kcsapi/api_req_hensei/preset_delete", "删除编成记录"),
-	PRESET_SELECT("/kcsapi/api_req_hensei/preset_select", "展开编成"),
+	DECK_PRESET_DECK("/kcsapi/api_get_member/preset_deck", "编成列表"),
+	DECK_PRESET_REGISTER("/kcsapi/api_req_hensei/preset_register", "记录编成到编成列表"),
+	DECK_PRESET_DELETE("/kcsapi/api_req_hensei/preset_delete", "删除编成记录"),
+	DECK_PRESET_SELECT("/kcsapi/api_req_hensei/preset_select", "展开编成"),
 
 	REMODEL_SLOTLIST("/kcsapi/api_req_kousyou/remodel_slotlist", "进入改修工厂"),
 	REMODEL_SLOTLIST_DETAIL("/kcsapi/api_req_kousyou/remodel_slotlist_detail", "选择改修装备之后到执行界面"),
@@ -131,9 +132,13 @@ public enum DataType {
 	KDOCK_CREATESHIP_GETSHIP("/kcsapi/api_req_kousyou/getship", "建造获得舰娘");
 
 	/*--------------------------------------------------------------------------------------------------------------*/
-	public static final Map<String, DataType> TYPEMAP = new HashMap<>();
+	private static final Map<String, DataType> TYPEMAP = new HashMap<>();
 	static {
-		Arrays.stream(DataType.values()).forEach(type -> TYPEMAP.put(type.uri, type));
+		FunctionUtils.forEach(DataType.values(), type -> TYPEMAP.put(type.uri, type));
+	}
+
+	public static DataType getType(String uri) {
+		return TYPEMAP.get(uri);
 	}
 
 	private final String uri;

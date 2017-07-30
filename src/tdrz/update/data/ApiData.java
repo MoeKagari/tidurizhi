@@ -1,4 +1,4 @@
-package tdrz;
+package tdrz.update.data;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -15,19 +15,19 @@ import javax.json.JsonObject;
 
 import tool.FunctionUtils;
 
-public class CommunicationData {
-	public final long time;
+public class ApiData {
+	private final long time;
 	private final String serverName;
 	private final String uri;
 	private final DataType type;
 	private Map<String, String> fields = null;
-	public JsonObject json = null;
+	private JsonObject json = null;
 
-	public CommunicationData(long time, String serverName, String uri, Map<String, String> headers, ByteArrayOutputStream requestBody, ByteArrayOutputStream responseBody) {
+	public ApiData(long time, String serverName, String uri, Map<String, String> headers, ByteArrayOutputStream requestBody, ByteArrayOutputStream responseBody) {
 		this.time = time;
 		this.serverName = serverName;
 		this.uri = uri;
-		this.type = DataType.TYPEMAP.get(uri);
+		this.type = DataType.getType(uri);
 
 		try {
 			this.fields = Arrays.stream(URLDecoder.decode(new String(requestBody.toByteArray()), "utf-8").trim().split("&"))//
@@ -36,7 +36,7 @@ public class CommunicationData {
 					.filter(pair -> FunctionUtils.isFalse("api_token".equalsIgnoreCase(pair[0]) || "api_verno".equalsIgnoreCase(pair[0])))//
 					.collect(Collectors.toMap(pair -> pair[0], pair -> pair[1], (a, b) -> String.format("%s,%s", a, b)));
 		} catch (Exception e) {
-			this.fields = null;
+			throw new RuntimeException("fields解析出错\r\n" + new String(requestBody.toByteArray()));
 		}
 
 		try {
@@ -54,7 +54,7 @@ public class CommunicationData {
 
 			this.json = Json.createReader(stream).readObject();
 		} catch (Exception e) {
-			this.json = null;
+			throw new RuntimeException("json解析出错\r\n" + new String(responseBody.toByteArray()));
 		}
 	}
 
@@ -80,6 +80,14 @@ public class CommunicationData {
 
 	public DataType getType() {
 		return this.type;
+	}
+
+	public long getTime() {
+		return this.time;
+	}
+
+	public JsonObject getJsonObject() {
+		return this.json;
 	}
 
 	public String getField(String key) {

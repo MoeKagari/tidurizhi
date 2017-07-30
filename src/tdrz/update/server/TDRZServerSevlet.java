@@ -1,9 +1,7 @@
-package tdrz;
+package tdrz.update.server;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -11,12 +9,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import server.CommunicationHandler;
 import server.ProxyServerServlet;
 import server.ServerConfig;
-import tool.FunctionUtils;
+import tdrz.update.GlobalContextUpdater;
 
 @SuppressWarnings("serial")
 public class TDRZServerSevlet extends ProxyServerServlet {
@@ -37,8 +35,40 @@ public class TDRZServerSevlet extends ProxyServerServlet {
 		}
 	}
 
+	private int port;
+	private boolean useProxy;
+	private String proxyHost;
+	private int proxyPort;
+
 	public TDRZServerSevlet(ServerConfig config) {
 		super(config);
+	}
+
+	@Override
+	public void start() throws Exception {
+		this.port = this.getConfig().getListenPort();
+		this.useProxy = this.getConfig().isUseProxy();
+		this.proxyHost = this.getConfig().getProxyHost();
+		this.proxyPort = this.getConfig().getProxyPort();
+
+		super.start();
+	}
+
+	@Override
+	public void restart() throws Exception {
+		ServerConfig config = this.getConfig();
+		if (this.port == config.getListenPort()) {
+			if (this.useProxy == config.isUseProxy()) {
+				if (this.useProxy == false) {
+					return;
+				}
+				if (this.proxyPort == config.getProxyPort() && StringUtils.equals(this.proxyHost, config.getProxyHost())) {
+					return;
+				}
+			}
+		}
+
+		super.restart();
 	}
 
 	@Override
@@ -48,11 +78,11 @@ public class TDRZServerSevlet extends ProxyServerServlet {
 				return new TDRZApiHandler(serverName, uri);
 			}
 		}
+
 		return super.getHandler(serverName, uri);
 	}
 
 	private static class TDRZApiHandler extends CommunicationHandler {
-		private final static SimpleDateFormat JSONFILETIMEFORMAT = new SimpleDateFormat("yyMMdd_HHmmss.SSS");
 		private final long time = System.currentTimeMillis();
 
 		public TDRZApiHandler(String serverName, String uri) {
@@ -61,22 +91,9 @@ public class TDRZServerSevlet extends ProxyServerServlet {
 
 		@Override
 		public void onSuccess(HttpServletRequest httpRequest, HttpServletResponse httpResponse, Map<String, String> headers, ByteArrayOutputStream requestBody, ByteArrayOutputStream responseBody) throws IOException {
-			Thread processDataThread = new Thread(() -> processData(this.time, this.serverName, this.uri, headers, requestBody, responseBody));
+			Thread processDataThread = new Thread(() -> GlobalContextUpdater.update(this.time, this.serverName, this.uri, headers, requestBody, responseBody));
 			processDataThread.setDaemon(false);
 			processDataThread.start();
-		}
-
-		private static void processData(long time, String serverName, String uri, Map<String, String> headers, ByteArrayOutputStream requestBody, ByteArrayOutputStream responseBody) {
-			try {
-				CommunicationData data = new CommunicationData(time, serverName, uri, headers, requestBody, responseBody);
-				String filename = String.format("json\\%s%s_%s.json", //
-						FunctionUtils.notNull(data.getType(), type -> "", "undefined\\"), //
-						JSONFILETIMEFORMAT.getNumberFormat().format(data.time),//
-						FunctionUtils.notNull(data.getType(), DataType::toString, ""));
-				FileUtils.write(new File(filename), data.toString());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 		}
 
 		@Override

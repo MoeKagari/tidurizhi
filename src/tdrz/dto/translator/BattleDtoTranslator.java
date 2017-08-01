@@ -52,7 +52,7 @@ import tdrz.logic.HPMessage;
 import tdrz.update.GlobalContext;
 import tdrz.utils.SwtUtils;
 import tool.FunctionUtils;
-import tool.FunctionUtils.BiIntObjFunction;
+import tool.FunctionUtils.BiIntFunction;
 
 public class BattleDtoTranslator {
 
@@ -135,7 +135,7 @@ public class BattleDtoTranslator {
 	private static void newStateComposite(Composite composite, ArrayList<String[]> shipInformations) {
 		int length = shipInformations.stream().filter(FunctionUtils::isNotNull).mapToInt(strs -> strs.length).max().orElse(0);
 
-		BiIntObjFunction<String> getText = (i, j) -> {
+		BiIntFunction<String> getText = (i, j) -> {
 			if (j >= shipInformations.size() || j < 0) return "";
 			String[] strs = shipInformations.get(j);
 			if (i >= strs.length || i < 0) return "";

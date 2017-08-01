@@ -1,6 +1,7 @@
 package tdrz.internal;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.SWT;
@@ -10,7 +11,7 @@ import tdrz.gui.window.main.ApplicationMain;
 import tool.FunctionUtils;
 
 public class TrayMessageBox {
-	private LinkedHashMap<String, String> title_notice = null;
+	private Map<String, String> title_notice = null;
 
 	public TrayMessageBox() {}
 
@@ -21,7 +22,7 @@ public class TrayMessageBox {
 
 	public void add(String title, String notice) {
 		if (this.title_notice == null) this.title_notice = new LinkedHashMap<>();
-		this.title_notice.put(title, FunctionUtils.notNull(this.title_notice.get(title), value -> value + "\n" + notice, notice));
+		this.title_notice.merge(title, notice, (value1, value2) -> String.format("%s\n%s", value1, value2));
 	}
 
 	public static void show(ApplicationMain main, TrayMessageBox box) {
@@ -31,7 +32,6 @@ public class TrayMessageBox {
 		FunctionUtils.notNull(main.getTrayItem().getToolTip(), ToolTip::dispose);
 		String text = StringUtils.join(box.title_notice.keySet(), "・");
 		String message = StringUtils.join(box.title_notice.values(), "\r\n");
-		box.title_notice.clear();
 
 		ToolTip tip = new ToolTip(main.getShell(), SWT.BALLOON | SWT.ICON_INFORMATION);
 		tip.setText(text);

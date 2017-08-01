@@ -35,8 +35,7 @@ public class BattleWindow extends WindowBase {
 	public void update(DataType type) {
 		BattleDto last = GlobalContext.getMemorylist().getLastBattle();
 		if (last != null) {
-			//自动更新
-			if (AppConfig.get().isAutoUpdateBattleFlow()) {
+			if (AppConfig.get().isAutoUpdateBattleFlow()) {//自动更新
 				this.bfw.updateBattle(last, null);
 			}
 

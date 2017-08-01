@@ -11,12 +11,12 @@ import tdrz.utils.SwtUtils;
 import tool.FunctionUtils;
 
 /**
- * {@link BattleWindow}和{@link BattleFlowWindow}中得scroll composite
+ * {@link BattleWindow}和{@link BattleFlowWindow}中的scrolled composite
  * @author MoeKagari
  */
 public class BattleScrolledComposite {
 	private final ScrolledComposite sc;
-	final Composite contentComposite;
+	public final Composite contentComposite;
 
 	public BattleScrolledComposite(Composite composite, int space) {
 		this.sc = new ScrolledComposite(composite, SWT.V_SCROLL);

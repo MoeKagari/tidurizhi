@@ -27,7 +27,6 @@ import org.eclipse.swt.widgets.Spinner;
 import tdrz.config.WindowConfig;
 import tdrz.update.GlobalContextUpdater;
 import tdrz.update.data.ApiDataListener;
-import tdrz.update.data.DataType;
 import tdrz.utils.SwtUtils;
 import tool.FunctionUtils;
 
@@ -128,41 +127,43 @@ public abstract class AbstractWindow implements ApiDataListener {
 		GlobalContextUpdater.addListener(this);
 	}
 
-	public Shell getShell() {
+	public final Shell getShell() {
 		return this.shell;
 	}
 
-	public Image getLogo() {
+	public final Image getLogo() {
 		return this.logo;
 	}
 
-	public String getDefaultTitle() {
+	public final String getDefaultTitle() {
 		return this.defaultTitle;
 	}
 
-	public Menu getMenuBar() {
+	public final Menu getMenuBar() {
 		return this.menuBar;
 	}
 
-	public Composite getLeftComposite() {
-		return this.leftComposite;
-	}
-
-	public Composite getTopComposite() {
-		return this.topComposite;
-	}
-
-	public Composite getCenterComposite() {
+	public final Composite getCenterComposite() {
 		return this.centerComposite;
 	}
 
-	public Composite getBottomComposite() {
+	public final Composite getLeftComposite() {
+		return this.leftComposite;
+	}
+
+	public final Composite getTopComposite() {
+		return this.topComposite;
+	}
+
+	public final Composite getBottomComposite() {
 		return this.bottomComposite;
 	}
 
-	public Composite getRightComposite() {
+	public final Composite getRightComposite() {
 		return this.rightComposite;
 	}
+
+	/*------------------------------------------------------------------------------------------------------------*/
 
 	protected boolean haveLeftComposite() {
 		return false;
@@ -180,8 +181,46 @@ public abstract class AbstractWindow implements ApiDataListener {
 		return false;
 	}
 
+	/*------------------------------------------------------------------------------------------------------------*/
+
+	public void hiddenWindow() {
+		this.setVisible(false);
+	}
+
+	public void displayWindow() {
+		this.setVisible(true);
+	}
+
+	private void setVisible(boolean visible) {
+		FunctionUtils.notNull(this.menuItem, mi -> mi.setSelection(visible));
+		this.shell.setVisible(visible);
+		if (visible) {
+			this.shell.setMinimized(false);
+			this.shell.forceActive();
+		}
+
+		this.setTopMost(this.windowConfig.isTopMost());
+	}
+
+	/*------------------------------------------------------------------------------------------------------------*/
+
+	/** 存储当前窗口的配置时所需的key */
+	protected String getWindowConfigKey() {
+		return this.getClass().getName();
+	}
+
+	/** 窗口配置 */
+	protected final WindowConfig getWindowConfig() {
+		return this.windowConfig;
+	}
+
+	/** 窗口无WindowConfig时 new WindowConfig时需要 */
+	protected boolean defaultTopMost() {
+		return false;
+	}
+
 	/** 存储当前窗口的配置 */
-	public void storeWindowConfig() {
+	public final void storeWindowConfig() {
 		if (this.shell.isDisposed()) return;
 		if (FunctionUtils.isFalse(this.shell.getMaximized())) {//最大化不记录
 			this.windowConfig.setSize(this.shell.getSize());
@@ -192,7 +231,7 @@ public abstract class AbstractWindow implements ApiDataListener {
 	}
 
 	/** 恢复当前窗口的配置 */
-	public void restoreWindowConfig() {
+	public final void restoreWindowConfig() {
 		if (this.windowConfig == null) {
 			this.windowConfig = WindowConfig.get().get(this.getWindowConfigKey());
 			if (this.windowConfig == null) {
@@ -210,28 +249,13 @@ public abstract class AbstractWindow implements ApiDataListener {
 		this.setVisible(this.windowConfig.isVisible());
 	}
 
+	/*------------------------------------------------------------------------------------------------------------*/
+
 	/** 更新窗口(延迟redraw) */
-	protected void updateWindowRedraw(Runnable run) {
+	protected final void updateWindowRedraw(Runnable run) {
 		this.centerComposite.setRedraw(false);
 		run.run();
 		this.centerComposite.setRedraw(true);
-	}
-
-	public void hiddenWindow() {
-		this.setVisible(false);
-	}
-
-	public void displayWindow() {
-		this.setVisible(true);
-	}
-
-	private void setVisible(boolean visible) {
-		if (visible) this.shell.setMinimized(false);
-		this.shell.setVisible(visible);
-		FunctionUtils.ifRunnable(visible, this.shell::forceActive);
-		FunctionUtils.notNull(this.menuItem, mi -> mi.setSelection(visible));
-
-		this.setTopMost(this.windowConfig.isTopMost());
 	}
 
 	/** 设置总在前 */
@@ -244,33 +268,19 @@ public abstract class AbstractWindow implements ApiDataListener {
 		OS.SetWindowPos(this.shell.handle, hWndInsertAfter, location.x, location.y, size.x, size.y, SWT.NULL);
 	}
 
-	protected boolean defaultTopMost() {
-		return false;
-	}
-
 	/** 鼠标按下之后拖动,窗口跟随着移动 */
-	protected void allowMouseDrag(Control con) {
+	protected final void allowMouseDrag(Control con) {
 		con.addMouseListener(this.mouseDragListener);
 		con.addMouseMoveListener(this.mouseDragListener);
 	}
 
-	/** 存储当前窗口的配置时所需的key */
-	protected String getWindowConfigKey() {
-		return this.getClass().getName();
-	}
+	/*------------------------------------------------------------------------------------------------------------*/
 
 	/** 默认size */
 	protected abstract Point getDefaultSize();
 
-	protected WindowConfig getWindowConfig() {
-		return this.windowConfig;
-	}
-
 	/** 默认shellstyle */
 	protected abstract int getShellStyle();
-
-	@Override
-	public void update(DataType type) {}
 
 	/** shell跟随鼠标的拖动而移动 */
 	private class MouseDragListener implements MouseListener, MouseMoveListener {

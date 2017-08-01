@@ -44,7 +44,7 @@ public class AppConfig {
 	private int listenPort = 22222;
 	private boolean allowOnlyFromLocalhost = false;
 	private boolean closeOutsidePort = true;
-	private boolean useProxy = true;
+	private boolean useProxy = false;
 	private String proxyHost = "127.0.0.1";
 	private int proxyPort = 8099;
 

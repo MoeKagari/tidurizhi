@@ -1,7 +1,6 @@
 package tdrz.gui.window.sub.table;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.eclipse.swt.widgets.MenuItem;
@@ -15,21 +14,19 @@ public abstract class CalcuTable<T> extends AbstractTable<T> {
 		super(main, menuItem, title);
 	}
 
-	protected enum FlagshipMVP {
-		TRUE_TRUE("旗舰&MVP", true, true),
-		FALSE_TRUE("MVP", false, true),
-		TRUE_FALSE("旗舰", true, false),
-		FALSE_FALSE("基本经验", false, false);
+	@Override
+	protected boolean disposeAndUpdate() {
+		return false;
+	}
 
-		protected final String name;
-		protected final boolean isFlagship;
-		protected final boolean isMVP;
+	@Override
+	protected boolean isTableSortable() {
+		return false;
+	}
 
-		private FlagshipMVP(String name, boolean isFlagship, boolean isMVP) {
-			this.name = name;
-			this.isFlagship = isFlagship;
-			this.isMVP = isMVP;
-		}
+	@Override
+	protected boolean haveNo() {
+		return false;
 	}
 
 	protected enum Eval {
@@ -52,46 +49,8 @@ public abstract class CalcuTable<T> extends AbstractTable<T> {
 		}
 	}
 
-	protected static class SeaExp {
-		protected final static Map<String, Integer> SEAEXPMAP = new LinkedHashMap<>();
-
-		static {
-			SEAEXPMAP.put("1-1", 30);
-			SEAEXPMAP.put("1-2", 50);
-			SEAEXPMAP.put("1-3", 80);
-			SEAEXPMAP.put("1-4", 100);
-			SEAEXPMAP.put("1-5", 150);
-			SEAEXPMAP.put("2-1", 120);
-			SEAEXPMAP.put("2-2", 150);
-			SEAEXPMAP.put("2-3", 200);
-			SEAEXPMAP.put("2-4", 300);
-			SEAEXPMAP.put("2-5", 250);
-			SEAEXPMAP.put("3-1", 310);
-			SEAEXPMAP.put("3-2", 320);
-			SEAEXPMAP.put("3-3", 330);
-			SEAEXPMAP.put("3-4", 350);
-			SEAEXPMAP.put("3-5", 400);
-			SEAEXPMAP.put("4-1", 310);
-			SEAEXPMAP.put("4-2", 320);
-			SEAEXPMAP.put("4-3", 330);
-			SEAEXPMAP.put("4-4", 340);
-			SEAEXPMAP.put("5-1", 360);
-			SEAEXPMAP.put("5-2", 380);
-			SEAEXPMAP.put("5-3", 400);
-			SEAEXPMAP.put("5-4", 420);
-			SEAEXPMAP.put("5-5", 450);
-			SEAEXPMAP.put("6-1", 380);
-			SEAEXPMAP.put("6-2", 420);
-		}
-
-		public static int get(String sea) {
-			return SEAEXPMAP.get(sea);
-		}
-	}
-
 	protected static class ShipExp {
-		private static final Map<Integer, Integer> EXPMAP = new HashMap<>();
-
+		protected static final Map<Integer, Integer> EXPMAP = new HashMap<>();
 		static {
 			EXPMAP.put(1, 0);
 			EXPMAP.put(2, 100);
@@ -248,14 +207,16 @@ public abstract class CalcuTable<T> extends AbstractTable<T> {
 			EXPMAP.put(153, 4999000);
 			EXPMAP.put(154, 5230000);
 			EXPMAP.put(155, 5470000);
-		}
-
-		public static int getExp(int level) {
-			return EXPMAP.get(level);
-		}
-
-		public static int getMaxLevel() {
-			return EXPMAP.size();
+			EXPMAP.put(156, 5720000);
+			EXPMAP.put(157, 5780000);
+			EXPMAP.put(158, 5860000);
+			EXPMAP.put(159, 5970000);
+			EXPMAP.put(160, 6120000);
+			EXPMAP.put(161, 6320000);
+			EXPMAP.put(162, 6580000);
+			EXPMAP.put(163, 6910000);
+			EXPMAP.put(164, 7320000);
+			EXPMAP.put(165, 7820000);
 		}
 	}
 }

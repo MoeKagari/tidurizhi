@@ -13,7 +13,7 @@ public class PracticeEnemyDto extends AbstractWord {
 	private final PracticeEnemyShip[] ships;
 
 	public PracticeEnemyDto(JsonObject json) {
-		this.ships = json.getJsonObject("api_deck").getJsonArray("api_ships").getValuesAs(JsonObject.class).stream().map(PracticeEnemyShip::new).toArray(PracticeEnemyShip[]::new);
+		this.ships = json.getJsonObject("api_deck").getJsonArray("api_ships").getValuesAs(JsonObject.class).stream().map(jo -> jo.size() == 1 ? null : new PracticeEnemyShip(jo)).toArray(PracticeEnemyShip[]::new);
 	}
 
 	public PracticeEnemyShip[] getShips() {
@@ -21,19 +21,19 @@ public class PracticeEnemyDto extends AbstractWord {
 	}
 
 	public class PracticeEnemyShip {
-		private final int id;
+		//private final int id;
 		private final int lv;
 		private final String name;
 
 		public PracticeEnemyShip(JsonObject json) {
-			this.id = json.getInt("api_id");
-			this.lv = this.exist() ? json.getInt("api_level") : -1;
-			this.name = this.exist() ? MasterDataTranslator.getShipName(json.getInt("api_ship_id")) : null;
+			//this.id = json.getInt("api_id");
+			this.lv = json.getInt("api_level");
+			this.name = MasterDataTranslator.getShipName(json.getInt("api_ship_id"));
 		}
 
-		public boolean exist() {
-			return this.id != -1;
-		}
+//		public boolean exist() {
+//			return this.id != -1;
+//		}
 
 		public int getLv() {
 			return this.lv;

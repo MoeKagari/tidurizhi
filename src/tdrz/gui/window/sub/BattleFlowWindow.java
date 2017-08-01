@@ -16,7 +16,7 @@ import tool.FunctionUtils;
  * @author MoeKagari
  */
 public class BattleFlowWindow extends WindowBase {
-	final BattleScrolledComposite sbc;//战斗流程窗口
+	public final BattleScrolledComposite sbc;//战斗流程窗口
 
 	public BattleFlowWindow(ApplicationMain main) {
 		super(main, "战斗流程");
@@ -28,7 +28,7 @@ public class BattleFlowWindow extends WindowBase {
 		return true;
 	}
 
-	void updateBattle(BattleDto battleDto, SelectionEvent ev) {
+	public void updateBattle(BattleDto battleDto, SelectionEvent ev) {
 		if (battleDto instanceof AbstractBattle) {
 			this.sbc.clearWindow();
 			if (ev != null) {

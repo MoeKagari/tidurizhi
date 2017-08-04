@@ -28,7 +28,7 @@ public class BattleFlowWindow extends WindowBase {
 			this.sbc.clearWindow();
 			this.updateWindowRedraw(FunctionUtils.getRunnable(BattleDtoTranslator::createBattleFlow, this.sbc.contentComposite, (AbstractBattle) battleDto));
 			FunctionUtils.notNull(ev, this::displayWindow);
-			this.sbc.layout(false);
+			this.sbc.layoutContent(false);
 		}
 	}
 }

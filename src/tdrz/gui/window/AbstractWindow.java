@@ -72,14 +72,14 @@ public abstract class AbstractWindow extends AbstractCompositeBase implements Ap
 			public void controlResized(ControlEvent ev) {
 				Point size = AbstractWindow.this.getShell().getSize();
 				AbstractWindow.this.windowConfig.setSize(size);
-				AbstractWindow.this.windowConfigChangedListeners.forEach(listener -> listener.sizeChanged(size));
+				System.out.println("size change : " + size);
 			}
 
 			@Override
 			public void controlMoved(ControlEvent ev) {
 				Point location = AbstractWindow.this.getShell().getLocation();
 				AbstractWindow.this.windowConfig.setLocation(location);
-				AbstractWindow.this.windowConfigChangedListeners.forEach(listener -> listener.locationChanged(location));
+				System.out.println("location change : " + location);
 			}
 		});
 
@@ -98,6 +98,11 @@ public abstract class AbstractWindow extends AbstractCompositeBase implements Ap
 
 	@Override
 	public boolean canMinimizedOperation() {
+		return true;
+	}
+
+	@Override
+	public boolean canTopOperation() {
 		return true;
 	}
 
@@ -144,12 +149,12 @@ public abstract class AbstractWindow extends AbstractCompositeBase implements Ap
 		}
 
 		//setLocation最先操作,因为下面的一些操作会产生 controlMoved 事件,从而使 windowConfig 的 location 重置
-		this.getShell().setLocation(this.windowConfig.getLocation());
-		this.toggleTitlebar(this.windowConfig.isShowTitleBar());
-		this.changeOpacity(this.windowConfig.getOpacity());
-		this.getShell().setSize(this.windowConfig.getSize());
+		this.getShell().setLocation(this.windowConfig.getLocation());//自身也会产生 controlMoved 事件
+		//setSize先操作,因为下面的一些操作会产生 controlResized 事件,从而使 windowConfig 的 size 重置
+		this.getShell().setSize(this.windowConfig.getSize());//会产生 controlMoved controlResized 事件
 		this.getShell().setMinimized(this.windowConfig.isMinimized());
-		//显示窗口在最后
+		this.changeOpacity(this.windowConfig.getOpacity());
+		this.toggleTitlebar(this.windowConfig.isShowTitleBar());
 		if (this.windowConfig.isVisible()) {
 			this.displayWindow();
 		} else {

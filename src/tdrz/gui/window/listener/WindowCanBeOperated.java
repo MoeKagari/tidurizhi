@@ -6,4 +6,6 @@ public interface WindowCanBeOperated {
 	public boolean canOpacityOperation();
 
 	public boolean canMinimizedOperation();
+
+	public boolean canTopOperation();
 }

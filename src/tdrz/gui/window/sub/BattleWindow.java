@@ -47,7 +47,7 @@ public class BattleWindow extends WindowBase {
 		}
 
 		this.lastInWindow = last;
-		this.sbc.layout(true);
+		this.sbc.layoutContent(true);
 	}
 
 	public BattleFlowWindow getBattleFlowWindow() {

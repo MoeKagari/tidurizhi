@@ -58,6 +58,11 @@ public class WindowOperationWindow extends WindowBase {
 		return false;
 	}
 
+	@Override
+	public boolean canTopOperation() {
+		return false;
+	}
+
 	private abstract class AbstractOperationComposite extends Composite {
 		public AbstractOperationComposite(int style) {
 			super(WindowOperationWindow.this.contentComposite, style);
@@ -141,6 +146,7 @@ public class WindowOperationWindow extends WindowBase {
 
 				Button top = new Button(composite, SWT.PUSH);
 				top.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
+				top.setEnabled(this.window.canTopOperation());
 				top.setText("置顶");
 				top.setToolTipText("使窗口置顶,非总在前");
 				top.addSelectionListener(new ControlSelectionListener(this.window::setTop));

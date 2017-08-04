@@ -1,6 +1,7 @@
 package tdrz.gui.window.main;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -122,12 +123,11 @@ public class ApplicationMain extends AbstractWindow {
 	/** 所有道具 */
 	private UserItemListTable userItemListTable;
 
+	/** 窗口操作 */
 	private WindowOperationWindow windowOperationWindow;
 
-	private final AbstractWindow[] windows;
 	/*------------------------------------------------------------------------------------------------------*/
 
-	private final Shell subShell;
 	private final Composite contentComposite;
 	private TrayItem trayItem;
 
@@ -141,15 +141,43 @@ public class ApplicationMain extends AbstractWindow {
 	public ApplicationMain() {
 		super(Display.getDefault(), AppConstants.MAINWINDOWNAME, ApplicationMain.class.getResourceAsStream(AppConstants.LOGO));
 
+		this.contentComposite = new Composite(this.getCenterComposite(), SWT.NONE);
+		this.contentComposite.setLayout(SwtUtils.makeGridLayout(2, 0, 0, 0, 0));
+		this.contentComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+		this.initLeftComposite();
+		this.initRightComposite();
+		this.initTrayItem();
+		this.initMenuBar();
+
+		AbstractWindow[] windows = new AbstractWindow[] {//null为 windowOperationWindow 中用的占位符
+				this, null, null, this.fleetWindowAll, //
+				this.fleetWindowOuts[0], this.fleetWindowOuts[1], this.fleetWindowOuts[2], this.fleetWindowOuts[3],//
+				this.calcuExpTable, this.calcuPracticeExpTable, null, null,//
+				this.battleWindow, this.battleWindow.getBattleFlowWindow(), this.mapListTable, null,//
+				this.createItemTable, this.createShipTable, this.missionResultTable, this.materialRecordTable,//
+				this.destroyItemTable, this.destroyShipTable,//
+				this.battleListTable, this.dropListTable,//
+				this.shipListTable1, this.shipListTable2, this.shipListTable3, null,//
+				this.itemListTable, this.userItemListTable, this.questListTable, null,//
+				this.windowOperationWindow,//
+		};
+		//恢复窗口配置
+		Arrays.stream(windows).filter(FunctionUtils::isNotNull).forEach(AbstractWindow::restoreWindowConfig);
+		//添加窗口到 [窗口操作] 窗口
+		FunctionUtils.forEach(windows, this.windowOperationWindow::addWindow);
+		this.windowOperationWindow.getContentComposite().layout();
+
 		this.getShell().addShellListener(new ShellAdapter() {
 			@Override
 			public void shellClosed(ShellEvent ev) {
 				if (AppConfig.get().isCheckDoit()) {
-					Shell parent;
 					//可见,非最小化,总在前 的窗口
 					Predicate<AbstractWindow> filter = window -> window.getShell().isVisible() && FunctionUtils.isFalse(window.getShell().getMinimized()) && window.getWindowConfig().isTopMost();
-					List<AbstractWindow> vmt = Stream.of(ApplicationMain.this.windows).filter(window -> window != ApplicationMain.this).filter(filter).collect(Collectors.toList());
+					//满足上述条件的非 ApplicationMain 的窗口
+					List<AbstractWindow> vmt = Stream.of(windows).filter(FunctionUtils::isNotNull).filter(window -> window != ApplicationMain.this).filter(filter).collect(Collectors.toList());
 					//解决 MessageBox 被总在前的窗口遮挡的问题
+					Shell parent;
 					if (filter.test(ApplicationMain.this) || vmt.size() == 0) {
 						parent = ApplicationMain.this.getShell();
 					} else {
@@ -163,32 +191,6 @@ public class ApplicationMain extends AbstractWindow {
 				}
 			}
 		});
-
-		this.subShell = new Shell(Display.getDefault(), SWT.TOOL);
-
-		this.contentComposite = new Composite(this.getCenterComposite(), SWT.NONE);
-		this.contentComposite.setLayout(SwtUtils.makeGridLayout(2, 0, 0, 0, 0));
-		this.contentComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-		this.initLeftComposite();
-		this.initRightComposite();
-		this.initTrayItem();
-		this.initMenuBar();
-
-		this.windows = new AbstractWindow[] {//
-				this,//
-				this.fleetWindowAll, this.fleetWindowOuts[0], this.fleetWindowOuts[1], this.fleetWindowOuts[2], this.fleetWindowOuts[3],//
-				this.calcuExpTable, this.calcuPracticeExpTable,//
-				this.battleWindow, this.battleWindow.getBattleFlowWindow(), this.mapListTable,//
-				this.createItemTable, this.createShipTable, this.missionResultTable, this.materialRecordTable,//
-				this.destroyItemTable, this.destroyShipTable,//
-				this.battleListTable, this.dropListTable,//
-				this.shipListTable1, this.shipListTable2, this.shipListTable3,//
-				this.itemListTable, this.questListTable, this.userItemListTable,//
-				this.windowOperationWindow,//
-		};
-		FunctionUtils.forEach(this.windows, AbstractWindow::restoreWindowConfig);
-		FunctionUtils.forEach(this.windows, this.windowOperationWindow::addWindow);
 	}
 
 	//左面板
@@ -399,8 +401,8 @@ public class ApplicationMain extends AbstractWindow {
 
 	/*----------------------------------------------------------------------------------------------------------------*/
 
-	public Shell getSubShell() {
-		return this.subShell;
+	public Display getDisplay() {
+		return Display.getDefault();
 	}
 
 	public TrayItem getTrayItem() {
@@ -417,10 +419,6 @@ public class ApplicationMain extends AbstractWindow {
 
 	public AkashiTimerComposite getAkashiTimerComposite() {
 		return this.akashiTimerComposite;
-	}
-
-	public AbstractWindow[] getWindows() {
-		return this.windows;
 	}
 
 	/*----------------------------------------------------------------------------------------------------------------*/

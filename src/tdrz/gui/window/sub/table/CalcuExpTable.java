@@ -237,7 +237,7 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 			this.setLayout(SwtUtils.makeGridLayout(2, 0, 0, 0, 0));
 			this.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-			this.check = new Button(this, SWT.CHECK | SWT.LEFT);
+			this.check = new Button(this, SWT.RADIO | SWT.LEFT);
 			this.check.setLayoutData(SwtUtils.makeGridData(0, 40));
 			this.check.setText(text);
 			this.check.addSelectionListener(new ControlSelectionListener(ev -> {
@@ -246,10 +246,6 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 					//按了此单元之后,仍然还有单元处于选中状态,说明此单元先前为未选中的单元
 					op.get().notSelect();//取消另外一个选择的单元
 					CalcuExpTable.this.getUpdateTableListener().widgetSelected(ev);//并更新table
-				} else {
-					//按了此单元之后,没有单元处于选中状态,说明此单元先前为选中的单元
-					this.select();//恢复选择状态
-					//不更新table
 				}
 			}));
 		}

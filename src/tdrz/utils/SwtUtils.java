@@ -34,9 +34,8 @@ public final class SwtUtils {
 		FunctionUtils.forEach(composite.getChildren(), child -> {
 			if (child instanceof Composite) {
 				setMenuRecursively((Composite) child, menu);
-			} else {
-				child.setMenu(menu);
 			}
+			child.setMenu(menu);
 		});
 	}
 

@@ -26,17 +26,9 @@ public class BattleFlowWindow extends WindowBase {
 	public void updateBattle(BattleDto battleDto, SelectionEvent ev) {
 		if (battleDto instanceof AbstractBattle) {
 			this.sbc.clearWindow();
-			if (ev != null) {
-				this.updateBattle((AbstractBattle) battleDto);
-				this.displayWindow();
-			} else if (ev == null && this.getShell().isVisible()) {//自动更新(ev=null)时,需要此界面处于显示状态(最小化状态也可)
-				this.updateBattle((AbstractBattle) battleDto);
-			}
+			this.updateWindowRedraw(FunctionUtils.getRunnable(BattleDtoTranslator::createBattleFlow, this.sbc.contentComposite, (AbstractBattle) battleDto));
+			FunctionUtils.notNull(ev, this::displayWindow);
 			this.sbc.layout(false);
 		}
-	}
-
-	private void updateBattle(AbstractBattle battle) {
-		this.updateWindowRedraw(FunctionUtils.getRunnable(BattleDtoTranslator::createBattleFlow, this.sbc.contentComposite, battle));
 	}
 }

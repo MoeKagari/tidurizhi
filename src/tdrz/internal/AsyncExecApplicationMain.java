@@ -1,7 +1,7 @@
 package tdrz.internal;
 
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +29,6 @@ public class AsyncExecApplicationMain extends Thread {
 	public AsyncExecApplicationMain(ApplicationMain main) {
 		this.main = main;
 		this.setDaemon(true);
-		this.setName("Thread_AsyncExecApplicationMain");
 	}
 
 	@Override
@@ -52,7 +51,7 @@ public class AsyncExecApplicationMain extends Thread {
 				Thread.sleep(nextUpdateTime - currentTime);
 			}
 		} catch (Exception e) {
-			LOG.fatal(this.getName() + "进程异常终止", e);
+			LOG.fatal("AsyncExecApplicationMain进程异常终止", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -87,8 +86,8 @@ public class AsyncExecApplicationMain extends Thread {
 		private static void updateDeck(ApplicationMain main, TrayMessageBox box, long currentTime) {
 			NameTimeComposite[] ntc = main.getDeckGroup().nameTimeComposites;
 
-			for (int i = 0; i < GlobalContext.deckRooms.length; i++) {
-				DeckDto deck = GlobalContext.deckRooms[i].getDeck();
+			for (int index = 0; index < GlobalContext.deckRooms.length; index++) {
+				DeckDto deck = GlobalContext.deckRooms[index].getDeck();
 				if (deck == null) continue;
 
 				String nameLabelText = "", timeLabelText = "", timeLabelTooltipText = "";
@@ -97,7 +96,7 @@ public class AsyncExecApplicationMain extends Thread {
 					long rest = (dmd.getTime() - currentTime) / 1000;
 					if (dmd.getTimerCounter().needNotify2(currentTime)) {
 						if ((AppConfig.get().isNoticeDeckmission() && rest >= 0) || (AppConfig.get().isNoticeDeckmissionAgain() && rest < 0)) {
-							box.add("远征", String.format("%s-远征已归还", AppConstants.DEFAULT_FLEET_NAME[i]));
+							box.add("远征", String.format("%s-远征已归还", AppConstants.DEFAULT_FLEET_NAME[index]));
 						}
 					}
 
@@ -109,18 +108,18 @@ public class AsyncExecApplicationMain extends Thread {
 						timeLabelTooltipText = AppConstants.DECK_NDOCK_COMPLETE_TIME_FORMAT.format(dmd.getTime());
 					}
 				} else {//疲劳回复时间
-					int pl = Arrays.stream(deck.getShips()).mapToObj(GlobalContext::getShip).filter(FunctionUtils::isNotNull).mapToInt(ShipDto::getCond).min().orElse(Integer.MAX_VALUE);
-					if (pl < AppConfig.get().getNoticeCondWhen()) {
-						PLTime PLTIME = GlobalContext.getPLTIME();
-						if (PLTIME != null) {
-							int count = (AppConfig.get().getNoticeCondWhen() - pl - 1) / 3 + 1;
+					PLTime PLTIME = GlobalContext.getPLTIME();
+					if (PLTIME != null) {
+						int min = IntStream.of(deck.getShips()).mapToObj(GlobalContext::getShip).filter(FunctionUtils::isNotNull).mapToInt(ShipDto::getCond).min().orElse(Integer.MAX_VALUE);
+						if (min < AppConfig.get().getNoticeCondWhen()) {
+							int count = (AppConfig.get().getNoticeCondWhen() - min - 1) / 3 + 1;
 							long end = PLTIME.getTime() + 3 * 60 * 1000 * ((deck.getTime() - PLTIME.getTime() - 1) / (3 * 60 * 1000) + count);
 							long rest = (end - currentTime) / 1000;
 							if (rest == 0 && AppConfig.get().isNoticeCond()) {
-								if (AppConfig.get().isNoticeCondOnlyMainFleet() && i != 0) {
+								if (AppConfig.get().isNoticeCondOnlyMainFleet() && index != 0) {
 									//只通知第一舰队,并且此deck非第一舰队
 								} else {
-									box.add("疲劳", String.format("%s-疲劳已恢复", AppConstants.DEFAULT_FLEET_NAME[i]));
+									box.add("疲劳", String.format("%s-疲劳已恢复", AppConstants.DEFAULT_FLEET_NAME[index]));
 								}
 							}
 							nameLabelText = String.format("疲劳恢复中(±%d秒)", (PLTIME.getRange() / 1000));
@@ -130,9 +129,9 @@ public class AsyncExecApplicationMain extends Thread {
 					}
 				}
 
-				SwtUtils.setText(ntc[i].nameLabel, nameLabelText);
-				SwtUtils.setText(ntc[i].timeLabel, timeLabelText);
-				SwtUtils.setToolTipText(ntc[i].timeLabel, timeLabelTooltipText);
+				SwtUtils.setText(ntc[index].nameLabel, nameLabelText);
+				SwtUtils.setText(ntc[index].timeLabel, timeLabelText);
+				SwtUtils.setToolTipText(ntc[index].timeLabel, timeLabelTooltipText);
 			}
 		}
 

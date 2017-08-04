@@ -1,5 +1,8 @@
 package tdrz.gui.window.sub;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
@@ -17,17 +20,27 @@ import tdrz.utils.SwtUtils;
 
 public class WindowOperationWindow extends WindowBase {
 	private final Composite contentComposite;
+	private final List<AbstractOperationComposite> aocs = new ArrayList<>();
 
 	public WindowOperationWindow(ApplicationMain main, MenuItem menuItem, String title) {
 		super(main, menuItem, title);
 
 		this.contentComposite = new Composite(this.getCenterComposite(), SWT.NONE);
 		this.contentComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-		this.contentComposite.setLayout(SwtUtils.makeGridLayout(3, 0, 0, 0, 0, 2, 2, 2, 2));
+		this.contentComposite.setLayout(SwtUtils.makeGridLayout(4, 0, 0, 0, 0, 2, 2, 2, 2));
+		this.allowMouseDragRecursively(this.contentComposite);
 	}
 
 	public void addWindow(AbstractWindow window) {
-		new WindowOperationComposite(window);
+		if (window == null) {
+			this.aocs.add(new EmptyOperationComposite());
+		} else {
+			this.aocs.add(new WindowOperationComposite(window));
+		}
+	}
+
+	public Composite getContentComposite() {
+		return this.contentComposite;
 	}
 
 	@Override
@@ -45,78 +58,120 @@ public class WindowOperationWindow extends WindowBase {
 		return false;
 	}
 
-	public class WindowOperationComposite extends Composite {
-		private static final int LENGTH = 3;
+	private abstract class AbstractOperationComposite extends Composite {
+		public AbstractOperationComposite(int style) {
+			super(WindowOperationWindow.this.contentComposite, style);
+			WindowOperationWindow.this.allowMouseDragRecursively(this);
+		}
+	}
+
+	private class EmptyOperationComposite extends AbstractOperationComposite {
+		public EmptyOperationComposite() {
+			super(SWT.NONE);
+		}
+	}
+
+	private class WindowOperationComposite extends AbstractOperationComposite {
+		private final AbstractWindow window;
 
 		public WindowOperationComposite(AbstractWindow window) {
-			super(WindowOperationWindow.this.contentComposite, SWT.BORDER);
-			this.setLayout(SwtUtils.makeGridLayout(LENGTH, 0, 0, 0, 0));
+			super(SWT.BORDER);
+			WindowOperationWindow.this.allowMouseDragRecursively(this);
+			this.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
 			this.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
+			this.window = window;
+
 			Label nameLabel = new Label(this, SWT.LEFT | SWT.BORDER);
-			nameLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.FILL, false, false, LENGTH, 1));
+			nameLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 			nameLabel.setText(window.getDefaultTitle());
+			WindowOperationWindow.this.allowMouseDrag(nameLabel);
 
-			Button display = new Button(this, SWT.CHECK);
-			display.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, false, false));
-			display.setEnabled(window.canVisibleOperation());
-			display.setText("显示");
-			display.setSelection(window.getWindowConfig().isVisible());
-			display.addSelectionListener(new ControlSelectionListener(ev -> {
-				if (display.getSelection()) {
-					window.displayWindow();
-				} else {
-					window.hiddenWindow();
-				}
-			}));
-			window.addWindowConfigChangedListener(new WindowConfigChangedAdapter() {
-				@Override
-				public void visibleChanged(boolean visible) {
-					display.setSelection(visible);
-				}
-			});
+			this.initComposite_1();
+			this.initComposite_2();
+		}
 
-			Button minimized = new Button(this, SWT.CHECK);
-			minimized.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, false, false));
-			minimized.setEnabled(window.canVisibleOperation());
-			minimized.setText("最小化");
-			minimized.setSelection(window.getWindowConfig().isVisible());
-			minimized.addSelectionListener(new ControlSelectionListener(ev -> {
-				window.getShell().setMinimized(minimized.getSelection());
-			}));
-			window.addWindowConfigChangedListener(new WindowConfigChangedAdapter() {
-				@Override
-				public void minimizedChanged(boolean mini) {
-					minimized.setSelection(mini);
-				}
-			});
+		private void initComposite_1() {
+			Composite composite = new Composite(this, SWT.NONE);
+			composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			composite.setLayout(SwtUtils.makeGridLayout(4, 0, 0, 0, 0));
+			WindowOperationWindow.this.allowMouseDragRecursively(composite);
+			{
+				Button display = new Button(composite, SWT.CHECK);
+				display.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
+				display.setEnabled(this.window.canVisibleOperation());
+				display.setText("显示");
+				display.setSelection(this.window.getWindowConfig().isVisible());
+				display.addSelectionListener(new ControlSelectionListener(ev -> {
+					if (display.getSelection()) {
+						this.window.displayWindow();
+					} else {
+						this.window.hiddenWindow();
+					}
+				}));
+				this.window.addWindowConfigChangedListener(new WindowConfigChangedAdapter() {
+					@Override
+					public void visibleChanged(boolean visible) {
+						display.setSelection(visible);
+					}
+				});
 
-			Button topmost = new Button(this, SWT.CHECK);
-			topmost.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, false, false));
-			topmost.setText("总在前");
-			topmost.setSelection(window.getWindowConfig().isTopMost());
-			topmost.addSelectionListener(new ControlSelectionListener(ev -> {
-				window.setTopMost(topmost.getSelection());
-			}));
+				Button minimized = new Button(composite, SWT.CHECK);
+				minimized.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
+				minimized.setEnabled(this.window.canVisibleOperation());
+				minimized.setText("最小化");
+				minimized.setSelection(this.window.getWindowConfig().isMinimized());
+				minimized.addSelectionListener(new ControlSelectionListener(ev -> {
+					this.window.getShell().setMinimized(minimized.getSelection());
+				}));
+				this.window.addWindowConfigChangedListener(new WindowConfigChangedAdapter() {
+					@Override
+					public void minimizedChanged(boolean mini) {
+						minimized.setSelection(mini);
+					}
+				});
 
-			Button showTitleBar = new Button(this, SWT.CHECK);
-			showTitleBar.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, false, false));
-			showTitleBar.setText("标题栏");
-			showTitleBar.setSelection(window.getWindowConfig().isShowTitleBar());
-			showTitleBar.addSelectionListener(new ControlSelectionListener(ev -> {
-				window.toggleTitlebar(showTitleBar.getSelection());
-			}));
+				Button topmost = new Button(composite, SWT.CHECK);
+				topmost.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
+				topmost.setText("总在前");
+				topmost.setSelection(this.window.getWindowConfig().isTopMost());
+				topmost.addSelectionListener(new ControlSelectionListener(ev -> {
+					this.window.setTopMost(topmost.getSelection());
+				}));
 
-			Scale opacity = new Scale(this, SWT.HORIZONTAL);
-			opacity.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, true, true, LENGTH - 1, 1));
-			opacity.setEnabled(window.canOpacityOperation());
-			opacity.setMinimum(0);
-			opacity.setMaximum(255);
-			opacity.setIncrement(1);
-			opacity.setSelection(window.getWindowConfig().getOpacity());
-			opacity.addSelectionListener(new ControlSelectionListener(ev -> {
-				window.changeOpacity(opacity.getSelection());
-			}));
+				Button top = new Button(composite, SWT.PUSH);
+				top.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
+				top.setText("置顶");
+				top.setToolTipText("使窗口置顶,非总在前");
+				top.addSelectionListener(new ControlSelectionListener(this.window::setTop));
+			}
+		}
+
+		private void initComposite_2() {
+			Composite composite = new Composite(this, SWT.NONE);
+			composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			composite.setLayout(SwtUtils.makeGridLayout(2, 0, 0, 0, 0));
+			WindowOperationWindow.this.allowMouseDragRecursively(composite);
+			{
+				Button showTitleBar = new Button(composite, SWT.CHECK);
+				showTitleBar.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
+				showTitleBar.setText("标题栏");
+				showTitleBar.setSelection(this.window.getWindowConfig().isShowTitleBar());
+				showTitleBar.addSelectionListener(new ControlSelectionListener(ev -> {
+					this.window.toggleTitlebar(showTitleBar.getSelection());
+				}));
+
+				Scale opacity = new Scale(composite, SWT.HORIZONTAL);
+				opacity.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+				opacity.setEnabled(this.window.canOpacityOperation());
+				opacity.setMinimum(0);
+				opacity.setMaximum(255);
+				opacity.setIncrement(1);
+				opacity.setSelection(this.window.getWindowConfig().getOpacity());
+				opacity.addSelectionListener(new ControlSelectionListener(ev -> {
+					this.window.changeOpacity(opacity.getSelection());
+				}));
+			}
 		}
 	}
 }

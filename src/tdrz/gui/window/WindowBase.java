@@ -16,12 +16,12 @@ import tdrz.utils.SwtUtils;
  */
 public abstract class WindowBase extends AbstractWindow {
 	public WindowBase(ApplicationMain main, MenuItem menuItem, String title) {
-		super(main.getSubShell(), title, main.getLogo(), menuItem);
+		super(main, title, menuItem);
 		this.initShellListener();
 	}
 
 	public WindowBase(ApplicationMain main, String title) {
-		super(main.getSubShell(), title, main.getLogo(), null);
+		super(main, title, null);
 		this.initShellListener();
 	}
 

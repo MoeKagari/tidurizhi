@@ -1,9 +1,10 @@
 package tdrz.gui.window.sub;
 
+import java.util.stream.IntStream;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.MenuItem;
 
@@ -16,28 +17,18 @@ import tdrz.utils.SwtUtils;
  * @author MoeKagari
  */
 public class FleetWindowAll extends WindowBase {
-	private FleetWindow[] fleetWindows;
+	private final FleetWindow[] fleetWindows;
 
 	public FleetWindowAll(ApplicationMain main, MenuItem menuItem, String title) {
 		super(main, menuItem, title);
-		this.initFleetWindows();
-	}
 
-	private void initFleetWindows() {
 		Composite fleetComposite = new Composite(this.getCenterComposite(), SWT.NONE);
-		GridLayout fleetCompositeGridLayout = new GridLayout(2, true);
-		fleetCompositeGridLayout.horizontalSpacing = 2;
-		fleetCompositeGridLayout.verticalSpacing = 2;
-		fleetCompositeGridLayout.marginWidth = 0;
-		fleetCompositeGridLayout.marginHeight = 0;
-		fleetComposite.setLayout(fleetCompositeGridLayout);
+		fleetComposite.setLayout(SwtUtils.makeGridLayout(2, 2, 2, 0, 0));
 		fleetComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		int fleetLength = 4;
-		this.fleetWindows = new FleetWindow[fleetLength];
-		for (int i = 0; i < fleetLength; i++) {
-			this.fleetWindows[i] = new FleetWindow(i + 1, new Composite(fleetComposite, SWT.BORDER));
-		}
+		this.fleetWindows = IntStream.range(0, 4).map(index -> index + 1)//
+				.mapToObj(id -> new FleetWindow(id, new Composite(fleetComposite, SWT.BORDER)))//
+				.toArray(FleetWindow[]::new);
 	}
 
 	public FleetWindow[] getFleetWindows() {

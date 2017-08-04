@@ -27,11 +27,6 @@ public class BattleWindow extends WindowBase {
 	}
 
 	@Override
-	protected boolean defaultTopMost() {
-		return true;
-	}
-
-	@Override
 	public void update(DataType type) {
 		BattleDto last = GlobalContext.getMemorylist().getLastBattle();
 		if (last != null) {

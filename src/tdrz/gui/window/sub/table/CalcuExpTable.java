@@ -23,6 +23,7 @@ import org.eclipse.swt.widgets.Spinner;
 import tdrz.config.AppConfig;
 import tdrz.dto.translator.ShipDtoTranslator;
 import tdrz.dto.word.ShipDto;
+import tdrz.gui.window.listener.ControlSelectionListener;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.update.GlobalContext;
 import tdrz.utils.SwtUtils;
@@ -92,7 +93,7 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 			}
 		}
 
-		this.defaultShip = new DefaultDataComposite(this.getLeftComposite());
+		this.defaultShip = new DefaultDataComposite();
 		this.defaultShip.select();
 
 		this.scrolledComposite = new ScrolledComposite(this.getLeftComposite(), SWT.V_SCROLL);
@@ -138,7 +139,7 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 
 		this.shipComposites.forEach(Composite::dispose);
 		this.shipComposites.clear();
-		FunctionUtils.toListUseIndex(datas, (index, data) -> new ShipDataComposite(this.shipCompositeList, index + 1, data)).forEach(this.shipComposites::add);;
+		FunctionUtils.toListUseIndex(datas, (index, data) -> new ShipDataComposite(index + 1, data)).forEach(this.shipComposites::add);
 
 		//layout
 		this.scrolledComposite.setMinSize(this.shipCompositeList.computeSize(SWT.DEFAULT, SWT.DEFAULT));
@@ -279,8 +280,8 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 	private class DefaultDataComposite extends AbstractDataComposite {
 		private final Spinner spinner;
 
-		public DefaultDataComposite(Composite parent) {
-			super(parent, "默认");
+		public DefaultDataComposite() {
+			super(CalcuExpTable.this.getLeftComposite(), "默认");
 
 			this.spinner = new Spinner(this, SWT.LEFT);
 			this.spinner.setLayoutData(SwtUtils.makeGridData(new GridData(SWT.CENTER, SWT.CENTER, true, true), 40));
@@ -317,8 +318,8 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 		private final Label levelLabel;
 		private final Label nameLabel;
 
-		public ShipDataComposite(Composite parent, int index, ShipDto ship) {
-			super(parent, String.valueOf(index));
+		public ShipDataComposite(int index, ShipDto ship) {
+			super(CalcuExpTable.this.shipCompositeList, String.valueOf(index));
 
 			Composite labelComposite = new Composite(this, SWT.NONE);
 			labelComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));

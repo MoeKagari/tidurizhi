@@ -129,7 +129,7 @@ public class BattleDtoTranslator {
 	}
 
 	private static void newLabels(Composite composite, ArrayList<String> deckInformation) {
-		deckInformation.forEach(text -> SwtUtils.initLabel(new Label(composite, SWT.CENTER), text, new GridData(GridData.FILL_HORIZONTAL)));
+		deckInformation.stream().map(text -> SwtUtils.setText(new Label(composite, SWT.CENTER), text)).forEach(label -> label.setLayoutData(new GridData(GridData.FILL_HORIZONTAL)));
 	}
 
 	private static void newStateComposite(Composite composite, ArrayList<String[]> shipInformations) {
@@ -204,17 +204,17 @@ public class BattleDtoTranslator {
 	private static BTResult newBattleStart(InfoBattleStartDto battleStart) {
 		ArrayList<String> deckInformations = new ArrayList<>();
 
+		int deckId = battleStart.getDeckId();
 		String deckString;
-		if (battleStart.isCombined() && battleStart.getDeckId() == 1) {
+		if (battleStart.isCombined() && deckId == 1) {
 			deckString = "联合舰队";
 		} else {
-			deckString = AppConstants.DEFAULT_FLEET_NAME[battleStart.getDeckId() - 1];
+			deckString = AppConstants.DEFAULT_FLEET_NAME[deckId - 1];
 		}
 		deckInformations.add(deckString + " → " + battleStart.getMapString() + "-" + battleStart.getStart());
 
 		//大破检查
 		DeckDto[] decks;//出击的deck
-		int deckId = battleStart.getDeckId();
 		TrayMessageBox box = new TrayMessageBox();
 		if (battleStart.isCombined() && deckId == 1) {
 			decks = new DeckDto[] { GlobalContext.deckRooms[0].getDeck(), GlobalContext.deckRooms[1].getDeck() };
@@ -240,11 +240,11 @@ public class BattleDtoTranslator {
 	private static BTResult newBattleStartNext(AbstractInfoBattleStartNext battleNext) {
 		ArrayList<String> deckInformations = new ArrayList<>();
 
-		String text = "地图:" + battleNext.getMapString() + ",Cell:" + battleNext.getNext() +
+		String text = "地图:" + battleNext.getMapString() + ",Cell:" + battleNext.getNext() + "(" +
 		//下一点的类型
-				"(" + battleNext.getNextType() +
+				battleNext.getNextType() +
 				//获得资源
-				FunctionUtils.notNull(battleNext.getItems(), items -> items.stream().map(item -> "," + item.toString()).reduce("", StringUtils::join), "") +
+				FunctionUtils.notNull(battleNext.getItems(), items -> items.stream().map(item -> "," + item.toString()).reduce("", String::concat), "") +
 				//终点?
 				(battleNext.isGoal() ? ",终点" : "") + ")";
 		deckInformations.add(text);
@@ -297,8 +297,7 @@ public class BattleDtoTranslator {
 			ArrayList<String> deckInformations = new ArrayList<>();
 			deckInformations.add("出击舰队中有大破舰娘,请注意");
 
-			TrayMessageBox box = new TrayMessageBox();
-			box.add("大破", StringUtils.join(deckInformations, "\n"));
+			TrayMessageBox box = new TrayMessageBox("大破", StringUtils.join(deckInformations, "\n"));
 			TrayMessageBox.show(ApplicationMain.main, box);
 
 			return new BTResult(deckInformations, null, null);
@@ -490,10 +489,9 @@ public class BattleDtoTranslator {
 
 		Composite[] parts = new Composite[len];
 		for (int i = 0; i < len; i++) {
-			Composite part = new Composite(stateComposite, SWT.NONE);
+			Composite part = parts[i] = new Composite(stateComposite, SWT.NONE);
 			part.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
 			addNewLabel(part, headers[i]);
-			parts[i] = part;
 		}
 
 		String[] names = bd.names;
@@ -618,10 +616,9 @@ public class BattleDtoTranslator {
 
 		Composite[] parts = new Composite[len];
 		for (int i = 0; i < len; i++) {
-			Composite part = new Composite(composite, SWT.NONE);
+			Composite part = parts[i] = new Composite(composite, SWT.NONE);
 			part.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
 			addNewLabel(part, headers[i]);
-			parts[i] = part;
 		}
 
 		battleAttacks.forEach(oneAttack -> addOneBattleAttack(parts, battle, oneAttack, fun));
@@ -794,10 +791,9 @@ public class BattleDtoTranslator {
 
 		Composite[] parts = new Composite[len];
 		for (int i = 0; i < len; i++) {
-			Composite part = new Composite(composite, SWT.NONE);
+			Composite part = parts[i] = new Composite(composite, SWT.NONE);
 			part.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
 			addNewLabel(part, headers[i]);
-			parts[i] = part;
 		}
 
 		String[] names = bd.names;

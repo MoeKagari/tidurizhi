@@ -1,13 +1,10 @@
 package tdrz.gui.window.sub;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
@@ -27,34 +24,26 @@ import tdrz.utils.SwtUtils;
 import tool.FunctionUtils;
 
 public class FleetWindow implements ApiDataListener {
-	private static final int MAXCHARA = 6;
-	private static final int MAXEQUIP = 5;
+	private final int id;//1,2,3,4
+	private final Composite composite;
 
 	/** 舰队名 */
 	private Label fleetNameLabel;
-	/** 舰队速度 */
-	private Label sokuLabel;
 	/** 制空 */
 	private Label zhikongLabel;
 	/** 索敌 */
 	private Label suodiLabel;
 	/** 总等级 */
 	private Label totallvLabel;
+	/** 舰队速度 */
+	private Label sokuLabel;
 
-	private Composite fleetComposite;
-	private final ShipComposite[] shipComposites = new ShipComposite[MAXCHARA];
-
-	private final int id;//1,2,3,4
-	private final Composite composite;
+	private final ShipComposite[] shipComposites;
 
 	public FleetWindow(int id, Composite composite) {
 		this.id = id;
-		this.composite = composite;
-		this.init();
-		GlobalContextUpdater.addListener(this);
-	}
 
-	public void init() {
+		this.composite = composite;
 		this.composite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
 		this.composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
@@ -67,33 +56,35 @@ public class FleetWindow implements ApiDataListener {
 		SwtUtils.insertHSeparator(this.composite);
 		this.initInfoComposite2();
 		SwtUtils.insertHSeparator(this.composite);
-		this.initFleetComposite();
+
+		this.shipComposites = IntStream.range(0, 6)//
+				.mapToObj(index -> new ShipComposite(composite))//
+				.toArray(ShipComposite[]::new);
+
+		GlobalContextUpdater.addListener(this);
 	}
 
 	private void initInfoComposite() {
 		Composite infoComposite = new Composite(this.composite, SWT.NONE);
-		GridLayout infoCompositeGridData = SwtUtils.makeGridLayout(10, 0, 0, 0, 0);
-		infoCompositeGridData.marginTop = -3;
-		infoCompositeGridData.marginBottom = -2;
-		infoComposite.setLayout(infoCompositeGridData);
+		infoComposite.setLayout(SwtUtils.makeGridLayout(9, 0, 0, 0, 0, -3, -2));
 		infoComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		{
-			SwtUtils.initLabel(new Label(infoComposite, SWT.NONE), "制空:", new GridData());
+			new Label(infoComposite, SWT.NONE).setText("制空:");
 
 			this.zhikongLabel = new Label(infoComposite, SWT.LEFT);
-			SwtUtils.initLabel(this.zhikongLabel, "0000", new GridData(), 32);
+			this.zhikongLabel.setText("0000");
 
 			SwtUtils.insertBlank(infoComposite, 5);
-			SwtUtils.initLabel(new Label(infoComposite, SWT.NONE), "索敌:", new GridData());
+			new Label(infoComposite, SWT.NONE).setText("索敌:");
 
 			this.suodiLabel = new Label(infoComposite, SWT.LEFT);
-			SwtUtils.initLabel(this.suodiLabel, "000", new GridData(), 24);
+			this.suodiLabel.setText("000");
 
 			SwtUtils.insertBlank(infoComposite, 5);
-			SwtUtils.initLabel(new Label(infoComposite, SWT.NONE), "总等级:", new GridData());
+			new Label(infoComposite, SWT.NONE).setText("总等级:");
 
 			this.totallvLabel = new Label(infoComposite, SWT.LEFT);
-			SwtUtils.initLabel(this.totallvLabel, "000", new GridData(), 24);
+			this.totallvLabel.setText("000");
 
 			SwtUtils.insertBlank(infoComposite);
 		}
@@ -101,26 +92,13 @@ public class FleetWindow implements ApiDataListener {
 
 	private void initInfoComposite2() {
 		Composite infoComposite2 = new Composite(this.composite, SWT.NONE);
-		GridLayout infoComposite2GridLayout = SwtUtils.makeGridLayout(2, 0, 0, 0, 0);
-		infoComposite2GridLayout.marginTop = -3;
-		infoComposite2GridLayout.marginBottom = -2;
-		infoComposite2.setLayout(infoComposite2GridLayout);
+		infoComposite2.setLayout(SwtUtils.makeGridLayout(2, 0, 0, 0, 0, -3, -2));
 		infoComposite2.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		{
 			this.sokuLabel = new Label(infoComposite2, SWT.NONE);
-			SwtUtils.initLabel(this.sokuLabel, "高速", new GridData());
+			this.sokuLabel.setText("高速");
 
 			SwtUtils.insertBlank(infoComposite2);
-		}
-	}
-
-	private void initFleetComposite() {
-		this.fleetComposite = new Composite(this.composite, SWT.NONE);
-		this.fleetComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
-		this.fleetComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-		for (int i = 0; i < this.shipComposites.length; i++) {
-			this.shipComposites[i] = new ShipComposite(this.fleetComposite);
 		}
 	}
 
@@ -131,11 +109,11 @@ public class FleetWindow implements ApiDataListener {
 		DeckDto deck = GlobalContext.deckRooms[this.id - 1].getDeck();
 
 		switch (type) {
-			default:
-				return;
 			case DECK_UPDATEDECKNAME:
-				FunctionUtils.notNull(deck, d -> SwtUtils.setText(this.fleetNameLabel, d.getName()));
-				return;
+				if (deck != null) {
+					SwtUtils.setText(this.fleetNameLabel, deck.getName());
+				}
+				break;
 
 			case PORT:
 			case DECK_CHANGE:
@@ -160,11 +138,14 @@ public class FleetWindow implements ApiDataListener {
 			case CHARGE:
 			case REQUIRE_INFO:
 			case BATTLE_SHIPDECK:
-		}
+				this.composite.setRedraw(false);
+				FunctionUtils.notNull(deck, this::updateDeck);
+				this.composite.setRedraw(true);
+				break;
 
-		this.composite.setRedraw(false);
-		FunctionUtils.notNull(deck, this::updateDeck);
-		this.composite.setRedraw(true);
+			default:
+				break;
+		}
 	}
 
 	private void updateDeck(DeckDto deck) {
@@ -176,119 +157,106 @@ public class FleetWindow implements ApiDataListener {
 		SwtUtils.setText(this.totallvLabel, String.valueOf(DeckDtoTranslator.getTotalLv(deck)));
 		SwtUtils.setText(this.sokuLabel, DeckDtoTranslator.highspeed(deck) ? "高速" : "低速");
 		//ship 状态
-		int[] ships = deck.getShips();
-		for (int i = 0; i < ships.length; i++) {
-			ShipDto ship = GlobalContext.getShip(ships[i]);
-			if (ship == null) {
-				this.shipComposites[i].clear();
-			} else {
-				this.shipComposites[i].updateShipInformation(ship);
-			}
-		}
+		ShipDto[] ships = IntStream.of(deck.getShips()).mapToObj(GlobalContext::getShip).toArray(ShipDto[]::new);
+		FunctionUtils.forEach(this.shipComposites, ships, ShipComposite::update);
 	}
 
 	private class ShipComposite extends Composite {
-		Label iconlabel, namelabel, lvlabel, hplabel, hpmsglabel, condlabel;
-		Label[] equipslabel;
-		Composite upsideBase, downsideBase, equipBase;
+		private final Label iconLabel, nameLabel, lvLabel, hpLabel, hpmsgLabel, condLabel;
+		private final Label[] equipLabels;
 
 		public ShipComposite(Composite fleetComposite) {
 			super(fleetComposite, SWT.NONE);
 			this.setLayout(SwtUtils.makeGridLayout(2, 0, 0, 0, 0));
 			this.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-			this.iconlabel = new Label(this, SWT.CENTER);
-			SwtUtils.initLabel(this.iconlabel, "!", new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 2), 16);
+			this.iconLabel = new Label(this, SWT.CENTER);
+			this.iconLabel.setText("!");
+			this.iconLabel.setLayoutData(SwtUtils.makeGridData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 2), 16));
 
-			this.upsideBase = new Composite(this, SWT.NONE);
-			this.upsideBase.setLayout(SwtUtils.makeGridLayout(5, 0, 0, 0, 0, 1, -1));
-			this.upsideBase.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			Composite upsideBase = new Composite(this, SWT.NONE);
+			upsideBase.setLayout(SwtUtils.makeGridLayout(5, 0, 0, 0, 0, 1, -1));
+			upsideBase.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 			{
-				this.namelabel = new Label(this.upsideBase, SWT.LEFT);
-				SwtUtils.initLabel(this.namelabel, "舰娘名", new GridData(GridData.FILL_HORIZONTAL));
+				this.nameLabel = new Label(upsideBase, SWT.LEFT);
+				this.nameLabel.setText("名");
+				GridData nameLabelGridData = new GridData(GridData.FILL_HORIZONTAL);
+				nameLabelGridData.minimumWidth = 56;
+				this.nameLabel.setLayoutData(nameLabelGridData);
 
-				SwtUtils.insertBlank(this.upsideBase, 5);
+				SwtUtils.insertBlank(upsideBase, 5);
 
-				this.hplabel = new Label(this.upsideBase, SWT.RIGHT);
-				SwtUtils.initLabel(this.hplabel, "000/000", new GridData(), 48);
+				this.hpLabel = new Label(upsideBase, SWT.RIGHT);
+				this.hpLabel.setText("000/000");
 
-				SwtUtils.insertBlank(this.upsideBase, 5);
+				SwtUtils.insertBlank(upsideBase, 5);
 
-				this.hpmsglabel = new Label(this.upsideBase, SWT.RIGHT);
-				SwtUtils.initLabel(this.hpmsglabel, "健在", new GridData(), 24);
+				this.hpmsgLabel = new Label(upsideBase, SWT.RIGHT);
+				this.hpmsgLabel.setText("健在");
 			}
 
-			this.downsideBase = new Composite(this, SWT.NONE);
-			this.downsideBase.setLayout(SwtUtils.makeGridLayout(4, 0, 0, 0, 0, -2, -2));
-			this.downsideBase.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			Composite downsideBase = new Composite(this, SWT.NONE);
+			downsideBase.setLayout(SwtUtils.makeGridLayout(10, 0, 0, 0, 0, -2, -2));
+			downsideBase.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 			{
-				this.lvlabel = new Label(this.downsideBase, SWT.LEFT);
-				SwtUtils.initLabel(this.lvlabel, "Lv.100", new GridData(), 40);
+				this.lvLabel = new Label(downsideBase, SWT.LEFT);
+				this.lvLabel.setText("Lv.100");
 
-				int len = MAXEQUIP;
-				this.equipBase = new Composite(this.downsideBase, SWT.NONE);
-				this.equipBase.setLayout(SwtUtils.makeGridLayout(len, 0, 0, 0, 0));
-				{
-					this.equipslabel = new Label[len];
-					for (int j = 0; j < this.equipslabel.length; j++) {
-						this.equipslabel[j] = new Label(this.equipBase, SWT.CENTER);
-						SwtUtils.initLabel(this.equipslabel[j], "装", new GridData(), 12);
-					}
-				}
+				SwtUtils.insertBlank(downsideBase, 5);
 
-				SwtUtils.insertBlank(this.downsideBase);
+				this.equipLabels = IntStream.range(0, 5).mapToObj(index -> {
+					Label equipLabel = new Label(downsideBase, SWT.CENTER);
+					equipLabel.setText("装");
+					return equipLabel;
+				}).toArray(Label[]::new);
 
-				this.condlabel = new Label(this.downsideBase, SWT.RIGHT);
-				SwtUtils.initLabel(this.condlabel, "100", new GridData(), 24);
+				SwtUtils.insertBlank(downsideBase, 5);
+				SwtUtils.insertBlank(downsideBase);
+
+				this.condLabel = new Label(downsideBase, SWT.RIGHT);
+				this.condLabel.setText("100");
 			}
 		}
 
-		private void updateShipInformation(ShipDto ship) {
-			SwtUtils.setText(this.iconlabel, (ShipDtoTranslator.terribleState(ship) || ShipDtoTranslator.needHokyo(ship)) ? "!" : "");
-			this.iconlabel.setBackground(ShipDtoTranslator.dapo(ship) ? HPMessage.getColor(HPMessage.getString(0.1)) : null);
+		private void update(ShipDto ship) {
+			if (ship == null) {
+				this.clear();
+				return;
+			}
 
-			SwtUtils.setText(this.namelabel, ShipDtoTranslator.getName(ship));
-			SwtUtils.setToolTipText(this.namelabel, ShipDtoTranslator.getDetail(ship));
-			SwtUtils.setText(this.hplabel, ship.getNowHp() + "/" + ship.getMaxHp());
-			SwtUtils.setText(this.hpmsglabel, ShipDtoTranslator.getStateString(ship, true));
-			SwtUtils.setText(this.lvlabel, "Lv." + ship.getLevel());
-			SwtUtils.setText(this.condlabel, String.valueOf(ship.getCond()));
+			SwtUtils.setText(this.iconLabel, (ShipDtoTranslator.terribleState(ship) || ShipDtoTranslator.needHokyo(ship)) ? "!" : "");
+			this.iconLabel.setBackground(ShipDtoTranslator.dapo(ship) ? HPMessage.getColor(HPMessage.getString(0.1)) : null);
+
+			SwtUtils.setText(this.nameLabel, ShipDtoTranslator.getName(ship));
+			SwtUtils.setToolTipText(this.nameLabel, ShipDtoTranslator.getDetail(ship));
+			SwtUtils.setText(this.hpLabel, String.format("%d/%d", ship.getNowHp(), ship.getMaxHp()));
+			SwtUtils.setText(this.hpmsgLabel, ShipDtoTranslator.getStateString(ship, true));
+			SwtUtils.setText(this.lvLabel, String.format("Lv.%d", ship.getLevel()));
+			SwtUtils.setText(this.condLabel, String.valueOf(ship.getCond()));
 
 			//五个装备
-			Character[] equipTexts = new Character[MAXEQUIP];
-			ArrayList<String> equipTooltipTexts = new ArrayList<>();
-			{
-				int[] slots = ArrayUtils.addAll(Arrays.copyOfRange(ship.getSlots(), 0, 4), ship.getSlotex());
-				for (int index = 0; index < MAXEQUIP; index++) {
-					ItemDto item = GlobalContext.getItem(slots[index]);
-					if (item != null) {
-						equipTexts[index] = Character.valueOf(ItemDtoTranslator.getOneWordName(item));
-						equipTooltipTexts.add(ItemDtoTranslator.getNameWithLevel(item));
-					}
-				}
-			}
-			String tooltip = StringUtils.join(equipTooltipTexts, "\n");
-			for (int index = 0; index < MAXEQUIP; index++) {
-				Label label = this.equipslabel[index];
-				Character ch = equipTexts[index];
-				SwtUtils.setText(label, ch != null ? ch.toString() : "");
-				label.setToolTipText(ch != null ? tooltip : "");
-			}
+			ItemDto[] slots = IntStream.concat(IntStream.of(ship.getSlots()).limit(4), IntStream.of(ship.getSlotex())).mapToObj(GlobalContext::getItem).toArray(ItemDto[]::new);
+			Character[] equipTexts = Stream.of(slots).map(slot -> slot == null ? null : Character.valueOf(ItemDtoTranslator.getOneWordName(slot))).toArray(Character[]::new);
+			String tooltip = Stream.of(slots).filter(FunctionUtils::isNotNull).map(ItemDtoTranslator::getNameWithLevel).reduce((a, b) -> String.join("\n", a, b)).orElse("");
+			FunctionUtils.forEach(this.equipLabels, equipTexts, (label, text) -> {
+				SwtUtils.setText(label, text != null ? text.toString() : "");
+				SwtUtils.setToolTipText(label, text != null ? tooltip : "");
+			});
 		}
 
 		private void clear() {
-			SwtUtils.setText(this.iconlabel, "");
-			this.iconlabel.setBackground(null);
+			SwtUtils.setText(this.iconLabel, "");
+			this.iconLabel.setBackground(null);
 
-			SwtUtils.setText(this.namelabel, "");
-			SwtUtils.setToolTipText(this.namelabel, "");
-			SwtUtils.setText(this.hplabel, "");
-			SwtUtils.setText(this.hpmsglabel, "");
-			SwtUtils.setText(this.lvlabel, "");
-			SwtUtils.setText(this.condlabel, "");
+			SwtUtils.setText(this.nameLabel, "");
+			SwtUtils.setToolTipText(this.nameLabel, "");
+			SwtUtils.setText(this.hpLabel, "");
+			SwtUtils.setText(this.hpmsgLabel, "");
+			SwtUtils.setText(this.lvLabel, "");
+			SwtUtils.setText(this.condLabel, "");
 
-			FunctionUtils.forEach(this.equipslabel, FunctionUtils.getConsumer(SwtUtils::setText, ""));
-			FunctionUtils.forEach(this.equipslabel, FunctionUtils.getConsumer(SwtUtils::setToolTipText, ""));
+			FunctionUtils.forEach(this.equipLabels, FunctionUtils.getConsumer(SwtUtils::setText, ""));
+			FunctionUtils.forEach(this.equipLabels, FunctionUtils.getConsumer(SwtUtils::setToolTipText, ""));
 		}
 	}
 }

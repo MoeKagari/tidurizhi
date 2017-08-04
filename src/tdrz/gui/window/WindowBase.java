@@ -5,7 +5,6 @@ import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Shell;
 
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.update.data.DataType;
@@ -15,14 +14,14 @@ import tdrz.utils.SwtUtils;
  * 呼出式窗口的super class
  * @author MoeKagari
  */
-public class WindowBase extends AbstractWindow {
+public abstract class WindowBase extends AbstractWindow {
 	public WindowBase(ApplicationMain main, MenuItem menuItem, String title) {
-		super(new Shell(main.getDisplay(), SWT.TOOL), title, main.getLogo(), menuItem);
+		super(main.getSubShell(), title, main.getLogo(), menuItem);
 		this.initShellListener();
 	}
 
 	public WindowBase(ApplicationMain main, String title) {
-		super(new Shell(main.getDisplay(), SWT.TOOL), title, main.getLogo());
+		super(main.getSubShell(), title, main.getLogo(), null);
 		this.initShellListener();
 	}
 
@@ -39,6 +38,16 @@ public class WindowBase extends AbstractWindow {
 	@Override
 	public void update(DataType type) {}
 
+	/** 是否启用最大化,默认false */
+	protected boolean canMaxSize() {
+		return false;
+	}
+
+	/** 是否可以改变size,默认true */
+	protected boolean canReSize() {
+		return true;
+	}
+
 	@Override
 	protected Point getDefaultSize() {
 		return SwtUtils.DPIAwareSize(new Point(400, 200));
@@ -46,6 +55,6 @@ public class WindowBase extends AbstractWindow {
 
 	@Override
 	protected int getShellStyle() {
-		return SWT.CLOSE | SWT.TITLE | SWT.RESIZE | SWT.MIN;
+		return SWT.CLOSE | SWT.TITLE | (this.canReSize() ? SWT.RESIZE : SWT.NONE) | SWT.MIN | (this.canMaxSize() ? SWT.MAX : SWT.NONE);
 	}
 }

@@ -33,9 +33,10 @@ public class ApiData {
 			this.fields = Arrays.stream(URLDecoder.decode(new String(requestBody.toByteArray()), "utf-8").trim().split("&"))//
 					.map(param -> param.split("="))//
 					.filter(pair -> pair.length == 2)//
-					.filter(pair -> FunctionUtils.isFalse("api_token".equalsIgnoreCase(pair[0]) || "api_verno".equalsIgnoreCase(pair[0])))//
-					.collect(Collectors.toMap(pair -> pair[0], pair -> pair[1], (a, b) -> String.format("%s,%s", a, b)));
+					.filter(pair -> FunctionUtils.isFalse("api_token".equals(pair[0]) || "api_verno".equals(pair[0])))//
+					.collect(Collectors.toMap(pair -> pair[0], pair -> pair[1]));
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new RuntimeException("fields解析出错\r\n" + new String(requestBody.toByteArray()));
 		}
 
@@ -54,6 +55,7 @@ public class ApiData {
 
 			this.json = Json.createReader(stream).readObject();
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new RuntimeException("json解析出错\r\n" + new String(responseBody.toByteArray()));
 		}
 	}

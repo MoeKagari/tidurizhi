@@ -13,6 +13,7 @@ import org.eclipse.swt.widgets.Spinner;
 
 import tdrz.dto.word.PracticeEnemyDto;
 import tdrz.dto.word.PracticeEnemyDto.PracticeEnemyShip;
+import tdrz.gui.window.listener.ControlSelectionListener;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.update.GlobalContext;
 import tdrz.update.data.DataType;

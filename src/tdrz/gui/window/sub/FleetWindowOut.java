@@ -15,7 +15,7 @@ import tdrz.utils.SwtUtils;
  * @author MoeKagari
  */
 public abstract class FleetWindowOut extends WindowBase {
-	private FleetWindow fleetWindow;
+	private final FleetWindow fleetWindow;
 
 	public FleetWindowOut(ApplicationMain main, MenuItem menuItem, int id) {
 		super(main, menuItem, AppConstants.DEFAULT_FLEET_NAME[id - 1]);
@@ -29,7 +29,7 @@ public abstract class FleetWindowOut extends WindowBase {
 	public abstract int getId();
 
 	@Override
-	protected String getWindowConfigKey() {
+	public String getWindowConfigKey() {
 		return FleetWindowOut.class.getName() + this.getId();
 	}
 

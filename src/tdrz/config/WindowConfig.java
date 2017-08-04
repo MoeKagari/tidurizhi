@@ -45,11 +45,27 @@ public class WindowConfig {
 		}
 	}
 
-	private Point location = new Point(0, 0);
-	private Point size = new Point(0, 0);
-	private boolean visible = false;
-	private boolean minimized = false;
-	private boolean topMost = false;
+	private Point location;
+	private Point size;
+	private boolean visible;
+	private boolean minimized;
+	private boolean topMost;
+	private boolean showTitleBar;
+	private int opacity;
+
+	public WindowConfig() {
+		this(new Point(0, 0), new Point(0, 0), false, false, false, true, 255);
+	}
+
+	public WindowConfig(Point size, Point location, boolean visible, boolean minimized, boolean topMost, boolean showTitleBar, int opacity) {
+		this.size = size;
+		this.location = location;
+		this.visible = visible;
+		this.minimized = minimized;
+		this.topMost = topMost;
+		this.showTitleBar = showTitleBar;
+		this.opacity = opacity;
+	}
 
 	public Point getLocation() {
 		return this.location;
@@ -75,7 +91,7 @@ public class WindowConfig {
 		this.visible = visible;
 	}
 
-	public boolean getMinimized() {
+	public boolean isMinimized() {
 		return this.minimized;
 	}
 
@@ -89,5 +105,27 @@ public class WindowConfig {
 
 	public void setTopMost(boolean topMost) {
 		this.topMost = topMost;
+	}
+
+	public boolean isShowTitleBar() {
+		return this.showTitleBar;
+	}
+
+	public void setShowTitleBar(boolean showTitleBar) {
+		this.showTitleBar = showTitleBar;
+	}
+
+	public int getOpacity() {
+		return this.opacity;
+	}
+
+	public void setOpacity(int opacity) {
+		this.opacity = opacity;
+	}
+
+	@Override
+	public String toString() {
+		return "WindowConfig [location=" + this.location + ", size=" + this.size + ", visible=" + this.visible + ", minimized=" + this.minimized + ", topMost=" + this.topMost + ", showTitleBar=" + this.showTitleBar + ", opacity="
+				+ this.opacity + "]";
 	}
 }

@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
 import tdrz.gui.window.WindowBase;
+import tdrz.gui.window.listener.ControlSelectionListener;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.update.GlobalContext;
 import tdrz.update.data.DataType;
@@ -27,11 +28,9 @@ import tool.FunctionUtils;
 
 public abstract class AbstractTable<T> extends WindowBase {
 	private Table table;
-	private MenuItem topMostMenuItem;
-
 	private final List<T> datas = new ArrayList<>();
 	private final List<TableColumnManager> tcms = new ArrayList<>();
-	private final List<TableColumn> sortColumns = new ArrayList<>();//多级排序顺序
+	private final List<SortedTableColumn> sortColumns = new ArrayList<>();//多级排序顺序
 	private final Predicate<T> filter;
 	private final ControlSelectionListener updateTableListener = new ControlSelectionListener(ev -> this.updateWindowRedraw(this::updateTable));
 
@@ -84,15 +83,15 @@ public abstract class AbstractTable<T> extends WindowBase {
 			autoWidth.addSelectionListener(new ControlSelectionListener(ev -> this.updateWindowRedraw(this::autoWidth)));
 		}
 
-		MenuItem otherMenuItem = new MenuItem(this.getMenuBar(), SWT.CASCADE);
-		otherMenuItem.setText("其它");
-		Menu otherMenu = new Menu(otherMenuItem);
-		otherMenuItem.setMenu(otherMenu);
-		{
-			this.topMostMenuItem = new MenuItem(otherMenu, SWT.CHECK);
-			this.topMostMenuItem.setText("总在前");
-			this.topMostMenuItem.addSelectionListener(new ControlSelectionListener(ev -> this.setTopMost(this.topMostMenuItem.getSelection())));
-		}
+//		MenuItem otherMenuItem = new MenuItem(this.getMenuBar(), SWT.CASCADE);
+//		otherMenuItem.setText("其它");
+//		Menu otherMenu = new Menu(otherMenuItem);
+//		otherMenuItem.setMenu(otherMenu);
+//		{
+//			MenuItem topMostMenuItem = new MenuItem(otherMenu, SWT.CHECK);
+//			topMostMenuItem.setText("总在前");
+//			topMostMenuItem.addSelectionListener(new ControlSelectionListener(ev -> this.setTopMost(topMostMenuItem.getSelection())));
+//		}
 	}
 
 	/*------------------------------------------------------------------------------------------------------------------------*/
@@ -118,14 +117,8 @@ public abstract class AbstractTable<T> extends WindowBase {
 		//更新数据
 		this.updateData(this.datas);
 		this.datas.removeIf(this.filter);
-		this.sortColumns.forEach(sortColumn -> {//多级排序
-			for (TableColumnManager tcm : this.tcms) {
-				if (tcm.stc.tableColumn == sortColumn) {
-					this.datas.sort(tcm.stc::compare);
-					break;
-				}
-			}
-		});
+		//多级排序	Comparator<T> originalOrder = (a, b) -> 0;
+		this.datas.sort(this.sortColumns.stream().map(stc -> (Comparator<T>) stc).reduce((a, b) -> 0, Comparator::thenComparing));
 		for (int row = 0; row < this.datas.size(); row++) {
 			T data = this.datas.get(row);
 			DataTableItem tableItem = new DataTableItem(data);
@@ -157,11 +150,6 @@ public abstract class AbstractTable<T> extends WindowBase {
 	}
 
 	@Override
-	public int getShellStyle() {
-		return super.getShellStyle() | (this.canMaxSize() ? SWT.MAX : SWT.NONE);
-	}
-
-	/** 是否启用最大化,默认true */
 	protected boolean canMaxSize() {
 		return true;
 	}
@@ -196,12 +184,6 @@ public abstract class AbstractTable<T> extends WindowBase {
 	public void hiddenWindow() {
 		super.hiddenWindow();
 		FunctionUtils.ifRunnable(this.disposeAndUpdate(), this.table::clearAll);// 隐藏之后清空
-	}
-
-	@Override
-	protected void setTopMost(boolean topMost) {
-		this.topMostMenuItem.setSelection(topMost);
-		super.setTopMost(topMost);
 	}
 
 	/** 添加列 */
@@ -240,9 +222,8 @@ public abstract class AbstractTable<T> extends WindowBase {
 		private final boolean isInteger;
 		private final String name;
 		private final Function<T, Object> value;
-		private Comparator<T> compa = null;
+		private Comparator<T> comparator = null;
 		private boolean sortable = true;
-		private SortedTableColumn stc = null;
 
 		public TableColumnManager(String name, boolean isInteger, Function<T, Object> value) {
 			this.name = name;
@@ -254,16 +235,16 @@ public abstract class AbstractTable<T> extends WindowBase {
 			this(name, false, value);
 		}
 
+		private String getValue(int index, T t) {// null 为 行号列
+			return this.value == null ? Integer.toString(index) : this.value.apply(t).toString();
+		}
+
 		public void setSortable(boolean sortable) {
 			this.sortable = sortable;
 		}
 
-		private String getValue(int index, T t) {
-			return this.value == null ? Integer.toString(index) : this.value.apply(t).toString();
-		}
-
-		public void setComparator(Comparator<T> compa) {
-			this.compa = compa;
+		public void setComparator(Comparator<T> comparator) {
+			this.comparator = comparator;
 		}
 	}
 
@@ -271,7 +252,7 @@ public abstract class AbstractTable<T> extends WindowBase {
 	 * table列的排列功能
 	 * @author MoeKagari
 	 */
-	private class SortedTableColumn extends SelectionAdapter {
+	private class SortedTableColumn extends SelectionAdapter implements Comparator<T> {
 		private boolean direction = true;//是否从小到大排序,否则从大到小排序
 		private final int index;
 		private final TableColumnManager tcm;
@@ -280,7 +261,6 @@ public abstract class AbstractTable<T> extends WindowBase {
 		public SortedTableColumn(int index, TableColumnManager tcm) {
 			this.index = index;
 			this.tcm = tcm;
-			tcm.stc = this;
 
 			this.tableColumn = new TableColumn(AbstractTable.this.table, SWT.LEFT);
 			this.tableColumn.setText(tcm.name);
@@ -292,8 +272,8 @@ public abstract class AbstractTable<T> extends WindowBase {
 
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			AbstractTable.this.sortColumns.remove(this.tableColumn);
-			AbstractTable.this.sortColumns.add(this.tableColumn);
+			AbstractTable.this.sortColumns.remove(this);
+			AbstractTable.this.sortColumns.add(this);
 
 			if (AbstractTable.this.table.getSortColumn() == this.tableColumn) {
 				this.direction = !this.direction;//如果不是改变排序列,则改变排序方向
@@ -321,30 +301,34 @@ public abstract class AbstractTable<T> extends WindowBase {
 			}
 		}
 
+		private int getSign() {
+			return this.direction ? -1 : 1;
+		}
+
 		private int compare(DataTableItem item1, DataTableItem item2) {
-			if (this.tcm.compa != null) {
-				return this.compare(item1.data, item2.data);
+			if (this.tcm.comparator != null) {
+				return this.getSign() * this.tcm.comparator.compare(item1.data, item2.data);
 			} else {
 				return this.compare(item1.getText(this.index), item2.getText(this.index));
 			}
 		}
 
-		private int compare(T data1, T data2) {
-			if (this.tcm.compa != null) {
-				return (this.direction ? -1 : 1) * this.tcm.compa.compare(data1, data2);
+		@Override
+		public int compare(T data1, T data2) {
+			if (this.tcm.comparator != null) {
+				return this.getSign() * this.tcm.comparator.compare(data1, data2);
 			} else {
 				return this.compare(this.tcm.value.apply(data1).toString(), this.tcm.value.apply(data2).toString());
 			}
 		}
 
 		private int compare(String value1, String value2) {
-			int direction = this.direction ? -1 : 1;
 			if (this.tcm.isInteger) {
 				int a = StringUtils.isBlank(value1) ? 0 : Integer.parseInt(value1);
 				int b = StringUtils.isBlank(value2) ? 0 : Integer.parseInt(value2);
-				return direction * Integer.compare(a, b);
+				return this.getSign() * Integer.compare(a, b);
 			} else {
-				return direction * value1.compareTo(value2);
+				return this.getSign() * value1.compareTo(value2);
 			}
 		}
 	}

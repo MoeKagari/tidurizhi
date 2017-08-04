@@ -23,11 +23,6 @@ public class BattleFlowWindow extends WindowBase {
 		this.sbc = new BattleScrolledComposite(this.getCenterComposite(), 5);
 	}
 
-	@Override
-	protected boolean defaultTopMost() {
-		return true;
-	}
-
 	public void updateBattle(BattleDto battleDto, SelectionEvent ev) {
 		if (battleDto instanceof AbstractBattle) {
 			this.sbc.clearWindow();

@@ -3,8 +3,7 @@ package tdrz.logic;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
-
-import tdrz.gui.window.main.ApplicationMain;
+import org.eclipse.swt.widgets.Display;
 
 public class HPMessage {
 	public static final String ESCAPE_STRING = "退避";
@@ -56,11 +55,11 @@ public class HPMessage {
 		}
 	}
 
-	public static void initColor(ApplicationMain main) {
-		RED = new Color(main.getDisplay(), new RGB(255, 85, 17));
-		GRAY = main.getDisplay().getSystemColor(SWT.COLOR_GRAY);
-		BROWN = new Color(main.getDisplay(), new RGB(119, 102, 34));
-		CYAN = main.getDisplay().getSystemColor(SWT.COLOR_CYAN);
-		ESCAPE_COLOR = main.getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
+	public static void initColor() {
+		RED = new Color(Display.getDefault(), new RGB(255, 85, 17));
+		GRAY = Display.getDefault().getSystemColor(SWT.COLOR_GRAY);
+		BROWN = new Color(Display.getDefault(), new RGB(119, 102, 34));
+		CYAN = Display.getDefault().getSystemColor(SWT.COLOR_CYAN);
+		ESCAPE_COLOR = Display.getDefault().getSystemColor(SWT.COLOR_DARK_GRAY);
 	}
 }

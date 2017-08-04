@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Display;
 
 import tdrz.config.AppConfig;
 import tdrz.config.AppConstants;
@@ -14,8 +14,8 @@ import tdrz.dto.word.DeckDto;
 import tdrz.dto.word.DeckDto.DeckMissionDto;
 import tdrz.dto.word.NdockDto;
 import tdrz.dto.word.ShipDto;
-import tdrz.gui.window.AbstractWindow;
 import tdrz.gui.window.main.ApplicationMain;
+import tdrz.gui.window.main.ApplicationMain.NameTimeGroup.NameTimeComposite;
 import tdrz.logic.TimeString;
 import tdrz.update.GlobalContext;
 import tdrz.update.GlobalContext.PLTime;
@@ -36,15 +36,14 @@ public class AsyncExecApplicationMain extends Thread {
 	public void run() {
 		try {
 			long nextUpdateTime = 0;
-			while (this.main.getDisplay().isDisposed() == false) {
+			while (Display.getDefault().isDisposed() == false) {
 				long currentTime = TimeString.getCurrentTime();
-				this.main.getDisplay().asyncExec(() -> {
+				Display.getDefault().asyncExec(() -> {
 					TrayMessageBox box = new TrayMessageBox();
 
 					UpdateNewDayConsole.update(this.main, currentTime);
 					UpdateDeckNdockTask.update(this.main, box, currentTime);
-					FunctionUtils.notNull(GlobalContext.getAkashiTimer(), akashiTimer -> akashiTimer.update(box, currentTime));
-					FunctionUtils.forEach(this.main.getWindows(), AbstractWindow::storeWindowConfig);
+					FunctionUtils.notNull(GlobalContext.getAkashiTimer(), akashiTimer -> akashiTimer.update(this.main, box, currentTime));
 
 					TrayMessageBox.show(this.main, box);
 				});
@@ -86,8 +85,7 @@ public class AsyncExecApplicationMain extends Thread {
 		}
 
 		private static void updateDeck(ApplicationMain main, TrayMessageBox box, long currentTime) {
-			Label[] nameLabels = main.getDeckNameLabel();
-			Label[] timeLabels = main.getDeckTimeLabel();
+			NameTimeComposite[] ntc = main.getDeckGroup().nameTimeComposites;
 
 			for (int i = 0; i < GlobalContext.deckRooms.length; i++) {
 				DeckDto deck = GlobalContext.deckRooms[i].getDeck();
@@ -132,15 +130,14 @@ public class AsyncExecApplicationMain extends Thread {
 					}
 				}
 
-				SwtUtils.setText(nameLabels[i], nameLabelText);
-				SwtUtils.setText(timeLabels[i], timeLabelText);
-				SwtUtils.setToolTipText(timeLabels[i], timeLabelTooltipText);
+				SwtUtils.setText(ntc[i].nameLabel, nameLabelText);
+				SwtUtils.setText(ntc[i].timeLabel, timeLabelText);
+				SwtUtils.setToolTipText(ntc[i].timeLabel, timeLabelTooltipText);
 			}
 		}
 
 		private static void updateNdock(ApplicationMain main, TrayMessageBox box, long currentTime) {
-			Label[] nameLabels = main.getNdockNameLabel();
-			Label[] timeLabels = main.getNdockTimeLabel();
+			NameTimeComposite[] ntc = main.getNdockGroup().nameTimeComposites;
 
 			for (int i = 0; i < GlobalContext.ndockRooms.length; i++) {
 				NdockDto ndock = GlobalContext.ndockRooms[i].getNdock();
@@ -162,9 +159,9 @@ public class AsyncExecApplicationMain extends Thread {
 					}
 				}
 
-				SwtUtils.setText(nameLabels[i], nameLabelText);
-				SwtUtils.setText(timeLabels[i], timeLabelText);
-				SwtUtils.setToolTipText(timeLabels[i], timeLabelTooltipText);
+				SwtUtils.setText(ntc[i].nameLabel, nameLabelText);
+				SwtUtils.setText(ntc[i].timeLabel, timeLabelText);
+				SwtUtils.setToolTipText(ntc[i].timeLabel, timeLabelTooltipText);
 			}
 		}
 	}

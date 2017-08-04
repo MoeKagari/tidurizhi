@@ -27,14 +27,6 @@ public class TDRZServerSevlet extends ProxyServerServlet {
 			"203.104.209.23", "203.104.209.39", "203.104.209.55", "203.104.209.102" //
 	);
 
-	public static void main(String[] args) {
-		try {
-			new TDRZServerSevlet(new ServerConfig(() -> 22222, () -> false, () -> "127.0.0.1", () -> 1080)).start();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 	private int port;
 	private boolean useProxy;
 	private String proxyHost;

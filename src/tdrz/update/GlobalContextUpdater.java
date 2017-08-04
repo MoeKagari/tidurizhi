@@ -10,6 +10,7 @@ import javax.json.JsonObject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.swt.widgets.Display;
 
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.update.data.ApiData;
@@ -34,6 +35,7 @@ public class GlobalContextUpdater {
 		try {
 			data = new ApiData(time, serverName, uri, headers, requestBody, responseBody);
 		} catch (Exception e) {
+			log.warn(uri + "\r\n" + requestBody + "\r\n" + responseBody, e);
 			return;
 		}
 
@@ -56,7 +58,7 @@ public class GlobalContextUpdater {
 		JsonObject json = data.getJsonObject();
 		int api_result = json.getInt("api_result");
 		if (api_result != 1) {
-			//ApplicationMain.main.printMessage(String.format("猫了,猫娘: %d", api_result), true);
+			ApplicationMain.main.printMessage(String.format("猫了,猫娘: %d", api_result), true);
 			log.warn(String.format("%s,猫了,%d,api-%s", JSONFILETIMEFORMAT.format(data.getTime()), api_result, data.getType()));
 			return;
 		}
@@ -68,8 +70,6 @@ public class GlobalContextUpdater {
 			log.warn(String.format("api-%s更新错误", data.getType()), e);
 			return;
 		}
-		LISTENERS.forEach(listener -> {
-			ApplicationMain.main.getDisplay().asyncExec(FunctionUtils.getRunnable(listener::update, data.getType()));
-		});
+		LISTENERS.parallelStream().map(listener -> FunctionUtils.getRunnable(listener::update, data.getType())).forEach(Display.getDefault()::asyncExec);
 	}
 }

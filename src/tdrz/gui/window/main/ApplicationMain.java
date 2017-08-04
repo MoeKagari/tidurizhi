@@ -1,7 +1,12 @@
 package tdrz.gui.window.main;
 
 import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -17,7 +22,6 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -27,6 +31,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TrayItem;
 
 import tdrz.config.AppConfig;
@@ -36,10 +41,12 @@ import tdrz.dto.word.MapinfoDto;
 import tdrz.dto.word.MapinfoDto.OneMap;
 import tdrz.dto.word.MaterialDto;
 import tdrz.gui.window.AbstractWindow;
+import tdrz.gui.window.listener.ControlSelectionListener;
 import tdrz.gui.window.sub.BattleWindow;
 import tdrz.gui.window.sub.FleetWindow;
 import tdrz.gui.window.sub.FleetWindowAll;
 import tdrz.gui.window.sub.FleetWindowOut;
+import tdrz.gui.window.sub.WindowOperationWindow;
 import tdrz.gui.window.sub.table.BattleListTable;
 import tdrz.gui.window.sub.table.CalcuExpTable;
 import tdrz.gui.window.sub.table.CalcuPracticeExpTable;
@@ -115,48 +122,49 @@ public class ApplicationMain extends AbstractWindow {
 	/** 所有道具 */
 	private UserItemListTable userItemListTable;
 
+	private WindowOperationWindow windowOperationWindow;
+
 	private final AbstractWindow[] windows;
 	/*------------------------------------------------------------------------------------------------------*/
 
-	private static final Display display = new Display();
+	private final Shell subShell;
 	private final Composite contentComposite;
 	private TrayItem trayItem;
 
 	private Composite leftComposite;//左面板
-	private Button itemList;
-	private Button shipList;
-	private Group resourceGroup;
-	private Label[] resourceLabels = new Label[8];
-	private Group deckGroup;
-	private Label[] deckNameLabels = new Label[4];
-	private Label[] deckTimeLabels = new Label[4];
-	private Group ndockGroup;
-	private Label[] ndockNameLabels = new Label[4];
-	private Label[] ndockTimeLabels = new Label[4];
-	private Label akashiTimerLabel;
-	private org.eclipse.swt.widgets.List console;
+	private Button itemList, shipList;
+	private ResourceGroup resourceGroup;
+	private NameTimeGroup deckGroup, ndockGroup;
+	private AkashiTimerComposite akashiTimerComposite;
+	private MessageList messageList;
 
-	protected ApplicationMain() {
-		super(display, AppConstants.MAINWINDOWNAME, ApplicationMain.class.getResourceAsStream(AppConstants.LOGO));
+	public ApplicationMain() {
+		super(Display.getDefault(), AppConstants.MAINWINDOWNAME, ApplicationMain.class.getResourceAsStream(AppConstants.LOGO));
 
 		this.getShell().addShellListener(new ShellAdapter() {
 			@Override
 			public void shellClosed(ShellEvent ev) {
 				if (AppConfig.get().isCheckDoit()) {
-					MessageBox box = new MessageBox(ApplicationMain.this.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION | SWT.ON_TOP);
+					Shell parent;
+					//可见,非最小化,总在前 的窗口
+					Predicate<AbstractWindow> filter = window -> window.getShell().isVisible() && FunctionUtils.isFalse(window.getShell().getMinimized()) && window.getWindowConfig().isTopMost();
+					List<AbstractWindow> vmt = Stream.of(ApplicationMain.this.windows).filter(window -> window != ApplicationMain.this).filter(filter).collect(Collectors.toList());
+					//解决 MessageBox 被总在前的窗口遮挡的问题
+					if (filter.test(ApplicationMain.this) || vmt.size() == 0) {
+						parent = ApplicationMain.this.getShell();
+					} else {
+						parent = FunctionUtils.ifFunction(AbstractWindow.ACTIVE_WINDOWS.stream().filter(filter).findFirst(), Optional::isPresent, Optional::get, ApplicationMain.this).getShell();
+					}
+
+					MessageBox box = new MessageBox(parent, SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.ON_TOP);
 					box.setText("退出");
-					box.setMessage("要退出航海日志吗?");
+					box.setMessage("要退出提督日志吗?");
 					ev.doit = box.open() == SWT.YES;
 				}
 			}
-
-			@Override
-			public void shellIconified(ShellEvent ev) {
-				if (AppConfig.get().isMinimizedToTray()) {
-					ApplicationMain.this.displayWindow();;
-				}
-			}
 		});
+
+		this.subShell = new Shell(Display.getDefault(), SWT.TOOL);
 
 		this.contentComposite = new Composite(this.getCenterComposite(), SWT.NONE);
 		this.contentComposite.setLayout(SwtUtils.makeGridLayout(2, 0, 0, 0, 0));
@@ -176,9 +184,11 @@ public class ApplicationMain extends AbstractWindow {
 				this.destroyItemTable, this.destroyShipTable,//
 				this.battleListTable, this.dropListTable,//
 				this.shipListTable1, this.shipListTable2, this.shipListTable3,//
-				this.itemListTable, this.questListTable, this.userItemListTable//
+				this.itemListTable, this.questListTable, this.userItemListTable,//
+				this.windowOperationWindow,//
 		};
 		FunctionUtils.forEach(this.windows, AbstractWindow::restoreWindowConfig);
+		FunctionUtils.forEach(this.windows, this.windowOperationWindow::addWindow);
 	}
 
 	//左面板
@@ -188,79 +198,23 @@ public class ApplicationMain extends AbstractWindow {
 		this.leftComposite.setLayoutData(SwtUtils.makeGridData(GridData.FILL_VERTICAL, 210));//左边面板的宽度在此控制
 		{
 			Composite buttonComposite = new Composite(this.leftComposite, SWT.NONE);
-			buttonComposite.setLayout(new FillLayout());
+			buttonComposite.setLayout(SwtUtils.makeGridLayout(2, 0, 0, 0, 0));
 			buttonComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 			{
 				this.itemList = new Button(buttonComposite, SWT.PUSH);
 				this.itemList.setText("装备(0/0)");
+				this.itemList.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 				this.shipList = new Button(buttonComposite, SWT.PUSH);
 				this.shipList.setText("舰娘(0/0)");
+				this.shipList.setLayoutData(new GridData(GridData.FILL_BOTH));
 			}
 		}
-		{
-			this.resourceGroup = new Group(this.leftComposite, SWT.NONE);
-			this.resourceGroup.setText("资源");
-			this.resourceGroup.setLayout(SwtUtils.makeGridLayout(4, 0, 0, 0, 0));
-			this.resourceGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-			String[] resourceStrings = { "油", "钢", "高速修复材", "开发资材", "弹", "铝", "螺丝", "高速建造材" };
-			for (int i = 0; i < 8; i++) {
-				Label resourceLabel = this.resourceLabels[i] = new Label(this.resourceGroup, SWT.RIGHT);
-				SwtUtils.setToolTipText(resourceLabel, resourceStrings[i]);
-				SwtUtils.initLabel(resourceLabel, "0", new GridData(GridData.FILL_HORIZONTAL));
-			}
-		}
-		{
-			this.deckGroup = new Group(this.leftComposite, SWT.NONE);
-			this.deckGroup.setText("远征");
-			this.deckGroup.setLayout(SwtUtils.makeGridLayout(2, 0, 0, 0, 0));
-			this.deckGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-			for (int i = 0; i < 4; i++) {
-				this.deckNameLabels[i] = new Label(this.deckGroup, SWT.NONE);
-				SwtUtils.initLabel(this.deckNameLabels[i], String.format("%s远征", AppConstants.DEFAULT_FLEET_NAME[i]), new GridData(GridData.FILL_HORIZONTAL));
-
-				this.deckTimeLabels[i] = new Label(this.deckGroup, SWT.RIGHT);
-				SwtUtils.initLabel(this.deckTimeLabels[i], "00时00分00秒", new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1), 78);
-			}
-		}
-		{
-			this.ndockGroup = new Group(this.leftComposite, SWT.NONE);
-			this.ndockGroup.setText("入渠");
-			this.ndockGroup.setLayout(SwtUtils.makeGridLayout(2, 0, 0, 0, 0));
-			this.ndockGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-
-			for (int i = 0; i < 4; i++) {
-				this.ndockNameLabels[i] = new Label(this.ndockGroup, SWT.NONE);
-				SwtUtils.initLabel(this.ndockNameLabels[i], String.format("渠%d", i + 1), new GridData(GridData.FILL_HORIZONTAL));
-
-				this.ndockTimeLabels[i] = new Label(this.ndockGroup, SWT.RIGHT);
-				SwtUtils.initLabel(this.ndockTimeLabels[i], "00时00分00秒", new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1), 78);
-			}
-		}
-		{
-			Composite akashiTimerComposite = new Composite(this.leftComposite, SWT.NONE);
-			akashiTimerComposite.setLayout(SwtUtils.makeGridLayout(2, 0, 0, 0, 0, 0, 0, 3, 3));
-			akashiTimerComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-			{
-				SwtUtils.initLabel(new Label(akashiTimerComposite, SWT.LEFT), "泊地修理", new GridData(), 48);
-				this.akashiTimerLabel = new Label(akashiTimerComposite, SWT.RIGHT);
-				SwtUtils.initLabel(this.akashiTimerLabel, "??秒", new GridData(GridData.FILL_HORIZONTAL));
-			}
-		}
-		{
-			this.console = new org.eclipse.swt.widgets.List(this.leftComposite, SWT.BORDER | SWT.V_SCROLL | SWT.SINGLE);
-			this.console.setLayoutData(new GridData(GridData.FILL_BOTH));
-			this.console.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseDown(MouseEvent e) {
-					if (e.button == 3) {
-						ApplicationMain.this.console.deselectAll();
-					}
-				}
-			});
-		}
+		this.resourceGroup = new ResourceGroup(this.leftComposite);
+		this.deckGroup = new NameTimeGroup(this.leftComposite, "远征");
+		this.ndockGroup = new NameTimeGroup(this.leftComposite, "入渠");
+		this.akashiTimerComposite = new AkashiTimerComposite(this.leftComposite);
+		this.messageList = new MessageList(this.leftComposite);
 	}
 
 	//右面板
@@ -270,15 +224,17 @@ public class ApplicationMain extends AbstractWindow {
 		rightComposite.setLayout(SwtUtils.makeGridLayout(new int[] { 0, 1, 1, 2, 2 }[fleetLength], 2, 2, 1, 1));
 		rightComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		IntStream.range(0, fleetLength).map(index -> index + 1).forEach(id -> new FleetWindow(id, new Composite(rightComposite, SWT.BORDER)));
+		IntStream.range(0, fleetLength).map(index -> index + 1)//
+				.forEach(id -> new FleetWindow(id, new Composite(rightComposite, SWT.BORDER)));
 	}
 
 	//托盘图标
 	private void initTrayItem() {
-		this.trayItem = new TrayItem(display.getSystemTray(), SWT.NONE);
+		this.trayItem = new TrayItem(Display.getDefault().getSystemTray(), SWT.NONE);
 		this.trayItem.setImage(this.getLogo());
-		this.trayItem.addListener(SWT.Selection, ev -> this.displayWindow());
+		this.trayItem.addSelectionListener(new ControlSelectionListener(this::displayWindow));
 		this.trayItem.addMenuDetectListener(new TrayItemMenuListener());
+		this.trayItem.setToolTipText(AppConstants.MAINWINDOWNAME);
 	}
 
 	//菜单栏
@@ -402,7 +358,8 @@ public class ApplicationMain extends AbstractWindow {
 		fleetMenuItem.setText("舰队");
 		Menu fleetMenu = new Menu(fleetMenuItem);
 		fleetMenuItem.setMenu(fleetMenu);
-		{//外置舰队面板
+		{
+			//外置舰队面板
 			MenuItem fleetWindowAllMenuItem = new MenuItem(fleetMenu, SWT.CHECK);
 			fleetWindowAllMenuItem.setText("全舰队");
 			this.fleetWindowAll = new FleetWindowAll(this, fleetWindowAllMenuItem, fleetWindowAllMenuItem.getText());
@@ -413,7 +370,7 @@ public class ApplicationMain extends AbstractWindow {
 				return new FleetWindowOut(this, fleetWindowOutMenuItem, index + 1) {
 					@Override
 					public int getId() {
-						return index;
+						return index + 1;
 					}
 				};
 			}).toArray(FleetWindowOut[]::new);
@@ -424,64 +381,42 @@ public class ApplicationMain extends AbstractWindow {
 		Menu etcMenu = new Menu(etcMenuItem);
 		etcMenuItem.setMenu(etcMenu);
 		{
-			MenuItem topmost = new MenuItem(etcMenu, SWT.CHECK);
-			topmost.setText("总在前");
-			topmost.addSelectionListener(new ControlSelectionListener(ev -> this.setTopMost(topmost.getSelection())));
+//			MenuItem topmost = new MenuItem(etcMenu, SWT.CHECK);
+//			topmost.setText("总在前");
+//			topmost.addSelectionListener(new ControlSelectionListener(ev -> this.setTopMost(topmost.getSelection())));
 
 			MenuItem deckbuilder = new MenuItem(etcMenu, SWT.PUSH);
 			deckbuilder.setText("DeckBuilder");
-			deckbuilder.addSelectionListener(new ControlSelectionListener(ev -> new Clipboard(display).setContents(new Object[] { DeckBuilder.build() }, new Transfer[] { TextTransfer.getInstance() })));
+			deckbuilder.addSelectionListener(new ControlSelectionListener(ev -> new Clipboard(Display.getDefault()).setContents(new Object[] { DeckBuilder.build() }, new Transfer[] { TextTransfer.getInstance() })));
+
+			new MenuItem(etcMenu, SWT.SEPARATOR);
+
+			MenuItem windowOperation = new MenuItem(etcMenu, SWT.CHECK);
+			windowOperation.setText("窗口操作");
+			this.windowOperationWindow = new WindowOperationWindow(this, windowOperation, windowOperation.getText());
 		}
 	}
 
 	/*----------------------------------------------------------------------------------------------------------------*/
 
-	public Display getDisplay() {
-		return display;
+	public Shell getSubShell() {
+		return this.subShell;
 	}
 
 	public TrayItem getTrayItem() {
 		return this.trayItem;
 	}
 
-	public Button getItemList() {
-		return this.itemList;
-	}
-
-	public Button getShipList() {
-		return this.shipList;
-	}
-
-	public Group getDeckGroup() {
+	public NameTimeGroup getDeckGroup() {
 		return this.deckGroup;
 	}
 
-	public Group getNdockGroup() {
+	public NameTimeGroup getNdockGroup() {
 		return this.ndockGroup;
 	}
 
-	public Label[] getResourceLabel() {
-		return this.resourceLabels;
-	}
-
-	public Label[] getDeckNameLabel() {
-		return this.deckNameLabels;
-	}
-
-	public Label[] getDeckTimeLabel() {
-		return this.deckTimeLabels;
-	}
-
-	public Label[] getNdockNameLabel() {
-		return this.ndockNameLabels;
-	}
-
-	public Label[] getNdockTimeLabel() {
-		return this.ndockTimeLabels;
-	}
-
-	public Label getAkashiTimerLabel() {
-		return this.akashiTimerLabel;
+	public AkashiTimerComposite getAkashiTimerComposite() {
+		return this.akashiTimerComposite;
 	}
 
 	public AbstractWindow[] getWindows() {
@@ -520,8 +455,7 @@ public class ApplicationMain extends AbstractWindow {
 			//更新主面板的 资源
 			MaterialDto currentMaterial = GlobalContext.getCurrentMaterial();
 			if (currentMaterial != null) {
-				int[] resources = currentMaterial.getMaterialForWindow();
-				FunctionUtils.forEach(this.resourceLabels, resources, (label, resource) -> SwtUtils.setText(label, String.valueOf(resource)));
+				FunctionUtils.forEach(this.resourceGroup.labels, currentMaterial.getMaterialForWindow(), (label, resource) -> SwtUtils.setText(label, String.valueOf(resource)));
 			}
 
 			//print活动海域HP到console
@@ -543,7 +477,7 @@ public class ApplicationMain extends AbstractWindow {
 			userLogger.info(mes);
 			message = AppConstants.CONSOLE_TIME_FORMAT.format(TimeString.getCurrentTime()) + "  " + message;
 		}
-		display.asyncExec(FunctionUtils.getRunnable(this::printMessage, message));
+		Display.getDefault().asyncExec(FunctionUtils.getRunnable(this::printMessage, message));
 	}
 
 	public void printNewDay(long time) {
@@ -551,12 +485,12 @@ public class ApplicationMain extends AbstractWindow {
 	}
 
 	private void printMessage(String message) {
-		if (this.console.isDisposed()) return;
+		if (this.messageList.isDisposed()) return;
 
-		if (this.console.getItemCount() >= 200) this.console.remove(0);
-		this.console.add(message);
-		this.console.setSelection(this.console.getItemCount() - 1);
-		this.console.deselectAll();
+		if (this.messageList.getItemCount() >= 200) this.messageList.remove(0);
+		this.messageList.add(message);
+		this.messageList.setSelection(this.messageList.getItemCount() - 1);
+		this.messageList.deselectAll();
 	}
 
 	public void start() {
@@ -564,9 +498,9 @@ public class ApplicationMain extends AbstractWindow {
 		this.printMessage(AppConstants.MAINWINDOWNAME + "启动", true);
 		this.resourceGroup.forceFocus();
 		while (FunctionUtils.isFalse(this.getShell().isDisposed())) {
-			FunctionUtils.ifNotConsumer(display, Display::readAndDispatch, Display::sleep);
+			FunctionUtils.ifNotConsumer(Display.getDefault(), Display::readAndDispatch, Display::sleep);
 		}
-		display.dispose();
+		Display.getDefault().dispose();
 	}
 
 	@Override
@@ -579,7 +513,7 @@ public class ApplicationMain extends AbstractWindow {
 		return SWT.CLOSE | SWT.TITLE | SWT.MIN | SWT.RESIZE;
 	}
 
-	public class TrayItemMenuListener implements MenuDetectListener {
+	private class TrayItemMenuListener implements MenuDetectListener {
 		private Menu menu;
 
 		public TrayItemMenuListener() {
@@ -594,5 +528,98 @@ public class ApplicationMain extends AbstractWindow {
 		public void menuDetected(MenuDetectEvent e) {
 			this.menu.setVisible(true);
 		}
+	}
+
+	private class ResourceGroup extends Group {
+		public final Label[] labels;
+
+		public ResourceGroup(Composite parent) {
+			super(parent, SWT.NONE);
+			this.setText("资源");
+			this.setLayout(SwtUtils.makeGridLayout(4, 0, 0, 0, 0));
+			this.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+			String[] resourceStrings = { "油", "钢", "高速修复材", "开发资材", "弹", "铝", "螺丝", "高速建造材" };
+			this.labels = IntStream.range(0, resourceStrings.length).mapToObj(index -> {
+				Label label = new Label(this, SWT.RIGHT);
+				label.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+				label.setText("0");
+				label.setToolTipText(resourceStrings[index]);
+				return label;
+			}).toArray(Label[]::new);
+		}
+
+		@Override
+		protected void checkSubclass() {}
+	}
+
+	public class NameTimeGroup extends Group {
+		public final NameTimeComposite[] nameTimeComposites;
+
+		public NameTimeGroup(Composite parent, String text) {
+			super(parent, SWT.NONE);
+			this.setText(text);
+			this.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
+			this.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+			this.nameTimeComposites = IntStream.range(0, 4)//
+					.mapToObj(index -> new NameTimeComposite(this, String.format("----")))//
+					.toArray(NameTimeComposite[]::new);
+		}
+
+		@Override
+		protected void checkSubclass() {}
+
+		public class NameTimeComposite extends Composite {
+			public final Label nameLabel;
+			public final Label timeLabel;
+
+			public NameTimeComposite(Composite parent, String nameLabelText) {
+				super(parent, SWT.NONE);
+				this.setLayout(SwtUtils.makeGridLayout(2, 4, 0, 0, 0));
+				this.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+				this.nameLabel = new Label(this, SWT.LEFT);
+				this.nameLabel.setText(nameLabelText);
+				this.nameLabel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+				this.timeLabel = new Label(this, SWT.RIGHT);
+				this.timeLabel.setText("--时--分--秒");
+			}
+		}
+	}
+
+	public class AkashiTimerComposite extends Composite {
+		public final Label timeLabel;
+
+		AkashiTimerComposite(Composite parent) {
+			super(parent, SWT.NONE);
+			this.setLayout(SwtUtils.makeGridLayout(2, 0, 0, 0, 0, 0, 0, 3, 3));
+			this.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+			new Label(this, SWT.LEFT).setText("泊地修理");
+
+			this.timeLabel = new Label(this, SWT.RIGHT);
+			this.timeLabel.setText("??秒");
+			this.timeLabel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		}
+	}
+
+	public class MessageList extends org.eclipse.swt.widgets.List {
+		public MessageList(Composite parent) {
+			super(parent, SWT.BORDER | SWT.V_SCROLL | SWT.SINGLE);
+			this.setLayoutData(new GridData(GridData.FILL_BOTH));
+			this.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseDown(MouseEvent e) {
+					if (e.button == 3) {
+						MessageList.this.deselectAll();
+					}
+				}
+			});
+		}
+
+		@Override
+		protected void checkSubclass() {}
 	}
 }

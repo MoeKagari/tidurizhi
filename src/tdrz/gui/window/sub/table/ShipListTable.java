@@ -18,6 +18,7 @@ import tdrz.dto.translator.ShipDtoTranslator;
 import tdrz.dto.word.ItemDto;
 import tdrz.dto.word.MasterDataDto.MasterShipDto;
 import tdrz.dto.word.ShipDto;
+import tdrz.gui.window.listener.ControlSelectionListener;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.logic.TimeString;
@@ -54,7 +55,7 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 	protected abstract ShipListTableMode getMode();
 
 	@Override
-	protected String getWindowConfigKey() {
+	public String getWindowConfigKey() {
 		return ShipListTable.class.getName() + "-" + this.getMode();
 	}
 

@@ -518,17 +518,16 @@ public class GlobalContext {
 
 			return false;
 		}
-
 	}
 
 	public static class FleetAkashiTimer {
 		private final static int RESET_LIMIT = 20 * 60;
 		private long time = -1;
 
-		public void update(TrayMessageBox box, long currentTime) {
+		public void update(ApplicationMain main, TrayMessageBox box, long currentTime) {
 			if (this.time == -1) return;
 			long rest = (currentTime - this.time) / 1000;
-			ApplicationMain.main.getAkashiTimerLabel().setText(TimeString.toDateRestString(rest));
+			main.getAkashiTimerComposite().timeLabel.setText(TimeString.toDateRestString(rest));
 			if (rest == RESET_LIMIT) {
 				if (Arrays.stream(deckRooms).map(DeckRoom::getDeck).anyMatch(DeckDtoTranslator::shouldNotifyAkashiTimer)) {
 					box.add("泊地修理", "泊地修理已20分钟");

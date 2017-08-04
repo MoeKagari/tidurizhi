@@ -8,4 +8,8 @@ public interface WindowCanBeOperated {
 	public boolean canMinimizedOperation();
 
 	public boolean canTopOperation();
+
+	public boolean canTopMostOperation();
+
+	public boolean canTitleBarOperation();
 }

@@ -1,8 +1,6 @@
 package tdrz.gui.window;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.MenuItem;
 
@@ -26,12 +24,9 @@ public abstract class WindowBase extends AbstractWindow {
 	}
 
 	private void initShellListener() {
-		this.getShell().addShellListener(new ShellAdapter() {
-			@Override
-			public void shellClosed(ShellEvent ev) {
-				ev.doit = false;
-				WindowBase.this.hiddenWindow();
-			}
+		this.getShell().addListener(SWT.Close, ev -> {
+			ev.doit = false;
+			this.hiddenWindow();
 		});
 	}
 

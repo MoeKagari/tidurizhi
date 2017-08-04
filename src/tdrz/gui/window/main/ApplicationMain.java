@@ -162,20 +162,23 @@ public class ApplicationMain extends AbstractWindow {
 				this.itemListTable, this.userItemListTable, this.questListTable, null,//
 				this.windowOperationWindow,//
 		};
+
 		//恢复窗口配置
-		Arrays.stream(windows).filter(FunctionUtils::isNotNull).forEach(AbstractWindow::restoreWindowConfig);
+		Arrays.stream(windows).filter(FunctionUtils::isNotNull).filter(window -> window != this.windowOperationWindow).forEach(AbstractWindow::restoreWindowConfig);
 		//添加窗口到 [窗口操作] 窗口
-		FunctionUtils.forEach(windows, this.windowOperationWindow::addWindow);
-		this.windowOperationWindow.getContentComposite().layout();
+		Arrays.stream(windows).forEach(this.windowOperationWindow::addWindow);
+		this.windowOperationWindow.getCenterComposite().layout();
+		this.windowOperationWindow.restoreWindowConfig();
 
 		this.getShell().addShellListener(new ShellAdapter() {
 			@Override
 			public void shellClosed(ShellEvent ev) {
 				if (AppConfig.get().isCheckDoit()) {
 					//可见,非最小化,总在前 的窗口
-					Predicate<AbstractWindow> filter = window -> window.getShell().isVisible() && FunctionUtils.isFalse(window.getShell().getMinimized()) && window.getWindowConfig().isTopMost();
+					Predicate<AbstractWindow> filter = window -> window.getWindowConfig().isVisible() && FunctionUtils.isFalse(window.getWindowConfig().isMinimized()) && window.getWindowConfig().isTopMost();
 					//满足上述条件的非 ApplicationMain 的窗口
 					List<AbstractWindow> vmt = Stream.of(windows).filter(FunctionUtils::isNotNull).filter(window -> window != ApplicationMain.this).filter(filter).collect(Collectors.toList());
+
 					//解决 MessageBox 被总在前的窗口遮挡的问题
 					Shell parent;
 					if (filter.test(ApplicationMain.this) || vmt.size() == 0) {
@@ -196,7 +199,7 @@ public class ApplicationMain extends AbstractWindow {
 	//左面板
 	private void initLeftComposite() {
 		this.leftComposite = new Composite(this.contentComposite, SWT.NONE);
-		this.leftComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 1, 1));
+		this.leftComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
 		this.leftComposite.setLayoutData(SwtUtils.makeGridData(GridData.FILL_VERTICAL, 210));//左边面板的宽度在此控制
 		{
 			Composite buttonComposite = new Composite(this.leftComposite, SWT.NONE);
@@ -401,23 +404,23 @@ public class ApplicationMain extends AbstractWindow {
 
 	/*----------------------------------------------------------------------------------------------------------------*/
 
-	public Display getDisplay() {
+	public final Display getDisplay() {
 		return Display.getDefault();
 	}
 
-	public TrayItem getTrayItem() {
+	public final TrayItem getTrayItem() {
 		return this.trayItem;
 	}
 
-	public NameTimeGroup getDeckGroup() {
+	public final NameTimeGroup getDeckGroup() {
 		return this.deckGroup;
 	}
 
-	public NameTimeGroup getNdockGroup() {
+	public final NameTimeGroup getNdockGroup() {
 		return this.ndockGroup;
 	}
 
-	public AkashiTimerComposite getAkashiTimerComposite() {
+	public final AkashiTimerComposite getAkashiTimerComposite() {
 		return this.akashiTimerComposite;
 	}
 
@@ -469,7 +472,7 @@ public class ApplicationMain extends AbstractWindow {
 		}
 	}
 
-	public void printMessage(String mes, boolean printToLog) {
+	public final void printMessage(String mes, boolean printToLog) {
 		String message = mes;
 		if (printToLog) {
 			userLogger.info(mes);
@@ -478,7 +481,7 @@ public class ApplicationMain extends AbstractWindow {
 		Display.getDefault().asyncExec(FunctionUtils.getRunnable(this::printMessage, message));
 	}
 
-	public void printNewDay(long time) {
+	public final void printNewDay(long time) {
 		this.printMessage(new SimpleDateFormat("yyyy-MM-dd").format(time));
 	}
 
@@ -491,7 +494,7 @@ public class ApplicationMain extends AbstractWindow {
 		this.messageList.deselectAll();
 	}
 
-	public void start() {
+	public final void start() {
 		this.printNewDay(TimeString.getCurrentTime());
 		this.printMessage(AppConstants.MAINWINDOWNAME + "启动", true);
 		this.resourceGroup.forceFocus();
@@ -528,7 +531,7 @@ public class ApplicationMain extends AbstractWindow {
 		}
 	}
 
-	private class ResourceGroup extends Group {
+	public class ResourceGroup extends Group {
 		public final Label[] labels;
 
 		public ResourceGroup(Composite parent) {

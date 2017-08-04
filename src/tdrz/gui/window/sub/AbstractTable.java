@@ -28,10 +28,10 @@ import tool.FunctionUtils;
 
 public abstract class AbstractTable<T> extends WindowBase {
 	private Table table;
-	private final List<T> datas = new ArrayList<>();
-	private final List<TableColumnManager> tcms = new ArrayList<>();
-	private final List<SortedTableColumn> sortColumns = new ArrayList<>();//多级排序顺序
 	private final Predicate<T> filter;
+	private final List<TableColumnManager> tcms = new ArrayList<>();
+	private final List<T> datas = new ArrayList<>();
+	private final List<SortedTableColumn> sortColumns = new ArrayList<>();//多级排序顺序
 	private final ControlSelectionListener updateTableListener = new ControlSelectionListener(ev -> this.updateWindowRedraw(this::updateTable));
 
 	public AbstractTable(ApplicationMain main, MenuItem menuItem, String title) {
@@ -175,13 +175,13 @@ public abstract class AbstractTable<T> extends WindowBase {
 	}
 
 	@Override
-	public void displayWindow() {
+	public final void displayWindow() {
 		FunctionUtils.ifRunnable(this.disposeAndUpdate(), this::updateTable);//显示之前更新
 		super.displayWindow();
 	}
 
 	@Override
-	public void hiddenWindow() {
+	public final void hiddenWindow() {
 		super.hiddenWindow();
 		FunctionUtils.ifRunnable(this.disposeAndUpdate(), this.table::clearAll);// 隐藏之后清空
 	}

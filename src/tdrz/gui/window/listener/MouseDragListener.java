@@ -5,14 +5,14 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.graphics.Point;
 
-import tdrz.gui.window.AbstractWindow;
+import tdrz.gui.window.AbstractWindowImplements;
 
 /** shell跟随鼠标的拖动而移动 */
 public class MouseDragListener extends MouseAdapter implements MouseMoveListener {
-	private final AbstractWindow window;
+	private final AbstractWindowImplements window;
 	private Point oldLocation = null;
 
-	public MouseDragListener(AbstractWindow window) {
+	public MouseDragListener(AbstractWindowImplements window) {
 		this.window = window;
 	}
 

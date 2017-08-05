@@ -13,13 +13,17 @@ import tdrz.utils.SwtUtils;
  * @author MoeKagari
  */
 public abstract class WindowBase extends AbstractWindow {
+	private final ApplicationMain main;
+
 	public WindowBase(ApplicationMain main, MenuItem menuItem, String title) {
 		super(main, title, menuItem);
+		this.main = main;
 		this.initShellListener();
 	}
 
 	public WindowBase(ApplicationMain main, String title) {
 		super(main, title, null);
+		this.main = main;
 		this.initShellListener();
 	}
 
@@ -28,6 +32,10 @@ public abstract class WindowBase extends AbstractWindow {
 			ev.doit = false;
 			this.hiddenWindow();
 		});
+	}
+
+	public ApplicationMain getMain() {
+		return this.main;
 	}
 
 	@Override

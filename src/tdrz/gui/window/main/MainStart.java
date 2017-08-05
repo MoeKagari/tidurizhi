@@ -18,9 +18,9 @@ import tdrz.update.server.TDRZServerSevlet;
 import tool.FunctionUtils;
 
 public class MainStart {
-	private static TDRZServerSevlet server;
-	private static final ApplicationLock applicationLock = new ApplicationLock();
-	private static final Logger LOG = LogManager.getLogger(ApplicationMain.class);
+	public static TDRZServerSevlet server = null;
+	public static final ApplicationLock applicationLock = new ApplicationLock();
+	public static final Logger LOG = LogManager.getLogger(ApplicationMain.class);
 
 	public static void main(String[] args) {
 		//多重启动检查之后启动

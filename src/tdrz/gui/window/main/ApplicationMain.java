@@ -2,10 +2,8 @@ package tdrz.gui.window.main;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -38,12 +36,11 @@ import org.eclipse.swt.widgets.TrayItem;
 import tdrz.config.AppConfig;
 import tdrz.config.AppConstants;
 import tdrz.dto.word.BasicDto;
-import tdrz.dto.word.MapinfoDto;
-import tdrz.dto.word.MapinfoDto.OneMap;
 import tdrz.dto.word.MaterialDto;
 import tdrz.gui.window.AbstractWindow;
 import tdrz.gui.window.listener.ControlSelectionListener;
 import tdrz.gui.window.sub.BattleWindow;
+import tdrz.gui.window.sub.ConfigWindow;
 import tdrz.gui.window.sub.FleetWindow;
 import tdrz.gui.window.sub.FleetWindowAll;
 import tdrz.gui.window.sub.FleetWindowOut;
@@ -125,6 +122,8 @@ public class ApplicationMain extends AbstractWindow {
 
 	/** 窗口操作 */
 	private WindowOperationWindow windowOperationWindow;
+	/** 设置 */
+	private ConfigWindow configWindow;
 
 	/*------------------------------------------------------------------------------------------------------*/
 
@@ -160,15 +159,8 @@ public class ApplicationMain extends AbstractWindow {
 				this.battleListTable, this.dropListTable,//
 				this.shipListTable1, this.shipListTable2, this.shipListTable3, null,//
 				this.itemListTable, this.userItemListTable, this.questListTable, null,//
-				this.windowOperationWindow,//
+				this.configWindow, this.windowOperationWindow,//
 		};
-
-		//恢复窗口配置
-		Arrays.stream(windows).filter(FunctionUtils::isNotNull).filter(window -> window != this.windowOperationWindow).forEach(AbstractWindow::restoreWindowConfig);
-		//添加窗口到 [窗口操作] 窗口
-		Arrays.stream(windows).forEach(this.windowOperationWindow::addWindow);
-		this.windowOperationWindow.getCenterComposite().layout();
-		this.windowOperationWindow.restoreWindowConfig();
 
 		this.getShell().addShellListener(new ShellAdapter() {
 			@Override
@@ -176,12 +168,12 @@ public class ApplicationMain extends AbstractWindow {
 				if (AppConfig.get().isCheckDoit()) {
 					//可见,非最小化,总在前 的窗口
 					Predicate<AbstractWindow> filter = window -> window.getWindowConfig().isVisible() && FunctionUtils.isFalse(window.getWindowConfig().isMinimized()) && window.getWindowConfig().isTopMost();
-					//满足上述条件的非 ApplicationMain 的窗口
-					List<AbstractWindow> vmt = Stream.of(windows).filter(FunctionUtils::isNotNull).filter(window -> window != ApplicationMain.this).filter(filter).collect(Collectors.toList());
+					//满足上述条件的非 ApplicationMain 的窗口 的个数
+					long number = Stream.of(windows).filter(FunctionUtils::isNotNull).filter(window -> window != ApplicationMain.this).filter(filter).count();
 
 					//解决 MessageBox 被总在前的窗口遮挡的问题
 					Shell parent;
-					if (filter.test(ApplicationMain.this) || vmt.size() == 0) {
+					if (filter.test(ApplicationMain.this) || number == 0) {
 						parent = ApplicationMain.this.getShell();
 					} else {
 						parent = FunctionUtils.ifFunction(AbstractWindow.ACTIVE_WINDOWS.stream().filter(filter).findFirst(), Optional::isPresent, Optional::get, ApplicationMain.this).getShell();
@@ -194,6 +186,16 @@ public class ApplicationMain extends AbstractWindow {
 				}
 			}
 		});
+
+		//恢复窗口配置
+		Arrays.stream(windows).filter(FunctionUtils::isNotNull).filter(window -> window != this.windowOperationWindow).forEach(window -> {
+			window.restoreWindowConfig();
+			SwtUtils.layoutCompositeRecursively(window.getMainComposite());
+		});
+		//添加窗口到 [窗口操作] 窗口
+		Arrays.stream(windows).forEach(this.windowOperationWindow::addWindow);
+		this.windowOperationWindow.getCenterComposite().layout();
+		this.windowOperationWindow.restoreWindowConfig();
 	}
 
 	//左面板
@@ -396,6 +398,10 @@ public class ApplicationMain extends AbstractWindow {
 
 			new MenuItem(etcMenu, SWT.SEPARATOR);
 
+			MenuItem config = new MenuItem(etcMenu, SWT.CHECK);
+			config.setText("设置");
+			this.configWindow = new ConfigWindow(this, config, config.getText());
+
 			MenuItem windowOperation = new MenuItem(etcMenu, SWT.CHECK);
 			windowOperation.setText("窗口操作");
 			this.windowOperationWindow = new WindowOperationWindow(this, windowOperation, windowOperation.getText());
@@ -429,15 +435,15 @@ public class ApplicationMain extends AbstractWindow {
 	@Override
 	public void update(DataType type) {
 		if (FunctionUtils.isFalse(this.getShell().isDisposed())) {
-			//更新主面板的 所有舰娘 按钮
-			//更新主面板的 所有装备 按钮
 			BasicDto basic = GlobalContext.getBasicInformation();
 			if (basic != null) {
+				//更新主面板的 [舰娘] 按钮
 				String text = String.format("舰娘(%d/%d)", GlobalContext.getShipMap().size(), basic.getMaxChara());
 				if (FunctionUtils.isFalse(StringUtils::equals, this.shipList.getText(), text)) {
 					this.shipList.setText(text);
 				}
 
+				//更新主面板的 [装备] 按钮
 				text = String.format("装备(%d/%d)", GlobalContext.getItemMap().size(), basic.getMaxSlotItem());
 				if (FunctionUtils.isFalse(StringUtils::equals, this.itemList.getText(), text)) {
 					this.itemList.setText(text);
@@ -457,17 +463,6 @@ public class ApplicationMain extends AbstractWindow {
 			MaterialDto currentMaterial = GlobalContext.getCurrentMaterial();
 			if (currentMaterial != null) {
 				FunctionUtils.forEach(this.resourceGroup.labels, currentMaterial.getMaterialForWindow(), (label, resource) -> SwtUtils.setText(label, String.valueOf(resource)));
-			}
-
-			//print活动海域HP到console
-			if (type == DataType.MAPINFO) {
-				MapinfoDto mapinfo = GlobalContext.getMapinfo();
-				if (mapinfo != null) {
-					mapinfo.getMaps().stream().filter(OneMap::isEventMap).filter(map -> map.getHP()[0] != 0).forEach(map -> {
-						String message = String.format("%d-%d-%s: [%d,%d]", map.getArea(), map.getNo(), map.getEventMap().getRank(), map.getHP()[0], map.getHP()[1]);
-						this.printMessage(message, false);
-					});
-				}
 			}
 		}
 	}
@@ -585,7 +580,7 @@ public class ApplicationMain extends AbstractWindow {
 				this.nameLabel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
 				this.timeLabel = new Label(this, SWT.RIGHT);
-				this.timeLabel.setText("--时--分--秒");
+				this.timeLabel.setText("00时00分00秒");
 			}
 		}
 	}

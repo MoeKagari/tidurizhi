@@ -14,6 +14,7 @@ import tdrz.utils.SwtUtils;
 
 /** 和 {@link AbstractShellBase} 一样,只是为了分层而分离的super class ,编写窗口类应使用 {@link AbstractWindow} 或其子类 */
 public abstract class AbstractCompositeBase extends AbstractShellBase {
+	private Composite mainComposite;
 	private Composite leftComposite;
 	private Composite topComposite;
 	private Composite centerComposite;
@@ -31,17 +32,17 @@ public abstract class AbstractCompositeBase extends AbstractShellBase {
 	}
 
 	private void initComposite() {
-		Composite mainComposite = new Composite(this.getShell(), SWT.NONE);
-		mainComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-		mainComposite.setLayout(SwtUtils.makeGridLayout((this.haveLeftComposite() ? 1 : 0) + 1 + (this.haveRightComposite() ? 1 : 0), 0, 0, 0, 0));
+		this.mainComposite = new Composite(this.getShell(), SWT.NONE);
+		this.mainComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		this.mainComposite.setLayout(SwtUtils.makeGridLayout((this.haveLeftComposite() ? 1 : 0) + 1 + (this.haveRightComposite() ? 1 : 0), 0, 0, 0, 0));
 		{
 			if (this.haveLeftComposite()) {
-				this.leftComposite = new Composite(mainComposite, SWT.NONE);
+				this.leftComposite = new Composite(this.mainComposite, SWT.NONE);
 				this.leftComposite.setLayoutData(new GridData(GridData.FILL_VERTICAL));
 				this.leftComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
 			}
 
-			Composite subComposite = new Composite(mainComposite, SWT.NONE);
+			Composite subComposite = new Composite(this.mainComposite, SWT.NONE);
 			subComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 			subComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
 			{
@@ -63,7 +64,7 @@ public abstract class AbstractCompositeBase extends AbstractShellBase {
 			}
 
 			if (this.haveRightComposite()) {
-				this.rightComposite = new Composite(mainComposite, SWT.NONE);
+				this.rightComposite = new Composite(this.mainComposite, SWT.NONE);
 				this.rightComposite.setLayoutData(new GridData(GridData.FILL_VERTICAL));
 				this.rightComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
 			}
@@ -88,6 +89,10 @@ public abstract class AbstractCompositeBase extends AbstractShellBase {
 
 	public final Composite getCenterComposite() {
 		return this.centerComposite;
+	}
+
+	public Composite getMainComposite() {
+		return this.mainComposite;
 	}
 
 	/*------------------------------------------------------------------------------------------------------------*/

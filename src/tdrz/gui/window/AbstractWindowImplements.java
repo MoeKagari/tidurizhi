@@ -28,32 +28,37 @@ public abstract class AbstractWindowImplements extends AbstractCompositeBase imp
 	}
 
 	@Override
-	public boolean canOpacityOperation() {
+	public boolean canBeOperated() {
 		return true;
 	}
 
 	@Override
-	public boolean canVisibleOperation() {
+	public boolean canOpacityBeOperated() {
 		return true;
 	}
 
 	@Override
-	public boolean canMinimizedOperation() {
+	public boolean canVisibleBeOperated() {
 		return true;
 	}
 
 	@Override
-	public boolean canTopOperation() {
+	public boolean canMinimizedBeOperated() {
 		return true;
 	}
 
 	@Override
-	public boolean canTitleBarOperation() {
+	public boolean canTopBeOperated() {
 		return true;
 	}
 
 	@Override
-	public boolean canTopMostOperation() {
+	public boolean canTitleBarBeOperated() {
+		return true;
+	}
+
+	@Override
+	public boolean canTopMostBeOperated() {
 		return true;
 	}
 

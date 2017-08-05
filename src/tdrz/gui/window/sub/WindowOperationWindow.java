@@ -32,10 +32,10 @@ public class WindowOperationWindow extends WindowBase {
 	}
 
 	public void addWindow(AbstractWindow window) {
-		if (window == null) {
-			this.aocs.add(new EmptyOperationComposite());
-		} else {
+		if (window != null && window.canBeOperated()) {
 			this.aocs.add(new WindowOperationComposite(window));
+		} else {
+			this.aocs.add(new EmptyOperationComposite());
 		}
 	}
 
@@ -44,22 +44,22 @@ public class WindowOperationWindow extends WindowBase {
 	}
 
 	@Override
-	public boolean canOpacityOperation() {
+	public boolean canOpacityBeOperated() {
 		return false;
 	}
 
 	@Override
-	public boolean canVisibleOperation() {
+	public boolean canVisibleBeOperated() {
 		return false;
 	}
 
 	@Override
-	public boolean canMinimizedOperation() {
+	public boolean canMinimizedBeOperated() {
 		return false;
 	}
 
 	@Override
-	public boolean canTopOperation() {
+	public boolean canTopBeOperated() {
 		return false;
 	}
 
@@ -104,7 +104,7 @@ public class WindowOperationWindow extends WindowBase {
 			{
 				Button display = new Button(composite, SWT.CHECK);
 				display.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
-				display.setEnabled(this.window.canVisibleOperation());
+				display.setEnabled(this.window.canVisibleBeOperated());
 				display.setText("显示");
 				display.setSelection(this.window.getWindowConfig().isVisible());
 				display.addSelectionListener(new ControlSelectionListener(ev -> {
@@ -123,7 +123,7 @@ public class WindowOperationWindow extends WindowBase {
 
 				Button minimized = new Button(composite, SWT.CHECK);
 				minimized.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
-				minimized.setEnabled(this.window.canVisibleOperation());
+				minimized.setEnabled(this.window.canVisibleBeOperated());
 				minimized.setText("最小化");
 				minimized.setSelection(this.window.getWindowConfig().isMinimized());
 				minimized.addSelectionListener(new ControlSelectionListener(ev -> {
@@ -146,7 +146,7 @@ public class WindowOperationWindow extends WindowBase {
 
 				Button top = new Button(composite, SWT.PUSH);
 				top.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
-				top.setEnabled(this.window.canTopOperation());
+				top.setEnabled(this.window.canTopBeOperated());
 				top.setText("置顶");
 				top.setToolTipText("使窗口置顶,非总在前");
 				top.addSelectionListener(new ControlSelectionListener(this.window::setTop));
@@ -169,7 +169,7 @@ public class WindowOperationWindow extends WindowBase {
 
 				Scale opacity = new Scale(composite, SWT.HORIZONTAL);
 				opacity.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-				opacity.setEnabled(this.window.canOpacityOperation());
+				opacity.setEnabled(this.window.canOpacityBeOperated());
 				opacity.setMinimum(0);
 				opacity.setMaximum(255);
 				opacity.setIncrement(1);

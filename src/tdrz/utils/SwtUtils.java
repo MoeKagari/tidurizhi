@@ -29,6 +29,15 @@ public final class SwtUtils {
 		return new Point(DPIAwareWidth(size.x), DPIAwareHeight(size.y));
 	}
 
+	public static void layoutRecursively(Composite composite) {
+		FunctionUtils.forEach(composite.getChildren(), child -> {
+			if (child instanceof Composite) {
+				layoutRecursively((Composite) child);
+			}
+		});
+		composite.layout();
+	}
+
 	public static void setMenuRecursively(Composite composite, Menu menu) {
 		composite.setMenu(menu);
 		FunctionUtils.forEach(composite.getChildren(), child -> {

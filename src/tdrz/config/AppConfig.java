@@ -41,31 +41,27 @@ public class AppConfig {
 		}
 	}
 
+	private boolean saveJson = false;
+
 	private int listenPort = 22222;
-	private boolean allowOnlyFromLocalhost = false;
-	private boolean closeOutsidePort = true;
 	private boolean useProxy = false;
 	private String proxyHost = "127.0.0.1";
 	private int proxyPort = 8099;
 
 	private boolean noticeDeckmission = true;
+	private boolean noticeDeckmissionAgain = true;
 	private boolean noticeNdock = true;
-	private boolean noticeAkashi = true;
+	private boolean noticeAkashiTimer = true;
 	private boolean noticeCond = true;
-	private int noticeCondWhen = 40;
-	private boolean noticeCondOnlyMainFleet = false;
+	private boolean noticeCondOnlyMainFleet = true;
 
-	private boolean showEventMapHPInConsole = true;
 	private boolean showNameOnTitle = true;
 	private boolean checkDoit = true;
-	private boolean minimizedToTray = false;
+	private boolean autoUpdateBattleFlow = true;
 	private boolean notCalcuExpForLevel1Ship = true;
 	private boolean notCalcuExpForLevel99Ship = true;
 	private boolean notCalcuExpForLevel155Ship = false;
-	private boolean noticeDeckmissionAgain = true;
-	private boolean autoUpdateBattleFlow = true;
-
-	private boolean useCache = true;
+	private String calcuExpArea = "1-5,2-3,3-2,4-3,5-1,5-4";
 
 	public boolean isNoticeDeckmission() {
 		return this.noticeDeckmission;
@@ -83,12 +79,12 @@ public class AppConfig {
 		this.noticeNdock = noticeNdock;
 	}
 
-	public boolean isNoticeAkashi() {
-		return this.noticeAkashi;
+	public boolean isNoticeAkashiTimer() {
+		return this.noticeAkashiTimer;
 	}
 
-	public void setNoticeAkashi(boolean noticeAkashi) {
-		this.noticeAkashi = noticeAkashi;
+	public void setNoticeAkashiTimer(boolean noticeAkashiTimer) {
+		this.noticeAkashiTimer = noticeAkashiTimer;
 	}
 
 	public boolean isNoticeCond() {
@@ -105,22 +101,6 @@ public class AppConfig {
 
 	public void setNoticeCondOnlyMainFleet(boolean noticeCondOnlyMainFleet) {
 		this.noticeCondOnlyMainFleet = noticeCondOnlyMainFleet;
-	}
-
-	public boolean isAllowOnlyFromLocalhost() {
-		return this.allowOnlyFromLocalhost;
-	}
-
-	public void setAllowOnlyFromLocalhost(boolean allowOnlyFromLocalhost) {
-		this.allowOnlyFromLocalhost = allowOnlyFromLocalhost;
-	}
-
-	public boolean isCloseOutsidePort() {
-		return this.closeOutsidePort;
-	}
-
-	public void setCloseOutsidePort(boolean closeOutsidePort) {
-		this.closeOutsidePort = closeOutsidePort;
 	}
 
 	public int getListenPort() {
@@ -203,22 +183,6 @@ public class AppConfig {
 		this.noticeDeckmissionAgain = noticeDeckmissionAgain;
 	}
 
-	public boolean isShowEventMapHPInConsole() {
-		return this.showEventMapHPInConsole;
-	}
-
-	public void setShowEventMapHPInConsole(boolean showEventMapHPInConsole) {
-		this.showEventMapHPInConsole = showEventMapHPInConsole;
-	}
-
-	public boolean isMinimizedToTray() {
-		return this.minimizedToTray;
-	}
-
-	public void setMinimizedToTray(boolean minimizedToTray) {
-		this.minimizedToTray = minimizedToTray;
-	}
-
 	public boolean isAutoUpdateBattleFlow() {
 		return this.autoUpdateBattleFlow;
 	}
@@ -227,19 +191,19 @@ public class AppConfig {
 		this.autoUpdateBattleFlow = autoUpdateBattleFlow;
 	}
 
-	public int getNoticeCondWhen() {
-		return this.noticeCondWhen;
+	public boolean isSaveJson() {
+		return this.saveJson;
 	}
 
-	public void setNoticeCondWhen(int noticeCondWhen) {
-		this.noticeCondWhen = noticeCondWhen;
+	public void setSaveJson(boolean saveJson) {
+		this.saveJson = saveJson;
 	}
 
-	public boolean isUseCache() {
-		return this.useCache;
+	public String getCalcuExpArea() {
+		return this.calcuExpArea;
 	}
 
-	public void setUseCache(boolean useCache) {
-		this.useCache = useCache;
+	public void setCalcuExpArea(String calcuExpArea) {
+		this.calcuExpArea = calcuExpArea;
 	}
 }

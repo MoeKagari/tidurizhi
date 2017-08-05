@@ -111,6 +111,7 @@ public abstract class AbstractTable<T> extends WindowBase {
 	}
 
 	private void updateTable() {
+		System.out.println("update");
 		int top = this.table.getTopIndex();
 		FunctionUtils.forEach(this.table.getItems(), TableItem::dispose);
 

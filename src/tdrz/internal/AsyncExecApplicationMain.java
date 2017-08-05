@@ -111,8 +111,9 @@ public class AsyncExecApplicationMain extends Thread {
 					PLTime PLTIME = GlobalContext.getPLTIME();
 					if (PLTIME != null) {
 						int min = IntStream.of(deck.getShips()).mapToObj(GlobalContext::getShip).filter(FunctionUtils::isNotNull).mapToInt(ShipDto::getCond).min().orElse(Integer.MAX_VALUE);
-						if (min < AppConfig.get().getNoticeCondWhen()) {
-							int count = (AppConfig.get().getNoticeCondWhen() - min - 1) / 3 + 1;
+						int noticeCondWhen = 40;
+						if (min < noticeCondWhen) {
+							int count = (noticeCondWhen - min - 1) / 3 + 1;
 							long end = PLTIME.getTime() + 3 * 60 * 1000 * ((deck.getTime() - PLTIME.getTime() - 1) / (3 * 60 * 1000) + count);
 							long rest = (end - currentTime) / 1000;
 							if (rest == 0 && AppConfig.get().isNoticeCond()) {

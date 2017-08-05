@@ -201,7 +201,7 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 			}
 		}));
 		FunctionUtils.toMapForEach(//
-				Arrays.stream(new String[] { "1-5", "2-3", "3-2", "4-3", "5-1", "5-4" }).filter(SeaExp.SEAEXPMAP::containsKey),//
+				Arrays.stream(AppConfig.get().getCalcuExpArea().split(",")).filter(SeaExp.SEAEXPMAP::containsKey),//
 				FunctionUtils::returnSelf, SeaExp.SEAEXPMAP::get, //
 				(sea, exp) -> tcms.add(new TableColumnManager(sea, rd -> {
 					int baseExp = this.calcuBaseExp(exp);

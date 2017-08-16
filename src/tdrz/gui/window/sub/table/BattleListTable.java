@@ -2,21 +2,19 @@ package tdrz.gui.window.sub.table;
 
 import java.util.List;
 
-import org.eclipse.swt.widgets.MenuItem;
-
-import tdrz.config.AppConstants;
-import tdrz.dto.memory.battle.info.InfoBattleStartDto;
+import tdrz.core.config.AppConstants;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
-import tdrz.update.GlobalContext;
+import tdrz.update.context.GlobalContext;
+import tdrz.update.dto.memory.battle.info.InfoBattleStartDto;
 
 /**
  * 战斗记录
  * @author MoeKagari
  */
 public class BattleListTable extends AbstractTable<BattleListTable.SortBattle> {
-	public BattleListTable(ApplicationMain main, MenuItem menuItem, String title) {
-		super(main, menuItem, title);
+	public BattleListTable(ApplicationMain main, String title) {
+		super(main, title);
 	}
 
 	@Override

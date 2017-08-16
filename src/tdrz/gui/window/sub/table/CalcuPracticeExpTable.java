@@ -8,16 +8,15 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Spinner;
 
-import tdrz.dto.word.PracticeEnemyDto;
-import tdrz.dto.word.PracticeEnemyDto.PracticeEnemyShip;
+import tdrz.core.util.SwtUtils;
 import tdrz.gui.window.listener.ControlSelectionListener;
 import tdrz.gui.window.main.ApplicationMain;
-import tdrz.update.GlobalContext;
-import tdrz.update.data.DataType;
-import tdrz.utils.SwtUtils;
+import tdrz.update.context.GlobalContext;
+import tdrz.update.context.data.DataType;
+import tdrz.update.dto.word.PracticeEnemyDto;
+import tdrz.update.dto.word.PracticeEnemyDto.PracticeEnemyShip;
 import tool.FunctionUtils;
 
 public class CalcuPracticeExpTable extends CalcuTable<CalcuPracticeExpTable.CalcuPracticeExpData> {
@@ -25,10 +24,10 @@ public class CalcuPracticeExpTable extends CalcuTable<CalcuPracticeExpTable.Calc
 	private final PracticeShipComposite[] shipComposites;
 	private boolean notUpdateShipComposite = false;
 
-	public CalcuPracticeExpTable(ApplicationMain main, MenuItem menuItem, String title) {
-		super(main, menuItem, title);
+	public CalcuPracticeExpTable(ApplicationMain main, String title) {
+		super(main, title);
 
-		Composite contentComposite = new Composite(this.getLeftComposite(), SWT.NONE);
+		Composite contentComposite = new Composite(this.leftComposite, SWT.NONE);
 		contentComposite.setLayoutData(SwtUtils.makeGridData(new GridData(SWT.FILL, SWT.CENTER, true, true), 175));
 		contentComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
 		{

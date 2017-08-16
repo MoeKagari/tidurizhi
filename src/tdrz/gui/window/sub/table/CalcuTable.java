@@ -3,15 +3,13 @@ package tdrz.gui.window.sub.table;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.swt.widgets.MenuItem;
-
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
 import tool.FunctionUtils;
 
 public abstract class CalcuTable<T> extends AbstractTable<T> {
-	public CalcuTable(ApplicationMain main, MenuItem menuItem, String title) {
-		super(main, menuItem, title);
+	public CalcuTable(ApplicationMain main, String title) {
+		super(main, title);
 	}
 
 	@Override
@@ -25,7 +23,7 @@ public abstract class CalcuTable<T> extends AbstractTable<T> {
 	}
 
 	@Override
-	protected boolean haveNo() {
+	protected boolean haveRowHeader() {
 		return false;
 	}
 

@@ -5,21 +5,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.eclipse.swt.widgets.MenuItem;
-
-import tdrz.config.AppConstants;
-import tdrz.dto.AbstractMemory;
-import tdrz.dto.memory.battle.AbstractBattle;
-import tdrz.dto.memory.battle.AbstractInfoBattleResult;
-import tdrz.dto.memory.battle.AbstractInfoBattleResult.BattleResult_GetShip;
-import tdrz.dto.memory.battle.AbstractInfoBattleStartNext;
-import tdrz.dto.memory.battle.BattleDto;
-import tdrz.dto.memory.battle.info.InfoBattleResultDto;
-import tdrz.dto.memory.battle.info.InfoBattleStartAirBaseDto;
-import tdrz.dto.translator.BattleDtoTranslator;
+import tdrz.core.config.AppConstants;
+import tdrz.core.translator.BattleDtoTranslator;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
-import tdrz.update.GlobalContext;
+import tdrz.update.context.GlobalContext;
+import tdrz.update.dto.AbstractMemory;
+import tdrz.update.dto.memory.battle.AbstractBattle;
+import tdrz.update.dto.memory.battle.AbstractInfoBattleResult;
+import tdrz.update.dto.memory.battle.AbstractInfoBattleResult.BattleResult_GetShip;
+import tdrz.update.dto.memory.battle.AbstractInfoBattleStartNext;
+import tdrz.update.dto.memory.battle.BattleDto;
+import tdrz.update.dto.memory.battle.info.InfoBattleResultDto;
+import tdrz.update.dto.memory.battle.info.InfoBattleStartAirBaseDto;
 import tool.FunctionUtils;
 
 /**
@@ -27,8 +25,8 @@ import tool.FunctionUtils;
  * @author MoeKagari
  */
 public class DropListTable extends AbstractTable<DropListTable.SortDrop> {
-	public DropListTable(ApplicationMain main, MenuItem menuItem, String title) {
-		super(main, menuItem, title);
+	public DropListTable(ApplicationMain main, String title) {
+		super(main, title);
 	}
 
 	@Override
@@ -75,7 +73,7 @@ public class DropListTable extends AbstractTable<DropListTable.SortDrop> {
 		Supplier<BattleDto> next = () -> {
 			while (it.hasNext()) {
 				AbstractMemory memory = it.next();
-				if (memory.isBattle()) {
+				if (memory instanceof BattleDto) {
 					return (BattleDto) memory;
 				}
 			}

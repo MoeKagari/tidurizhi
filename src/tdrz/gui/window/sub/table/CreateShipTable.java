@@ -2,14 +2,12 @@ package tdrz.gui.window.sub.table;
 
 import java.util.List;
 
-import org.eclipse.swt.widgets.MenuItem;
-
-import tdrz.dto.memory.CreateshipDto;
-import tdrz.dto.translator.MasterDataTranslator;
+import tdrz.core.logic.TimeString;
+import tdrz.core.translator.MasterDataTranslator;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
-import tdrz.logic.TimeString;
-import tdrz.update.GlobalContext;
+import tdrz.update.context.GlobalContext;
+import tdrz.update.dto.memory.CreateshipDto;
 import tool.FunctionUtils;
 
 /**
@@ -17,9 +15,8 @@ import tool.FunctionUtils;
  * @author MoeKagari
  */
 public class CreateShipTable extends AbstractTable<CreateshipDto> {
-
-	public CreateShipTable(ApplicationMain main, MenuItem menuItem, String title) {
-		super(main, menuItem, title);
+	public CreateShipTable(ApplicationMain main, String title) {
+		super(main, title);
 	}
 
 	@Override
@@ -33,9 +30,10 @@ public class CreateShipTable extends AbstractTable<CreateshipDto> {
 		tcms.add(new TableColumnManager("开发资材", true, rd -> Integer.toString(rd.zhicai())));
 		tcms.add(new TableColumnManager("大型建造", rd -> rd.largeflag() ? "是" : ""));
 		tcms.add(new TableColumnManager("高速建造", rd -> rd.highspeed() ? "是" : ""));
-		tcms.add(new TableColumnManager("秘书舰", rd -> FunctionUtils.notNull(rd.getFlagship(), FunctionUtils::returnSelf, "")));
-		tcms.add(new TableColumnManager("秘书舰LV", rd -> FunctionUtils.ifSupplier(rd.getFlagship() != null, () -> String.valueOf(rd.getFlagshipLevel()), "")));
 		tcms.add(new TableColumnManager("空渠", true, rd -> String.valueOf(rd.getEmptyCount())));
+		tcms.add(new TableColumnManager("秘书舰舰种", rd -> FunctionUtils.notNull(rd.getSecretaryShipType(), FunctionUtils::returnSelf, "")));
+		tcms.add(new TableColumnManager("秘书舰", rd -> FunctionUtils.notNull(rd.getSecretaryShip(), FunctionUtils::returnSelf, "")));
+		tcms.add(new TableColumnManager("秘书舰等级", rd -> FunctionUtils.ifFunction(rd.getSecretaryShipLevel(), level -> level > 0, String::valueOf, "")));
 	}
 
 	@Override

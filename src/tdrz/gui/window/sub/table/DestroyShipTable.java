@@ -2,13 +2,11 @@ package tdrz.gui.window.sub.table;
 
 import java.util.List;
 
-import org.eclipse.swt.widgets.MenuItem;
-
-import tdrz.dto.memory.DestroyShipDto;
+import tdrz.core.logic.TimeString;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
-import tdrz.logic.TimeString;
-import tdrz.update.GlobalContext;
+import tdrz.update.context.GlobalContext;
+import tdrz.update.dto.memory.DestroyShipDto;
 
 /**
  * 解体记录
@@ -16,8 +14,8 @@ import tdrz.update.GlobalContext;
  */
 public class DestroyShipTable extends AbstractTable<DestroyShipDto> {
 
-	public DestroyShipTable(ApplicationMain main, MenuItem menuItem, String title) {
-		super(main, menuItem, title);
+	public DestroyShipTable(ApplicationMain main, String title) {
+		super(main, title);
 	}
 
 	@Override

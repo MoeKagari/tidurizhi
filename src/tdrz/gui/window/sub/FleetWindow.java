@@ -8,19 +8,19 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import tdrz.config.AppConstants;
-import tdrz.dto.translator.DeckDtoTranslator;
-import tdrz.dto.translator.ItemDtoTranslator;
-import tdrz.dto.translator.ShipDtoTranslator;
-import tdrz.dto.word.DeckDto;
-import tdrz.dto.word.ItemDto;
-import tdrz.dto.word.ShipDto;
-import tdrz.logic.HPMessage;
-import tdrz.update.GlobalContext;
-import tdrz.update.GlobalContextUpdater;
-import tdrz.update.data.ApiDataListener;
-import tdrz.update.data.DataType;
-import tdrz.utils.SwtUtils;
+import tdrz.core.config.AppConstants;
+import tdrz.core.logic.HPMessage;
+import tdrz.core.translator.DeckDtoTranslator;
+import tdrz.core.translator.ItemDtoTranslator;
+import tdrz.core.translator.ShipDtoTranslator;
+import tdrz.core.util.SwtUtils;
+import tdrz.update.context.GlobalContext;
+import tdrz.update.context.GlobalContextUpdater;
+import tdrz.update.context.data.ApiDataListener;
+import tdrz.update.context.data.DataType;
+import tdrz.update.dto.word.DeckDto;
+import tdrz.update.dto.word.ItemDto;
+import tdrz.update.dto.word.ShipDto;
 import tool.FunctionUtils;
 
 public class FleetWindow implements ApiDataListener {
@@ -225,12 +225,11 @@ public class FleetWindow implements ApiDataListener {
 			}
 
 			SwtUtils.setText(this.iconLabel, (ShipDtoTranslator.terribleState(ship) || ShipDtoTranslator.needHokyo(ship)) ? "!" : "");
-			this.iconLabel.setBackground(ShipDtoTranslator.dapo(ship) ? HPMessage.getColor(HPMessage.getString(0.1)) : null);
-
 			SwtUtils.setText(this.nameLabel, ShipDtoTranslator.getName(ship));
 			SwtUtils.setToolTipText(this.nameLabel, ShipDtoTranslator.getDetail(ship));
 			SwtUtils.setText(this.hpLabel, String.format("%d/%d", ship.getNowHp(), ship.getMaxHp()));
 			SwtUtils.setText(this.hpmsgLabel, ShipDtoTranslator.getStateString(ship, true));
+			this.hpmsgLabel.setBackground(ShipDtoTranslator.dapo(ship) ? HPMessage.getColor(HPMessage.getString(0.1)) : null);
 			SwtUtils.setText(this.lvLabel, String.format("Lv.%d", ship.getLevel()));
 			SwtUtils.setText(this.condLabel, String.valueOf(ship.getCond()));
 
@@ -246,12 +245,12 @@ public class FleetWindow implements ApiDataListener {
 
 		private void clear() {
 			SwtUtils.setText(this.iconLabel, "");
-			this.iconLabel.setBackground(null);
 
 			SwtUtils.setText(this.nameLabel, "");
 			SwtUtils.setToolTipText(this.nameLabel, "");
 			SwtUtils.setText(this.hpLabel, "");
 			SwtUtils.setText(this.hpmsgLabel, "");
+			this.hpmsgLabel.setBackground(null);
 			SwtUtils.setText(this.lvLabel, "");
 			SwtUtils.setText(this.condLabel, "");
 

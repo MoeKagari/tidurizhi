@@ -3,12 +3,11 @@ package tdrz.gui.window.sub;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.MenuItem;
 
-import tdrz.config.AppConstants;
-import tdrz.gui.window.WindowBase;
+import tdrz.core.config.AppConstants;
+import tdrz.core.util.SwtUtils;
 import tdrz.gui.window.main.ApplicationMain;
-import tdrz.utils.SwtUtils;
+import tdrz.gui.window.sup.WindowBase;
 
 /**
  * 舰队面板-单
@@ -17,9 +16,9 @@ import tdrz.utils.SwtUtils;
 public abstract class FleetWindowOut extends WindowBase {
 	private final FleetWindow fleetWindow;
 
-	public FleetWindowOut(ApplicationMain main, MenuItem menuItem, int id) {
-		super(main, menuItem, AppConstants.DEFAULT_FLEET_NAME[id - 1]);
-		this.fleetWindow = new FleetWindow(id, new Composite(this.getCenterComposite(), SWT.BORDER));
+	public FleetWindowOut(ApplicationMain main, int id) {
+		super(main, AppConstants.DEFAULT_FLEET_NAME[id - 1]);
+		this.fleetWindow = new FleetWindow(id, new Composite(this.centerComposite, SWT.BORDER));
 	}
 
 	public FleetWindow getFleetWindow() {
@@ -34,7 +33,7 @@ public abstract class FleetWindowOut extends WindowBase {
 	}
 
 	@Override
-	public Point getDefaultSize() {
+	public Point defaultSize() {
 		return SwtUtils.DPIAwareSize(new Point(250, 269));
 	}
 }

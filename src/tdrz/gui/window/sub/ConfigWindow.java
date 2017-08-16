@@ -3,6 +3,7 @@ package tdrz.gui.window.sub;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
@@ -12,31 +13,28 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 
-import tdrz.config.AppConfig;
-import tdrz.gui.window.WindowBase;
+import tdrz.core.config.AppConfig;
+import tdrz.core.util.SwtUtils;
 import tdrz.gui.window.listener.ControlSelectionListener;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.main.MainStart;
-import tdrz.utils.SwtUtils;
-import tdrz.utils.ToolUtils;
-import tool.FunctionUtils;
+import tdrz.gui.window.sup.WindowBase;
 
 public class ConfigWindow extends WindowBase {
 	private final TabFolder tabFolder;
 
-	public ConfigWindow(ApplicationMain main, MenuItem menuItem, String title) {
-		super(main, menuItem, title);
+	public ConfigWindow(ApplicationMain main, String title) {
+		super(main, title);
 
-		this.tabFolder = new TabFolder(this.getCenterComposite(), SWT.TOP);
+		this.tabFolder = new TabFolder(this.centerComposite, SWT.TOP);
 		this.tabFolder.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-		Button saveButton = new Button(this.getCenterComposite(), SWT.PUSH);
+		Button saveButton = new Button(this.centerComposite, SWT.PUSH);
 		saveButton.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
 		saveButton.setText("保存");
 		saveButton.addSelectionListener(new ControlSelectionListener(ev -> {
@@ -45,20 +43,24 @@ public class ConfigWindow extends WindowBase {
 					.map(item -> (AbstractTabItemComposite) item.getControl())//
 					.flatMap(atc -> atc.saveActions.stream())//
 					.forEach(Runnable::run);
-			//重启Server
-			FunctionUtils.notNull(MainStart.server, server -> {
-				try {
-					server.restart();
-					this.getMain().printMessage("服务器改变配置成功", false);
-				} catch (Exception ex) {
-					this.getMain().printMessage("服务器改变配置失败", false);
-				}
-			});
 			//并关闭窗口
 			this.hiddenWindow();
+			//重启Server
+			Optional.ofNullable(MainStart.server).ifPresent(server -> {
+				if (server.isConfigChanged()) {
+					try {
+						server.restart();
+						this.getMain().printMessage("服务器配置变更成功", true);
+					} catch (Exception ex) {
+						this.getMain().printMessage("服务器配置变更失败", true);
+					}
+				}
+			});
+			//更新主窗口标题
+			this.getMain().updateTitle();
 		}));
 
-		this.newTabItem("代理/通讯", new ProxyComposite());
+		this.newTabItem("通讯", new ProxyComposite());
 		this.newTabItem("窗口", new WindowComposite());
 		this.newTabItem("其它", new OthersComposite());
 	}
@@ -81,7 +83,7 @@ public class ConfigWindow extends WindowBase {
 	}
 
 	@Override
-	protected Point getDefaultSize() {
+	public Point defaultSize() {
 		return SwtUtils.DPIAwareSize(new Point(380, 400));
 	}
 
@@ -159,7 +161,9 @@ public class ConfigWindow extends WindowBase {
 				showNameOnTitle.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 				showNameOnTitle.setText("标题栏显示提督名");
 				this.defaultActions.add(() -> showNameOnTitle.setSelection(AppConfig.get().isShowNameOnTitle()));
-				this.saveActions.add(() -> AppConfig.get().setShowNameOnTitle(showNameOnTitle.getSelection()));
+				this.saveActions.add(() -> {
+					AppConfig.get().setShowNameOnTitle(showNameOnTitle.getSelection());
+				});
 
 				Button checkDoit = new Button(mainWindow, SWT.CHECK);
 				checkDoit.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
@@ -188,8 +192,8 @@ public class ConfigWindow extends WindowBase {
 				Button notCalcuLv155 = new Button(calcuExpWindow, SWT.CHECK);
 				notCalcuLv155.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 2, 1));
 				notCalcuLv155.setText("不显示舰娘(Lv155)");
-				this.defaultActions.add(() -> notCalcuLv155.setSelection(AppConfig.get().isNotCalcuExpForLevel155Ship()));
-				this.saveActions.add(() -> AppConfig.get().setNotCalcuExpForLevel155Ship(notCalcuLv155.getSelection()));
+				this.defaultActions.add(() -> notCalcuLv155.setSelection(AppConfig.get().isNotCalcuExpForLevel165Ship()));
+				this.saveActions.add(() -> AppConfig.get().setNotCalcuExpForLevel165Ship(notCalcuLv155.getSelection()));
 
 				new Label(calcuExpWindow, SWT.CENTER).setText("计算海域 : ");
 				Text calcuExpArea = new Text(calcuExpWindow, SWT.SINGLE | SWT.LEAD | SWT.BORDER);
@@ -197,9 +201,8 @@ public class ConfigWindow extends WindowBase {
 				calcuExpArea.setToolTipText(String.join("\n", "格式例如 : ", "1-1,1-2,1-3,1-4,1-5", "只有12345海域的前五图(除了4-5),以及6-1,6-2"));
 				this.defaultActions.add(() -> calcuExpArea.setText(AppConfig.get().getCalcuExpArea()));
 				this.saveActions.add(() -> {
-					String areasText = calcuExpArea.getText();
-					String[] areas = ToolUtils.toStringArray(areasText.split(","), String::trim);
-					AppConfig.get().setCalcuExpArea(String.join(",", areas));
+					String text = Arrays.stream(calcuExpArea.getText().split(",")).map(String::trim).reduce((a, b) -> String.join(",", a, b)).orElse("");
+					AppConfig.get().setCalcuExpArea(text);
 				});
 			}
 

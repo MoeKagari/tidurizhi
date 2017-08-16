@@ -3,14 +3,12 @@ package tdrz.gui.window.sub.table;
 import java.util.List;
 import java.util.function.IntFunction;
 
-import org.eclipse.swt.widgets.MenuItem;
-
-import tdrz.dto.word.QuestDto;
-import tdrz.dto.word.QuestDto.QuestInformationDto;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
-import tdrz.update.GlobalContext;
-import tdrz.update.data.DataType;
+import tdrz.update.context.GlobalContext;
+import tdrz.update.context.data.DataType;
+import tdrz.update.dto.word.QuestDto;
+import tdrz.update.dto.word.QuestDto.QuestInformationDto;
 import tool.FunctionUtils;
 
 /**
@@ -18,8 +16,8 @@ import tool.FunctionUtils;
  * @author MoeKagari
  */
 public class QuestListTable extends AbstractTable<QuestDto> {
-	public QuestListTable(ApplicationMain main, MenuItem menuItem, String title) {
-		super(main, menuItem, title);
+	public QuestListTable(ApplicationMain main, String title) {
+		super(main, title);
 	}
 
 	@Override

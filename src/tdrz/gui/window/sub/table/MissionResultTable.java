@@ -3,15 +3,13 @@ package tdrz.gui.window.sub.table;
 import java.util.List;
 import java.util.function.IntFunction;
 
-import org.eclipse.swt.widgets.MenuItem;
-
-import tdrz.config.AppConstants;
-import tdrz.dto.memory.MissionResultDto;
-import tdrz.dto.memory.MissionResultDto.MissionResultItem;
+import tdrz.core.config.AppConstants;
+import tdrz.core.logic.TimeString;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
-import tdrz.logic.TimeString;
-import tdrz.update.GlobalContext;
+import tdrz.update.context.GlobalContext;
+import tdrz.update.dto.memory.MissionResultDto;
+import tdrz.update.dto.memory.MissionResultDto.MissionResultItem;
 import tool.FunctionUtils;
 
 /**
@@ -20,8 +18,8 @@ import tool.FunctionUtils;
  */
 public class MissionResultTable extends AbstractTable<MissionResultDto> {
 
-	public MissionResultTable(ApplicationMain main, MenuItem menuItem, String title) {
-		super(main, menuItem, title);
+	public MissionResultTable(ApplicationMain main, String title) {
+		super(main, title);
 	}
 
 	@Override

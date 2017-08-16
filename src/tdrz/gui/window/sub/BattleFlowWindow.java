@@ -2,12 +2,12 @@ package tdrz.gui.window.sub;
 
 import org.eclipse.swt.events.SelectionEvent;
 
-import tdrz.dto.memory.battle.AbstractBattle;
-import tdrz.dto.memory.battle.BattleDto;
-import tdrz.dto.translator.BattleDtoTranslator;
-import tdrz.gui.window.WindowBase;
+import tdrz.core.translator.BattleDtoTranslator;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.table.DropListTable;
+import tdrz.gui.window.sup.WindowBase;
+import tdrz.update.dto.memory.battle.AbstractBattle;
+import tdrz.update.dto.memory.battle.BattleDto;
 import tool.FunctionUtils;
 
 /**
@@ -20,7 +20,7 @@ public class BattleFlowWindow extends WindowBase {
 
 	public BattleFlowWindow(ApplicationMain main) {
 		super(main, "战斗流程");
-		this.sbc = new BattleScrolledComposite(this.getCenterComposite(), 5);
+		this.sbc = new BattleScrolledComposite(this.centerComposite, 5);
 	}
 
 	public void updateBattle(BattleDto battleDto, SelectionEvent ev) {

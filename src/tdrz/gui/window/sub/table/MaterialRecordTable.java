@@ -1,42 +1,38 @@
 package tdrz.gui.window.sub.table;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
-import org.eclipse.swt.widgets.MenuItem;
-
-import tdrz.dto.memory.MaterialRecordDto;
-import tdrz.dto.word.MaterialDto;
+import tdrz.core.logic.TimeString;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
-import tdrz.logic.TimeString;
-import tdrz.update.GlobalContext;
+import tdrz.update.context.GlobalContext;
+import tdrz.update.dto.memory.ResourceRecordDto;
+import tdrz.update.dto.word.ResourceDto;
 
 /**
  * 资源记录
  * @author MoeKagari
  */
-public class MaterialRecordTable extends AbstractTable<MaterialRecordDto> {
-
-	public MaterialRecordTable(ApplicationMain main, MenuItem menuItem, String title) {
-		super(main, menuItem, title);
+public class MaterialRecordTable extends AbstractTable<ResourceRecordDto> {
+	public MaterialRecordTable(ApplicationMain main, String title) {
+		super(main, title);
 	}
 
 	@Override
 	protected void initTCMS(List<TableColumnManager> tcms) {
-		tcms.add(new TableColumnManager("描述", MaterialRecordDto::getDescription));
+		tcms.add(new TableColumnManager("事件", ResourceRecordDto::getEvent));
 		tcms.add(new TableColumnManager("日期", rd -> TimeString.formatForTable(rd.getTime())));
-		String[] materialStrings = MaterialDto.getMaterialStrings();
-		for (int i = 0; i < materialStrings.length; i++) {
-			final int index = i;
-			tcms.add(new TableColumnManager(materialStrings[i], true, rd -> rd.getMaterial()[index]));
-		}
+		IntStream.range(0, ResourceDto.getResourceText().length)//
+				.mapToObj(index -> new TableColumnManager(ResourceDto.getResourceText()[index], true, rd -> rd.getMaterial()[index]))//
+				.forEach(tcms::add);
 	}
 
 	@Override
-	protected void updateData(List<MaterialRecordDto> datas) {
+	protected void updateData(List<ResourceRecordDto> datas) {
 		GlobalContext.getMemorylist().memorys.forEach(memory -> {
-			if (memory instanceof MaterialRecordDto) {
-				datas.add((MaterialRecordDto) memory);
+			if (memory instanceof ResourceRecordDto) {
+				datas.add((ResourceRecordDto) memory);
 			}
 		});
 	}

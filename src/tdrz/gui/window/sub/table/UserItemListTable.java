@@ -3,18 +3,16 @@ package tdrz.gui.window.sub.table;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.swt.widgets.MenuItem;
-
-import tdrz.dto.word.UseItemDto;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
-import tdrz.update.GlobalContext;
-import tdrz.update.data.DataType;
+import tdrz.update.context.GlobalContext;
+import tdrz.update.context.data.DataType;
+import tdrz.update.dto.word.UseItemDto;
 import tool.FunctionUtils;
 
 public class UserItemListTable extends AbstractTable<UseItemDto> {
-	public UserItemListTable(ApplicationMain main, MenuItem menuItem, String title) {
-		super(main, menuItem, title);
+	public UserItemListTable(ApplicationMain main, String title) {
+		super(main, title);
 	}
 
 	@Override

@@ -3,13 +3,11 @@ package tdrz.gui.window.sub.table;
 import java.util.List;
 import java.util.function.Function;
 
-import org.eclipse.swt.widgets.MenuItem;
-
-import tdrz.dto.memory.DestroyItemDto;
+import tdrz.core.logic.TimeString;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
-import tdrz.logic.TimeString;
-import tdrz.update.GlobalContext;
+import tdrz.update.context.GlobalContext;
+import tdrz.update.dto.memory.DestroyItemDto;
 
 /**
  * 废弃记录
@@ -17,8 +15,8 @@ import tdrz.update.GlobalContext;
  */
 public class DestroyItemTable extends AbstractTable<DestroyItemDto> {
 
-	public DestroyItemTable(ApplicationMain main, MenuItem menuItem, String title) {
-		super(main, menuItem, title);
+	public DestroyItemTable(ApplicationMain main, String title) {
+		super(main, title);
 	}
 
 	@Override

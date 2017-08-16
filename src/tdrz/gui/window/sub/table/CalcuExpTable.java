@@ -7,8 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -17,37 +17,38 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Spinner;
 
-import tdrz.config.AppConfig;
-import tdrz.dto.translator.ShipDtoTranslator;
-import tdrz.dto.word.ShipDto;
+import tdrz.core.config.AppConfig;
+import tdrz.core.translator.ShipDtoTranslator;
+import tdrz.core.util.SwtUtils;
+import tdrz.core.util.ToolUtils;
 import tdrz.gui.window.listener.ControlSelectionListener;
 import tdrz.gui.window.main.ApplicationMain;
-import tdrz.update.GlobalContext;
-import tdrz.utils.SwtUtils;
-import tdrz.utils.ToolUtils;
+import tdrz.update.context.GlobalContext;
+import tdrz.update.dto.word.ShipDto;
 import tool.FunctionUtils;
 
 public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
-	private final ScrolledComposite scrolledComposite;
-
 	private final Button updateShipDataButton;
 	private final Button secretaryButton;
 	private final Button flagshipButton;
 	private final Button mvpButton;
 	private final Combo evalCombo;
 
+	private final ScrolledComposite scrolledComposite;
 	private final Composite shipCompositeList;
+
+	private final Label gaizhaoLevelLabel;
 
 	private final DefaultDataComposite defaultShip;
 	private final List<ShipDataComposite> shipComposites = new ArrayList<>();
+	private AbstractDataComposite selected;
 
-	public CalcuExpTable(ApplicationMain main, MenuItem menuItem, String title) {
-		super(main, menuItem, title);
+	public CalcuExpTable(ApplicationMain main, String title) {
+		super(main, title);
 
-		Composite buttonComposite = new Composite(this.getLeftComposite(), SWT.NONE);
+		Composite buttonComposite = new Composite(this.leftComposite, SWT.NONE);
 		buttonComposite.setLayout(SwtUtils.makeGridLayout(3, 0, 0, 0, 0));
 		buttonComposite.setLayoutData(SwtUtils.makeGridData(GridData.FILL_HORIZONTAL, 250));
 		{
@@ -93,20 +94,31 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 			}
 		}
 
+		Composite gaizhaoLevelComposite = new Composite(this.leftComposite, SWT.BORDER);
+		gaizhaoLevelComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		gaizhaoLevelComposite.setLayout(SwtUtils.makeGridLayout(2, 0, 0, 0, 0));
+		{
+			new Label(gaizhaoLevelComposite, SWT.CENTER).setText("改造等级 : ");
+
+			this.gaizhaoLevelLabel = new Label(gaizhaoLevelComposite, SWT.LEFT);
+			this.gaizhaoLevelLabel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		}
+
 		this.defaultShip = new DefaultDataComposite();
 		this.defaultShip.select();
 
-		this.scrolledComposite = new ScrolledComposite(this.getLeftComposite(), SWT.V_SCROLL);
+		this.scrolledComposite = new ScrolledComposite(this.leftComposite, SWT.V_SCROLL);
 		this.scrolledComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 4, 0, 0));
 		this.scrolledComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		this.scrolledComposite.setExpandHorizontal(true);
 		this.scrolledComposite.setExpandVertical(true);
 		this.scrolledComposite.setAlwaysShowScrollBars(true);
-
-		this.shipCompositeList = new Composite(this.scrolledComposite, SWT.NONE);
-		this.shipCompositeList.setLayout(SwtUtils.makeGridLayout(1, 2, 0, 0, 0));
-		this.shipCompositeList.setLayoutData(new GridData(GridData.FILL_BOTH));
-		this.scrolledComposite.setContent(this.shipCompositeList);
+		{
+			this.shipCompositeList = new Composite(this.scrolledComposite, SWT.NONE);
+			this.shipCompositeList.setLayout(SwtUtils.makeGridLayout(1, 2, 0, 0, 0));
+			this.shipCompositeList.setLayoutData(new GridData(GridData.FILL_BOTH));
+			this.scrolledComposite.setContent(this.shipCompositeList);
+		}
 	}
 
 	/**
@@ -114,27 +126,18 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 	 * @return 是否重新更新table
 	 */
 	private boolean updateShipData() {
-		boolean defaultSlected = true;
-		int shipID = -1;
-		int currentExp = -1;
-		AbstractDataComposite slected = this.getSlectedStream().findFirst().get();
-		if (slected != this.defaultShip) {
-			ShipDataComposite sdc = (ShipDataComposite) slected;
-			defaultSlected = false;
-			shipID = sdc.shipId;
-			currentExp = sdc.currentExp;
-		}
-
 		List<ShipDto> datas = new ArrayList<>(GlobalContext.getShipMap().values());
+		Predicate<ShipDto> dataFilter = data -> false;
 		if (AppConfig.get().isNotCalcuExpForLevel1Ship()) {
-			datas.removeIf(data -> data.getLevel() == 1);
+			dataFilter.or(data -> data.getLevel() == 1);
 		}
 		if (AppConfig.get().isNotCalcuExpForLevel99Ship()) {
-			datas.removeIf(data -> data.getLevel() == 99);
+			dataFilter.or(data -> data.getLevel() == 99);
 		}
-		if (AppConfig.get().isNotCalcuExpForLevel155Ship()) {
-			datas.removeIf(data -> data.getLevel() == 155);
+		if (AppConfig.get().isNotCalcuExpForLevel165Ship()) {
+			dataFilter.or(data -> data.getLevel() == 165);
 		}
+		datas.removeIf(dataFilter);
 		datas.sort(Comparator.comparingInt(ShipDto::getLevel).reversed());//等级从大到小
 
 		this.shipComposites.forEach(Composite::dispose);
@@ -147,42 +150,42 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 		this.scrolledComposite.layout();
 
 		//先前为默认选择,则返回false
-		if (defaultSlected) {
+		if (this.selected == this.defaultShip) {
 			return false;
 		}
 
-		for (ShipDataComposite shipComposite : this.shipComposites) {
-			if (shipComposite.shipId == shipID) {//先前选择的舰娘被除籍,则不会有true
-				shipComposite.select();
-				return shipComposite.currentExp != currentExp;//舰娘的经验是否发生了变化
-			}
-		}
+		int shipID = this.selected.getShipId();
+		int currentExp = this.selected.getCurrentExp();
 
-		//未发现与先前选择一样的,则默认选择,并返回true
-		this.defaultShip.select();
-		return true;
+		Optional<ShipDataComposite> op = this.shipComposites.stream().filter(shipComposite -> shipComposite.shipId == shipID).findFirst();
+		if (op.isPresent()) {
+			//先前选择的舰娘被除籍,则不会有true
+			ShipDataComposite shipComposite = op.get();
+			shipComposite.select();
+			return shipComposite.currentExp != currentExp;//舰娘的经验是否发生了变化
+		} else {
+			//未发现与先前选择一样的,则默认选择,并返回true
+			this.defaultShip.select();
+			return true;
+		}
 	}
 
 	private boolean slectSecretaryShip() {
 		ShipDto secretaryShip = GlobalContext.getSecretaryShip();
 		if (secretaryShip != null) {
-			AbstractDataComposite slected = this.getSlectedStream().findFirst().get();
-			if (slected.getShipId() == secretaryShip.getId()) {
+			if (this.selected.getShipId() == secretaryShip.getId()) {
 				return false;
 			}
 
-			Optional<ShipDataComposite> op = this.shipComposites.stream().filter(shipComposite -> shipComposite.getShipId() == secretaryShip.getId()).findFirst();
-			if (op.isPresent()) {
-				slected.notSelect();
-				op.get().select();
-				return true;
+			for (ShipDataComposite shipComposite : this.shipComposites) {
+				if (shipComposite.getShipId() == secretaryShip.getId()) {
+					this.selected.notSelect();
+					shipComposite.select();
+					return true;
+				}
 			}
 		}
 		return false;
-	}
-
-	private Stream<AbstractDataComposite> getSlectedStream() {
-		return Stream.concat(this.shipComposites.stream(), Stream.of(this.defaultShip)).filter(AbstractDataComposite::getSelection);
 	}
 
 	@Override
@@ -215,8 +218,9 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 
 	@Override
 	protected void updateData(List<CalcuExpData> datas) {
-		AbstractDataComposite slected = this.getSlectedStream().findFirst().get();
-		IntStream.rangeClosed(slected.getCurrentLevel(), slected.getMaxLevel()).mapToObj(targetLevel -> new CalcuExpData(slected.getCurrentLevel(), slected.getCurrentExp(), targetLevel)).forEach(datas::add);
+		IntStream.rangeClosed(this.selected.getCurrentLevel(), this.selected.getMaxLevel())//
+				.mapToObj(targetLevel -> new CalcuExpData(this.selected.getCurrentLevel(), this.selected.getCurrentExp(), targetLevel))//
+				.forEach(datas::add);
 	}
 
 	private int calcuBaseExp(int seaExp) {
@@ -232,7 +236,7 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 	private abstract class AbstractDataComposite extends Composite {
 		private final Button check;
 
-		public AbstractDataComposite(Composite parent, String text) {
+		AbstractDataComposite(Composite parent, String text) {
 			super(parent, SWT.BORDER);
 			this.setLayout(SwtUtils.makeGridLayout(2, 0, 0, 0, 0));
 			this.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -241,17 +245,20 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 			this.check.setLayoutData(SwtUtils.makeGridData(0, 40));
 			this.check.setText(text);
 			this.check.addSelectionListener(new ControlSelectionListener(ev -> {
-				Optional<AbstractDataComposite> op = CalcuExpTable.this.getSlectedStream().filter(ship -> ship != this).findFirst();
-				if (op.isPresent()) {
-					//按了此单元之后,仍然还有单元处于选中状态,说明此单元先前为未选中的单元
-					op.get().notSelect();//取消另外一个选择的单元
+				if (CalcuExpTable.this.selected != this) {
+					//点击另外一个单元
+					CalcuExpTable.this.selected.notSelect();//取消旧的选择的单元
+					this.select();
 					CalcuExpTable.this.getUpdateTableListener().widgetSelected(ev);//并更新table
 				}
 			}));
 		}
 
 		public final void select() {
+			String text = FunctionUtils.ifFunction(this.getGaizhaoLevel(), gaizhaoLevel -> gaizhaoLevel != 0, String::valueOf, "");
+			CalcuExpTable.this.gaizhaoLevelLabel.setText(text);
 			this.check.setSelection(true);
+			CalcuExpTable.this.selected = this;
 		}
 
 		public final void notSelect() {
@@ -271,13 +278,15 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 		public abstract int getCurrentExp();
 
 		public abstract int getShipId();
+
+		public abstract int getGaizhaoLevel();
 	}
 
 	private class DefaultDataComposite extends AbstractDataComposite {
 		private final Spinner spinner;
 
-		public DefaultDataComposite() {
-			super(CalcuExpTable.this.getLeftComposite(), "默认");
+		DefaultDataComposite() {
+			super(CalcuExpTable.this.leftComposite, "默认");
 
 			this.spinner = new Spinner(this, SWT.LEFT);
 			this.spinner.setLayoutData(SwtUtils.makeGridData(new GridData(SWT.CENTER, SWT.CENTER, true, true), 40));
@@ -304,17 +313,23 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 		public int getShipId() {
 			return -1;
 		}
+
+		@Override
+		public int getGaizhaoLevel() {
+			return 0;
+		}
 	}
 
 	private class ShipDataComposite extends AbstractDataComposite {
 		private final int shipId;
 		private final int currentLevel;
 		private final int currentExp;
+		private final int gaizhaoLevel;
 
 		private final Label levelLabel;
 		private final Label nameLabel;
 
-		public ShipDataComposite(int index, ShipDto ship) {
+		ShipDataComposite(int index, ShipDto ship) {
 			super(CalcuExpTable.this.shipCompositeList, String.valueOf(index));
 
 			Composite labelComposite = new Composite(this, SWT.NONE);
@@ -333,6 +348,7 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 			this.shipId = ship.getId();
 			this.currentLevel = ship.getLevel();
 			this.currentExp = ship.getCurrentExp();
+			this.gaizhaoLevel = FunctionUtils.notNull(ship.getMasterData(), md -> md.getGaizhaoLv(), 0);
 		}
 
 		@Override
@@ -348,6 +364,11 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 		@Override
 		public int getShipId() {
 			return this.shipId;
+		}
+
+		@Override
+		public int getGaizhaoLevel() {
+			return this.gaizhaoLevel;
 		}
 	}
 

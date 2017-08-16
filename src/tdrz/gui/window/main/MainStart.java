@@ -3,18 +3,18 @@ package tdrz.gui.window.main;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import server.ServerConfig;
-import tdrz.config.AppConfig;
-import tdrz.config.WindowConfig;
-import tdrz.internal.ApplicationLock;
-import tdrz.internal.AsyncExecApplicationMain;
-import tdrz.logic.HPMessage;
-import tdrz.update.GlobalContext;
-import tdrz.update.server.TDRZServerSevlet;
+import tdrz.core.config.AppConfig;
+import tdrz.core.config.ShipGroup;
+import tdrz.core.config.WindowConfig;
+import tdrz.core.internal.ApplicationLock;
+import tdrz.core.internal.AsyncExecApplicationMain;
+import tdrz.gui.window.WindowResource;
+import tdrz.update.context.GlobalContext;
+import tdrz.update.context.server.TDRZServerSevlet;
 import tool.FunctionUtils;
 
 public class MainStart {
@@ -32,8 +32,7 @@ public class MainStart {
 		if (!applicationLock.isError() && applicationLock.isLocked()) return true;
 
 		{
-			Display display = new Display();
-			Shell shell = new Shell(display, SWT.TOOL);
+			Shell shell = new Shell(WindowResource.DISPLAY, SWT.TOOL);
 			{
 				MessageBox mes = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK);
 				mes.setText("多重启动");
@@ -41,7 +40,6 @@ public class MainStart {
 				mes.open();
 			}
 			shell.dispose();
-			display.dispose();
 		}
 
 		applicationLock.release();
@@ -53,7 +51,7 @@ public class MainStart {
 			AppConfig.load();
 			WindowConfig.load();
 			GlobalContext.load();
-			HPMessage.initColor();
+			ShipGroup.load();
 
 			ApplicationMain.main = new ApplicationMain();
 			new AsyncExecApplicationMain(ApplicationMain.main).start();
@@ -61,10 +59,10 @@ public class MainStart {
 
 			server.start();
 			ApplicationMain.main.start();//程序堵塞在这里
-		} catch (Exception | Error e) {
-			e.printStackTrace();
+		} catch (Throwable e) {
 			LOG.fatal("main thread 异常中止", e);
 		} finally {
+			WindowResource.DISPLAY.dispose();
 			applicationLock.release();
 
 			try {
@@ -76,6 +74,7 @@ public class MainStart {
 			AppConfig.store();
 			WindowConfig.store();
 			GlobalContext.store();
+			ShipGroup.store();
 		}
 	}
 }

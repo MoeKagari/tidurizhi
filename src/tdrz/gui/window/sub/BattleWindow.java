@@ -1,15 +1,13 @@
 package tdrz.gui.window.sub;
 
-import org.eclipse.swt.widgets.MenuItem;
-
-import tdrz.config.AppConfig;
-import tdrz.dto.memory.battle.BattleDto;
-import tdrz.dto.memory.battle.info.InfoBattleShipdeckDto;
-import tdrz.dto.translator.BattleDtoTranslator;
-import tdrz.gui.window.WindowBase;
+import tdrz.core.config.AppConfig;
+import tdrz.core.translator.BattleDtoTranslator;
 import tdrz.gui.window.main.ApplicationMain;
-import tdrz.update.GlobalContext;
-import tdrz.update.data.DataType;
+import tdrz.gui.window.sup.WindowBase;
+import tdrz.update.context.GlobalContext;
+import tdrz.update.context.data.DataType;
+import tdrz.update.dto.memory.battle.BattleDto;
+import tdrz.update.dto.memory.battle.info.InfoBattleShipdeckDto;
 
 /**
  * 战斗窗口
@@ -20,9 +18,9 @@ public class BattleWindow extends WindowBase {
 	private final BattleScrolledComposite sbc;//战斗窗口
 	private final BattleFlowWindow bfw;
 
-	public BattleWindow(ApplicationMain main, MenuItem menuItem, String title) {
-		super(main, menuItem, title);
-		this.sbc = new BattleScrolledComposite(this.getCenterComposite(), 0);
+	public BattleWindow(ApplicationMain main, String title) {
+		super(main, title);
+		this.sbc = new BattleScrolledComposite(this.centerComposite, 0);
 		this.bfw = new BattleFlowWindow(main);
 	}
 

@@ -3,6 +3,7 @@ package tdrz.gui.window.sub.table;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -10,20 +11,19 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.MenuItem;
 
-import tdrz.config.AppConstants;
-import tdrz.dto.translator.ItemDtoTranslator;
-import tdrz.dto.translator.ShipDtoTranslator;
-import tdrz.dto.word.ItemDto;
-import tdrz.dto.word.MasterDataDto.MasterShipDto;
-import tdrz.dto.word.ShipDto;
+import tdrz.core.config.AppConstants;
+import tdrz.core.logic.TimeString;
+import tdrz.core.translator.ItemDtoTranslator;
+import tdrz.core.translator.ShipDtoTranslator;
+import tdrz.core.util.SwtUtils;
 import tdrz.gui.window.listener.ControlSelectionListener;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
-import tdrz.logic.TimeString;
-import tdrz.update.GlobalContext;
-import tdrz.utils.SwtUtils;
+import tdrz.update.context.GlobalContext;
+import tdrz.update.dto.word.ItemDto;
+import tdrz.update.dto.word.MasterDataDto.MasterShipDto;
+import tdrz.update.dto.word.ShipDto;
 import tool.FunctionUtils;
 
 /**
@@ -37,13 +37,24 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 	private List<Button> typeButtons;
 	private List<Button> infoButtons;
 
-	public ShipListTable(ApplicationMain main, MenuItem menuItem, String title) {
-		super(main, menuItem, title);
+	public ShipListTable(ApplicationMain main, String title) {
+		super(main, title);
 	}
 
 	@Override
 	public boolean haveTopComposite() {
 		return true;
+	}
+
+	@Override
+	public String getWindowConfigKey() {
+		return ShipListTable.class.getName() + "-" + this.getMode();
+	}
+
+	@Override
+	protected void updateData(List<ShipDto> datas) {
+		datas.addAll(GlobalContext.getShipMap().values());
+		Collections.sort(datas, Comparator.comparingInt(ShipDto::getId));
 	}
 
 	public enum ShipListTableMode {
@@ -55,11 +66,6 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 	protected abstract ShipListTableMode getMode();
 
 	@Override
-	public String getWindowConfigKey() {
-		return ShipListTable.class.getName() + "-" + this.getMode();
-	}
-
-	@Override
 	protected void initTCMS(List<TableColumnManager> tcms) {
 		tcms.add(new TableColumnManager("ID", true, ShipDto::getId));
 		tcms.add(new TableColumnManager("舰娘", ShipDtoTranslator::getName));
@@ -69,14 +75,14 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 
 		switch (this.getMode()) {
 			case INFORMATION:
-				this.initTCMS1(tcms);
+				this.initTCMS_information(tcms);
 				break;
 			case PARAMENTER:
-				this.initTCMS2(tcms);
+				this.initTCMS_paramenter(tcms);
 				break;
 			case ALL:
-				this.initTCMS1(tcms);
-				this.initTCMS2(tcms);
+				this.initTCMS_information(tcms);
+				this.initTCMS_paramenter(tcms);
 				break;
 		}
 
@@ -90,9 +96,11 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 				return FunctionUtils.notNull(item, ItemDtoTranslator::getNameWithLevel, "");
 			}));
 		}
+
+		tcms.add(new TableColumnManager("出击海域", rd -> FunctionUtils.ifFunction(rd.getSallyArea(), sa -> sa != 0, String::valueOf, "")));
 	}
 
-	private void initTCMS1(List<TableColumnManager> tcms) {
+	private void initTCMS_information(List<TableColumnManager> tcms) {
 		tcms.add(new TableColumnManager("补给", rd -> ShipDtoTranslator.needHokyo(rd) ? "需要" : ""));
 		tcms.add(new TableColumnManager("Cond", true, ShipDto::getCond));
 		tcms.add(new TableColumnManager("现有经验", true, ShipDto::getCurrentExp));
@@ -108,22 +116,22 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 		tcms.add(new TableColumnManager("弹耗", true, rd -> FunctionUtils.notNull(rd.getMasterData(), MasterShipDto::getBullMax, "")));
 		{
 			TableColumnManager tcm = new TableColumnManager("状态", rd -> ShipDtoTranslator.getStateString(rd, false));
-			tcm.setComparator((a, b) -> Double.compare(ShipDtoTranslator.getHPPercent(a), ShipDtoTranslator.getHPPercent(b)));
+			tcm.setComparator(Comparator.comparingDouble(ShipDtoTranslator::getHPPercent));
 			tcms.add(tcm);
 		}
 		{
 			TableColumnManager tcm = new TableColumnManager("修理时间", rd -> TimeString.toDateRestString(rd.getNdockTime() / 1000, ""));
-			tcm.setComparator((a, b) -> Long.compare(a.getNdockTime(), b.getNdockTime()));
+			tcm.setComparator(Comparator.comparingLong(ShipDto::getNdockTime));
 			tcms.add(tcm);
 		}
 		{
 			TableColumnManager tcm = new TableColumnManager("修理花费", rd -> ShipDtoTranslator.perfectState(rd) ? "" : Arrays.toString(rd.getNdockCost()));
-			tcm.setComparator((a, b) -> Integer.compare(a.getNdockCost()[0], b.getNdockCost()[0]));
+			tcm.setComparator(Comparator.comparingInt(rd -> rd.getNdockCost()[0]));
 			tcms.add(tcm);
 		}
 	}
 
-	private void initTCMS2(List<TableColumnManager> tcms) {
+	private void initTCMS_paramenter(List<TableColumnManager> tcms) {
 		tcms.add(new TableColumnManager("火力", true, rd -> rd.getKaryoku()[0]));
 		tcms.add(new TableColumnManager("雷装", true, rd -> rd.getRaisou()[0]));
 		tcms.add(new TableColumnManager("对空", true, rd -> rd.getTaiku()[0]));
@@ -135,21 +143,11 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 	}
 
 	@Override
-	protected void updateData(List<ShipDto> datas) {
-		datas.addAll(GlobalContext.getShipMap().values());
-		Collections.sort(datas, (a, b) -> Integer.compare(a.getId(), b.getId()));
-	}
-
-	@Override
 	protected Predicate<ShipDto> initFilter() {
 		this.typeButtons = new ArrayList<>();
 		this.infoButtons = new ArrayList<>();
-		this.initFilterComposite();
-		return this.buildFilter().negate();
-	}
 
-	private void initFilterComposite() {
-		Composite filterComposite = new Composite(this.getTopComposite(), SWT.NONE);
+		Composite filterComposite = new Composite(this.topComposite, SWT.NONE);
 		filterComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		filterComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0, 2, 2, 4, 0));
 		{
@@ -162,16 +160,16 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 			this.infoFilterComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 			this.infoFilterComposite.setLayout(SwtUtils.makeGridLayout(20, 0, 0, 0, 0));
 		}
+
+		return this.buildFilter().negate();
 	}
 
 	private Predicate<ShipDto> buildFilter() {
-		this.allShipButton = new Button(this.typeFilterComposite, SWT.CHECK);
+		this.allShipButton = new Button(this.typeFilterComposite, SWT.RADIO);
 		this.allShipButton.setText("全舰");
 		this.allShipButton.setSelection(true);
 		this.allShipButton.addSelectionListener(new ControlSelectionListener(ev -> {
-			if (this.allShipButton.getSelection()) {
-				this.typeButtons.forEach(button -> button.setSelection(false));
-			}
+			this.typeButtons.forEach(button -> button.setSelection(false));
 		}));
 		this.allShipButton.addSelectionListener(this.getUpdateTableListener());
 		Predicate<ShipDto> allShipFilter = ship -> this.allShipButton.getSelection();
@@ -200,19 +198,18 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 						.and(this.newInfoFilter("有闪", ship -> ship.getCond() > 49))//
 						.and(this.newInfoFilter("需入渠", ship -> FunctionUtils.isFalse(ShipDtoTranslator.perfectState(ship))))//
 						.and(this.newInfoFilter("需补给", ShipDtoTranslator::needHokyo))//
-						.and(this.newInfoFilter("可装大发系", ship -> true))//TODO
-						.and(this.newInfoFilter("可先制反潜", ShipDtoTranslator::canOpeningTaisen));
+						.and(this.newInfoFilter("可装大发系", ShipDtoTranslator::canEquipDaihatsu))//
+						.and(this.newInfoFilter("可先制反潜", ShipDtoTranslator::canOpeningTaisen))//
+						.and(this.newInfoFilter("有贴条", ship -> ship.getSallyArea() != 0));
 
-		return infoFilter.and(typeFilter::test);
+		return typeFilter.and(infoFilter);
 	}
 
 	private Predicate<ShipDto> newTypeFilter(String text, int... types) {
 		Button button = new Button(this.typeFilterComposite, SWT.CHECK);
 		button.setText(text);
 		button.addSelectionListener(new ControlSelectionListener(ev -> {
-			if (this.typeButtons.stream().anyMatch(Button::getSelection)) {
-				this.allShipButton.setSelection(false);
-			}
+			this.allShipButton.setSelection(this.typeButtons.stream().noneMatch(Button::getSelection));
 		}));
 		button.addSelectionListener(this.getUpdateTableListener());
 		this.typeButtons.add(button);
@@ -226,16 +223,10 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 	}
 
 	private Predicate<ShipDto> newInfoFilter(String text, Predicate<ShipDto> pre) {
-		return this.newInfoFilter(text, pre, "");
-	}
-
-	private Predicate<ShipDto> newInfoFilter(String text, Predicate<ShipDto> pre, String tooltip) {
 		Button button = new Button(this.infoFilterComposite, SWT.CHECK);
 		button.setText(text);
-		button.setToolTipText(tooltip);
 		button.addSelectionListener(this.getUpdateTableListener());
 		this.infoButtons.add(button);
-
 		return ship -> FunctionUtils.isFalse(button.getSelection()) || pre.test(ship);
 	}
 }

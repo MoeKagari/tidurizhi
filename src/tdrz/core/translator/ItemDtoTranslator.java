@@ -3,6 +3,7 @@ package tdrz.core.translator;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import tdrz.core.translator.ItemDtoTranslator.ItemDataMap.ItemData;
 import tdrz.update.context.GlobalContext;
@@ -36,6 +37,14 @@ public class ItemDtoTranslator {
 	public static char getOneWordName(ItemDto item) {
 		ItemData itemData = ItemDataMap.get(item.getSlotitemId());
 		return itemData == null ? ' ' : itemData.getOneWordName();
+	}
+
+	public static int getTaisen(int id) {
+		return getTaisen(GlobalContext.getItem(id));
+	}
+
+	public static int getTaisen(ItemDto item) {
+		return Optional.ofNullable(item).map(ItemDto::getMasterData).map(MasterSlotitemDto::getTaisen).orElse(0);
 	}
 
 	public static int getSuodi(int id) {

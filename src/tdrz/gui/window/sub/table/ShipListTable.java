@@ -5,9 +5,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.IntPredicate;
 import java.util.function.Predicate;
-import java.util.function.ToIntFunction;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -36,10 +36,11 @@ import tool.FunctionUtils;
  * @author MoeKagari
  */
 public abstract class ShipListTable extends AbstractTable<ShipDto> {
-	private List<Button> fleetButtons;
+	private Button noLimitDeckButton;
+	private List<Button> deckButtons;
 	private Composite fleetFilterComposite;
 
-	private Button allShipButton;
+	private Button allTypeShipButton;
 	private List<Button> typeButtons;
 	private Composite typeFilterComposite;
 
@@ -177,28 +178,36 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 	}
 
 	private Predicate<ShipDto> buildFilter() {
-		this.fleetButtons = new ArrayList<>();
-		List<ToIntFunction<ShipDto>> fleetPoints = IntStream.range(0, 4).mapToObj(this::newFleetFilter).collect(Collectors.toList());
-		Predicate<ShipDto> fleetFilter = ship -> {
-			//fleetButton的行为导致任何时间只有 零或一 个 Button 被选择
-			//所以以下表达式的结果只有 -1,0,1 三种
-			//0或1为需要的
-			//-1代表有button被选择,并且ship不在相应的舰队里
-			//0表示没有button被选择
-			//1代表有button被选择,并且ship在相应的舰队里
-			return fleetPoints.stream().mapToInt(fleetPoint -> fleetPoint.applyAsInt(ship)).sum() != -1;
-		};
+		{
+			this.noLimitDeckButton = new Button(this.fleetFilterComposite, SWT.RADIO);
+			this.noLimitDeckButton.setText("无限制");
+			this.noLimitDeckButton.addSelectionListener(new ControlSelectionListener(ev -> {
+				this.deckButtons.stream().forEach(button -> button.setSelection(false));
+			}));
+			this.noLimitDeckButton.addSelectionListener(this.getUpdateTableListener());
+		}
+		this.deckButtons = new ArrayList<>();
+		Predicate<ShipDto> deckFilter = Stream.of(//
+				ship -> this.noLimitDeckButton.getSelection(),//
+				this.newDeckFilter("无所属舰队", intStream -> intPredicate -> intStream.noneMatch(intPredicate), 0, 1, 2, 3),//
+				this.newDeckFilter(AppConstants.DEFAULT_FLEET_NAME[0], intStream -> intPredicate -> intStream.allMatch(intPredicate), 0),//
+				this.newDeckFilter(AppConstants.DEFAULT_FLEET_NAME[1], intStream -> intPredicate -> intStream.allMatch(intPredicate), 1),//
+				this.newDeckFilter(AppConstants.DEFAULT_FLEET_NAME[2], intStream -> intPredicate -> intStream.allMatch(intPredicate), 2),//
+				this.newDeckFilter(AppConstants.DEFAULT_FLEET_NAME[3], intStream -> intPredicate -> intStream.allMatch(intPredicate), 3)//
+		).reduce(Predicate::or).get();
 
+		{
+			this.allTypeShipButton = new Button(this.typeFilterComposite, SWT.RADIO);
+			this.allTypeShipButton.setText("全舰");
+			this.allTypeShipButton.setSelection(true);
+			this.allTypeShipButton.addSelectionListener(new ControlSelectionListener(ev -> {
+				this.typeButtons.forEach(button -> button.setSelection(false));
+			}));
+			this.allTypeShipButton.addSelectionListener(this.getUpdateTableListener());
+		}
 		this.typeButtons = new ArrayList<>();
-		this.allShipButton = new Button(this.typeFilterComposite, SWT.RADIO);
-		this.allShipButton.setText("全舰");
-		this.allShipButton.setSelection(true);
-		this.allShipButton.addSelectionListener(new ControlSelectionListener(ev -> {
-			this.typeButtons.forEach(button -> button.setSelection(false));
-		}));
-		this.allShipButton.addSelectionListener(this.getUpdateTableListener());
 		Predicate<ShipDto> typeFilter = Stream.of(//
-				ship -> this.allShipButton.getSelection(),//
+				ship -> this.allTypeShipButton.getSelection(),//
 				this.newTypeFilter("駆逐艦", 2),//
 				this.newTypeFilter("軽巡洋艦", 3),//
 				this.newTypeFilter("重雷装巡洋艦", 4),//
@@ -228,55 +237,55 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 				this.newInfoFilter("有贴条", ship -> ship.getSallyArea() != 0)//
 		).reduce(Predicate::and).get();
 
-		return Stream.of(fleetFilter, typeFilter, infoFilter).reduce(Predicate::and).get();
+		return Stream.of(deckFilter, typeFilter, infoFilter).reduce(Predicate::and).get();
 	}
 
-	private ToIntFunction<ShipDto> newFleetFilter(int fleetNumber) {
+	private Predicate<ShipDto> newDeckFilter(String text, Function<IntStream, Predicate<IntPredicate>> fun, int... deckNumbers) {
 		Button button = new Button(this.fleetFilterComposite, SWT.CHECK);
-		button.setText(AppConstants.DEFAULT_FLEET_NAME[fleetNumber]);
+		button.setText(text);
 		button.addSelectionListener(new ControlSelectionListener(ev -> {
-			this.fleetButtons.stream().forEach(fleetButton -> {
-				if (fleetButton != button) {
-					fleetButton.setSelection(false);
-				}
-			});
-		}).andThen(this.getUpdateTableListener()));
-		this.fleetButtons.add(button);
-		return ship -> {
-			if (button.getSelection()) {
-				if (DeckDtoTranslator.isShipInDeck(GlobalContext.deckRooms[fleetNumber].getDeck(), ship.getId())) {
-					return 1;//button被选择,并且ship在相应的舰队里
-				} else {
-					return -1;//button被选择,并且ship不在相应的舰队里
-				}
-			} else {
-				return 0;//button没有被选择
-			}
-		};
+			this.noLimitDeckButton.setSelection(this.deckButtons.stream().noneMatch(Button::getSelection));
+		}));
+		button.addSelectionListener(this.getUpdateTableListener());
+		this.deckButtons.add(button);
+
+		return this.buildPredicate(button, ship -> {
+			return fun.apply(IntStream.of(deckNumbers)).test(deckNumber -> DeckDtoTranslator.isShipInDeck(deckNumber, ship));
+		}, false);
 	}
 
 	private Predicate<ShipDto> newTypeFilter(String text, int... types) {
 		Button button = new Button(this.typeFilterComposite, SWT.CHECK);
 		button.setText(text);
 		button.addSelectionListener(new ControlSelectionListener(ev -> {
-			this.allShipButton.setSelection(this.typeButtons.stream().noneMatch(Button::getSelection));
+			this.allTypeShipButton.setSelection(this.typeButtons.stream().noneMatch(Button::getSelection));
 		}));
 		button.addSelectionListener(this.getUpdateTableListener());
 		this.typeButtons.add(button);
 
-		return ship -> {
-			if (FunctionUtils.isFalse(button.getSelection())) return false;
+		return this.buildPredicate(button, ship -> {
 			MasterShipDto msd = ship.getMasterData();
-			if (msd == null) return false;
-			return Arrays.stream(types).anyMatch(type -> type == msd.getType());
-		};
+			if (msd != null) {
+				return Arrays.stream(types).anyMatch(type -> type == msd.getType());
+			}
+			return false;
+		}, false);
 	}
 
-	private Predicate<ShipDto> newInfoFilter(String text, Predicate<ShipDto> pre) {
+	private Predicate<ShipDto> newInfoFilter(String text, Predicate<ShipDto> shipPredicater) {
 		Button button = new Button(this.infoFilterComposite, SWT.CHECK);
 		button.setText(text);
 		button.addSelectionListener(this.getUpdateTableListener());
 		this.infoButtons.add(button);
-		return ship -> FunctionUtils.isFalse(button.getSelection()) || pre.test(ship);
+		return this.buildPredicate(button, shipPredicater, true);
+	}
+
+	private Predicate<ShipDto> buildPredicate(Button button, Predicate<ShipDto> valueWhenSelected, boolean defaultValue) {
+		return ship -> {
+			if (button.getSelection()) {
+				return valueWhenSelected.test(ship);
+			}
+			return true;
+		};
 	}
 }

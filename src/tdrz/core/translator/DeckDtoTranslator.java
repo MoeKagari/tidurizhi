@@ -51,6 +51,10 @@ public class DeckDtoTranslator {
 		return getShipStream(deck).allMatch(ShipDtoTranslator::highspeed);
 	}
 
+	public static boolean isShipInDeck(int deck, ShipDto ship) {
+		return indexInDeck(GlobalContext.deckRooms[deck].getDeck(), ship.getId()) != -1;
+	}
+
 	public static boolean isShipInDeck(DeckDto deck, int id) {
 		return indexInDeck(deck, id) != -1;
 	}

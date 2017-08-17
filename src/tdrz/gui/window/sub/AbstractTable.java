@@ -87,6 +87,7 @@ public abstract class AbstractTable<T> extends AbstractTableSuper<T> {
 		FunctionUtils.forEach(this.table.getColumns(), TableColumn::pack);
 	}
 
+	/** 更新table */
 	private void updateTable() {
 		int top = this.table.getTopIndex();
 		this.table.removeAll();

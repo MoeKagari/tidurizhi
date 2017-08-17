@@ -6,6 +6,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -14,6 +18,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import tdrz.core.config.AppConstants;
 import tdrz.core.logic.TimeString;
+import tdrz.core.translator.DeckDtoTranslator;
 import tdrz.core.translator.ItemDtoTranslator;
 import tdrz.core.translator.ShipDtoTranslator;
 import tdrz.core.util.SwtUtils;
@@ -31,11 +36,15 @@ import tool.FunctionUtils;
  * @author MoeKagari
  */
 public abstract class ShipListTable extends AbstractTable<ShipDto> {
-	private Composite typeFilterComposite;
-	private Composite infoFilterComposite;
+	private List<Button> fleetButtons;
+	private Composite fleetFilterComposite;
+
 	private Button allShipButton;
 	private List<Button> typeButtons;
+	private Composite typeFilterComposite;
+
 	private List<Button> infoButtons;
+	private Composite infoFilterComposite;
 
 	public ShipListTable(ApplicationMain main, String title) {
 		super(main, title);
@@ -114,6 +123,7 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 		tcms.add(new TableColumnManager("入渠中", rd -> ShipDtoTranslator.isInNyukyo(rd) ? "是" : ""));
 		tcms.add(new TableColumnManager("油耗", true, rd -> FunctionUtils.notNull(rd.getMasterData(), MasterShipDto::getFuelMax, "")));
 		tcms.add(new TableColumnManager("弹耗", true, rd -> FunctionUtils.notNull(rd.getMasterData(), MasterShipDto::getBullMax, "")));
+		tcms.add(new TableColumnManager("消耗", true, rd -> FunctionUtils.notNull(rd.getMasterData(), msd -> msd.getFuelMax() + msd.getBullMax(), "")));
 		{
 			TableColumnManager tcm = new TableColumnManager("状态", rd -> ShipDtoTranslator.getStateString(rd, false));
 			tcm.setComparator(Comparator.comparingDouble(ShipDtoTranslator::getHPPercent));
@@ -144,12 +154,14 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 
 	@Override
 	protected Predicate<ShipDto> initFilter() {
-		this.typeButtons = new ArrayList<>();
-		this.infoButtons = new ArrayList<>();
-
 		Composite filterComposite = new Composite(this.topComposite, SWT.NONE);
 		filterComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		filterComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0, 2, 2, 4, 0));
+		{
+			this.fleetFilterComposite = new Composite(filterComposite, SWT.NONE);
+			this.fleetFilterComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+			this.fleetFilterComposite.setLayout(SwtUtils.makeGridLayout(20, 0, 0, 0, 0));
+		}
 		{
 			this.typeFilterComposite = new Composite(filterComposite, SWT.NONE);
 			this.typeFilterComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -165,6 +177,19 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 	}
 
 	private Predicate<ShipDto> buildFilter() {
+		this.fleetButtons = new ArrayList<>();
+		List<ToIntFunction<ShipDto>> fleetPoints = IntStream.range(0, 4).mapToObj(this::newFleetFilter).collect(Collectors.toList());
+		Predicate<ShipDto> fleetFilter = ship -> {
+			//fleetButton的行为导致任何时间只有 零或一 个 Button 被选择
+			//所以以下表达式的结果只有 -1,0,1 三种
+			//0或1为需要的
+			//-1代表有button被选择,并且ship不在相应的舰队里
+			//0表示没有button被选择
+			//1代表有button被选择,并且ship在相应的舰队里
+			return fleetPoints.stream().mapToInt(fleetPoint -> fleetPoint.applyAsInt(ship)).sum() != -1;
+		};
+
+		this.typeButtons = new ArrayList<>();
 		this.allShipButton = new Button(this.typeFilterComposite, SWT.RADIO);
 		this.allShipButton.setText("全舰");
 		this.allShipButton.setSelection(true);
@@ -172,37 +197,62 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 			this.typeButtons.forEach(button -> button.setSelection(false));
 		}));
 		this.allShipButton.addSelectionListener(this.getUpdateTableListener());
-		Predicate<ShipDto> allShipFilter = ship -> this.allShipButton.getSelection();
+		Predicate<ShipDto> typeFilter = Stream.of(//
+				ship -> this.allShipButton.getSelection(),//
+				this.newTypeFilter("駆逐艦", 2),//
+				this.newTypeFilter("軽巡洋艦", 3),//
+				this.newTypeFilter("重雷装巡洋艦", 4),//
+				this.newTypeFilter("重巡洋艦", 5),//
+				this.newTypeFilter("航空巡洋艦", 6),//
+				this.newTypeFilter("軽空母", 7),//
+				this.newTypeFilter("正規空母", 11),//
+				this.newTypeFilter("装甲空母", 18),//
+				this.newTypeFilter("戦艦", 8, 9, 10, 12),//
+				this.newTypeFilter("潜水艦", 13, 14),//
+				this.newTypeFilter("水上機母艦", 16),//
+				this.newTypeFilter("其它", 1, 17, 19, 20, 21, 22)//
+		).reduce(Predicate::or).get();
 
-		Predicate<ShipDto> typeFilter = allShipFilter//
-				.or(this.newTypeFilter("駆逐艦", 2))//
-				.or(this.newTypeFilter("軽巡洋艦", 3))//
-				.or(this.newTypeFilter("重雷装巡洋艦", 4))//
-				.or(this.newTypeFilter("重巡洋艦", 5))//
-				.or(this.newTypeFilter("航空巡洋艦", 6))//
-				.or(this.newTypeFilter("軽空母", 7))//
-				.or(this.newTypeFilter("正規空母", 11))//
-				.or(this.newTypeFilter("装甲空母", 18))//
-				.or(this.newTypeFilter("戦艦", 8, 9, 10, 12))//
-				.or(this.newTypeFilter("潜水艦", 13, 14))//
-				.or(this.newTypeFilter("水上機母艦", 16))//
-				.or(this.newTypeFilter("其它", 1, 17, 19, 20, 21, 22))//
-		;
+		this.infoButtons = new ArrayList<>();
+		Predicate<ShipDto> infoFilter = Stream.of(//
+				this.newInfoFilter("没远征", ship -> FunctionUtils.isFalse(ShipDtoTranslator.isInMission(ship))),//
+				this.newInfoFilter("非LV1", ship -> ship.getLevel() != 1),//
+				this.newInfoFilter("婚舰", ship -> ship.getLevel() > 99),//
+				this.newInfoFilter("Lock", ShipDto::isLocked),//
+				this.newInfoFilter("有增设", ship -> ship.getSlotex() != 0),//
+				this.newInfoFilter("有闪", ship -> ship.getCond() > 49),//
+				this.newInfoFilter("需入渠", ship -> FunctionUtils.isFalse(ShipDtoTranslator.perfectState(ship))),//
+				this.newInfoFilter("需补给", ShipDtoTranslator::needHokyo),//
+				this.newInfoFilter("可装大发系", ShipDtoTranslator::canEquipDaihatsu),//
+				this.newInfoFilter("可先制反潜", ShipDtoTranslator::canOpeningTaisen),//
+				this.newInfoFilter("有贴条", ship -> ship.getSallyArea() != 0)//
+		).reduce(Predicate::and).get();
 
-		Predicate<ShipDto> infoFilter =//
-				this.newInfoFilter("没远征", ship -> FunctionUtils.isFalse(ShipDtoTranslator.isInMission(ship)))//
-						.and(this.newInfoFilter("非LV1", ship -> ship.getLevel() != 1))//
-						.and(this.newInfoFilter("婚舰", ship -> ship.getLevel() > 99))//
-						.and(this.newInfoFilter("Lock", ShipDto::isLocked))//
-						.and(this.newInfoFilter("有增设", ship -> ship.getSlotex() != 0))//
-						.and(this.newInfoFilter("有闪", ship -> ship.getCond() > 49))//
-						.and(this.newInfoFilter("需入渠", ship -> FunctionUtils.isFalse(ShipDtoTranslator.perfectState(ship))))//
-						.and(this.newInfoFilter("需补给", ShipDtoTranslator::needHokyo))//
-						.and(this.newInfoFilter("可装大发系", ShipDtoTranslator::canEquipDaihatsu))//
-						.and(this.newInfoFilter("可先制反潜", ShipDtoTranslator::canOpeningTaisen))//
-						.and(this.newInfoFilter("有贴条", ship -> ship.getSallyArea() != 0));
+		return Stream.of(fleetFilter, typeFilter, infoFilter).reduce(Predicate::and).get();
+	}
 
-		return typeFilter.and(infoFilter);
+	private ToIntFunction<ShipDto> newFleetFilter(int fleetNumber) {
+		Button button = new Button(this.fleetFilterComposite, SWT.CHECK);
+		button.setText(AppConstants.DEFAULT_FLEET_NAME[fleetNumber]);
+		button.addSelectionListener(new ControlSelectionListener(ev -> {
+			this.fleetButtons.stream().forEach(fleetButton -> {
+				if (fleetButton != button) {
+					fleetButton.setSelection(false);
+				}
+			});
+		}).andThen(this.getUpdateTableListener()));
+		this.fleetButtons.add(button);
+		return ship -> {
+			if (button.getSelection()) {
+				if (DeckDtoTranslator.isShipInDeck(GlobalContext.deckRooms[fleetNumber].getDeck(), ship.getId())) {
+					return 1;//button被选择,并且ship在相应的舰队里
+				} else {
+					return -1;//button被选择,并且ship不在相应的舰队里
+				}
+			} else {
+				return 0;//button没有被选择
+			}
+		};
 	}
 
 	private Predicate<ShipDto> newTypeFilter(String text, int... types) {

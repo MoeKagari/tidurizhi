@@ -1,4 +1,4 @@
-package tdrz.gui.window.sub;
+package tdrz.gui.window.sub.table;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +31,7 @@ import tdrz.core.util.SwtUtils;
 import tdrz.gui.window.WindowResource;
 import tdrz.gui.window.listener.ControlSelectionListener;
 import tdrz.gui.window.main.ApplicationMain;
+import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.word.ItemDto;
 import tdrz.update.dto.word.ShipDto;
@@ -139,12 +140,6 @@ public class ShipGroupTable extends AbstractTable<ShipDto> {
 		});
 	}
 
-	private Point getCenterLocation(Point windowSize) {
-		Point size = this.getWindowConfig().getSize();
-		Point location = this.getWindowConfig().getLocation();
-		return new Point(location.x + (size.x - windowSize.x) / 2, location.y + (size.y - windowSize.y) / 2);
-	}
-
 	private abstract class AbstractOperationWindow {
 		protected final Shell operationShell;
 		public final Composite operationComposite;
@@ -167,12 +162,19 @@ public class ShipGroupTable extends AbstractTable<ShipDto> {
 		}
 
 		public void displayWindow() {
-			this.operationShell.setLocation(ShipGroupTable.this.getCenterLocation(this.operationShell.getSize()));
+			this.operationShell.setLocation(this.getCenterLocation());
 			this.operationShell.setVisible(true);
 		}
 
 		public void hiddenWindow() {
 			this.operationShell.setVisible(false);
+		}
+
+		private Point getCenterLocation() {
+			Point size = ShipGroupTable.this.getWindowConfig().getSize();
+			Point location = ShipGroupTable.this.getWindowConfig().getLocation();
+			Point windowSize = this.operationShell.getSize();
+			return new Point(location.x + (size.x - windowSize.x) / 2, location.y + (size.y - windowSize.y) / 2);
 		}
 
 		public abstract Point defaultSize();

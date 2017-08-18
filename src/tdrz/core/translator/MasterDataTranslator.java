@@ -9,7 +9,7 @@ import tdrz.update.dto.word.MasterDataDto.MasterMissionDto;
 import tdrz.update.dto.word.MasterDataDto.MasterShipDto;
 import tdrz.update.dto.word.MasterDataDto.MasterSlotitemDto;
 import tdrz.update.dto.word.MasterDataDto.MasterUserItemDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public class MasterDataTranslator {
 	public static String getMissionName(int id) {

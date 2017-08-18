@@ -13,7 +13,7 @@ import java.util.zip.GZIPInputStream;
 import javax.json.Json;
 import javax.json.JsonObject;
 
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public class ApiData {
 	private final long time;

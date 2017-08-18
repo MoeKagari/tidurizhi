@@ -20,7 +20,7 @@ import tdrz.core.util.ToolUtils;
 import tdrz.gui.window.listener.ControlSelectionListener;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.update.context.data.DataType;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 /**
  * 所有table的超类

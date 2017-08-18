@@ -9,7 +9,7 @@ import tdrz.core.util.ToolUtils;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.word.DeckDto;
 import tdrz.update.dto.word.ShipDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public class DeckDtoTranslator {
 	private static Stream<ShipDto> getShipStream(DeckDto deck) {

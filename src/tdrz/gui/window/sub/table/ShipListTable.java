@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.BiPredicate;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
@@ -29,7 +29,7 @@ import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.word.ItemDto;
 import tdrz.update.dto.word.MasterDataDto.MasterShipDto;
 import tdrz.update.dto.word.ShipDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 /**
  * 所有舰娘
@@ -40,7 +40,7 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 	private List<Button> deckButtons;
 	private Composite fleetFilterComposite;
 
-	private Button allTypeShipButton;
+	private Button noLimitTypeButton;
 	private List<Button> typeButtons;
 	private Composite typeFilterComposite;
 
@@ -81,7 +81,7 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 		tcms.add(new TableColumnManager("舰娘", ShipDtoTranslator::getName));
 		tcms.add(new TableColumnManager("舰种", ShipDtoTranslator::getTypeString));
 		tcms.add(new TableColumnManager("等级", true, ShipDto::getLevel));
-		tcms.add(new TableColumnManager("所处", rd -> FunctionUtils.ifFunction(ShipDtoTranslator.whichDeck(rd), wd -> wd != -1, wd -> AppConstants.DEFAULT_FLEET_NAME[wd], "")));
+		tcms.add(new TableColumnManager("所处", ShipDtoTranslator::whichDeckString));
 
 		switch (this.getMode()) {
 			case INFORMATION:
@@ -99,14 +99,10 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 		tcms.add(new TableColumnManager("炮击战", true, ShipDtoTranslator::getPowerHougeki));
 		tcms.add(new TableColumnManager("雷击战", true, ShipDtoTranslator::getPowerRageki));
 		tcms.add(new TableColumnManager("夜战", true, ShipDtoTranslator::getPowerMidnight));
-		for (int i = 0; i < 5; i++) {
-			final int index = i;
-			tcms.add(new TableColumnManager("装备" + (index + 1), rd -> {
-				ItemDto item = GlobalContext.getItem(index == 4 ? rd.getSlotex() : rd.getSlots()[index]);
-				return FunctionUtils.notNull(item, ItemDtoTranslator::getNameWithLevel, "");
-			}));
-		}
-
+		IntStream.range(0, 5).mapToObj(index -> new TableColumnManager(String.format("装备%d", index + 1), rd -> {
+			ItemDto item = GlobalContext.getItem(index == 4 ? rd.getSlotex() : rd.getSlots()[index]);
+			return FunctionUtils.notNull(item, ItemDtoTranslator::getNameWithLevel, "");
+		})).forEach(tcms::add);
 		tcms.add(new TableColumnManager("出击海域", rd -> FunctionUtils.ifFunction(rd.getSallyArea(), sa -> sa != 0, String::valueOf, "")));
 	}
 
@@ -181,33 +177,32 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 		{
 			this.noLimitDeckButton = new Button(this.fleetFilterComposite, SWT.RADIO);
 			this.noLimitDeckButton.setText("无限制");
+			this.noLimitDeckButton.setSelection(true);
 			this.noLimitDeckButton.addSelectionListener(new ControlSelectionListener(ev -> {
-				this.deckButtons.stream().forEach(button -> button.setSelection(false));
-			}));
-			this.noLimitDeckButton.addSelectionListener(this.getUpdateTableListener());
+				this.deckButtons.forEach(button -> button.setSelection(false));
+			}).andThen(this.getUpdateTableListener()));
 		}
 		this.deckButtons = new ArrayList<>();
 		Predicate<ShipDto> deckFilter = Stream.of(//
 				ship -> this.noLimitDeckButton.getSelection(),//
-				this.newDeckFilter("无所属舰队", intStream -> intPredicate -> intStream.noneMatch(intPredicate), 0, 1, 2, 3),//
-				this.newDeckFilter(AppConstants.DEFAULT_FLEET_NAME[0], intStream -> intPredicate -> intStream.allMatch(intPredicate), 0),//
-				this.newDeckFilter(AppConstants.DEFAULT_FLEET_NAME[1], intStream -> intPredicate -> intStream.allMatch(intPredicate), 1),//
-				this.newDeckFilter(AppConstants.DEFAULT_FLEET_NAME[2], intStream -> intPredicate -> intStream.allMatch(intPredicate), 2),//
-				this.newDeckFilter(AppConstants.DEFAULT_FLEET_NAME[3], intStream -> intPredicate -> intStream.allMatch(intPredicate), 3)//
+				this.newDeckFilter("无所属舰队", IntStream::noneMatch, 0, 1, 2, 3),//
+				this.newDeckFilter(AppConstants.DEFAULT_FLEET_NAME[0], IntStream::allMatch, 0),//
+				this.newDeckFilter(AppConstants.DEFAULT_FLEET_NAME[1], IntStream::allMatch, 1),//
+				this.newDeckFilter(AppConstants.DEFAULT_FLEET_NAME[2], IntStream::allMatch, 2),//
+				this.newDeckFilter(AppConstants.DEFAULT_FLEET_NAME[3], IntStream::allMatch, 3)//
 		).reduce(Predicate::or).get();
 
 		{
-			this.allTypeShipButton = new Button(this.typeFilterComposite, SWT.RADIO);
-			this.allTypeShipButton.setText("全舰");
-			this.allTypeShipButton.setSelection(true);
-			this.allTypeShipButton.addSelectionListener(new ControlSelectionListener(ev -> {
+			this.noLimitTypeButton = new Button(this.typeFilterComposite, SWT.RADIO);
+			this.noLimitTypeButton.setText("全舰");
+			this.noLimitTypeButton.setSelection(true);
+			this.noLimitTypeButton.addSelectionListener(new ControlSelectionListener(ev -> {
 				this.typeButtons.forEach(button -> button.setSelection(false));
-			}));
-			this.allTypeShipButton.addSelectionListener(this.getUpdateTableListener());
+			}).andThen(this.getUpdateTableListener()));
 		}
 		this.typeButtons = new ArrayList<>();
 		Predicate<ShipDto> typeFilter = Stream.of(//
-				ship -> this.allTypeShipButton.getSelection(),//
+				ship -> this.noLimitTypeButton.getSelection(),//
 				this.newTypeFilter("駆逐艦", 2),//
 				this.newTypeFilter("軽巡洋艦", 3),//
 				this.newTypeFilter("重雷装巡洋艦", 4),//
@@ -240,17 +235,16 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 		return Stream.of(deckFilter, typeFilter, infoFilter).reduce(Predicate::and).get();
 	}
 
-	private Predicate<ShipDto> newDeckFilter(String text, Function<IntStream, Predicate<IntPredicate>> fun, int... deckNumbers) {
+	private Predicate<ShipDto> newDeckFilter(String text, BiPredicate<IntStream, IntPredicate> bpre, int... deckNumbers) {
 		Button button = new Button(this.fleetFilterComposite, SWT.CHECK);
 		button.setText(text);
 		button.addSelectionListener(new ControlSelectionListener(ev -> {
 			this.noLimitDeckButton.setSelection(this.deckButtons.stream().noneMatch(Button::getSelection));
-		}));
-		button.addSelectionListener(this.getUpdateTableListener());
+		}).andThen(this.getUpdateTableListener()));
 		this.deckButtons.add(button);
 
-		return this.buildPredicate(button, ship -> {
-			return fun.apply(IntStream.of(deckNumbers)).test(deckNumber -> DeckDtoTranslator.isShipInDeck(deckNumber, ship));
+		return this.buildButtonPredicate(button, ship -> {
+			return bpre.test(IntStream.of(deckNumbers), deckNumber -> DeckDtoTranslator.isShipInDeck(deckNumber, ship));
 		}, false);
 	}
 
@@ -258,15 +252,14 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 		Button button = new Button(this.typeFilterComposite, SWT.CHECK);
 		button.setText(text);
 		button.addSelectionListener(new ControlSelectionListener(ev -> {
-			this.allTypeShipButton.setSelection(this.typeButtons.stream().noneMatch(Button::getSelection));
-		}));
-		button.addSelectionListener(this.getUpdateTableListener());
+			this.noLimitTypeButton.setSelection(this.typeButtons.stream().noneMatch(Button::getSelection));
+		}).andThen(this.getUpdateTableListener()));
 		this.typeButtons.add(button);
 
-		return this.buildPredicate(button, ship -> {
+		return this.buildButtonPredicate(button, ship -> {
 			MasterShipDto msd = ship.getMasterData();
 			if (msd != null) {
-				return Arrays.stream(types).anyMatch(type -> type == msd.getType());
+				return IntStream.of(types).anyMatch(type -> type == msd.getType());
 			}
 			return false;
 		}, false);
@@ -277,15 +270,16 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 		button.setText(text);
 		button.addSelectionListener(this.getUpdateTableListener());
 		this.infoButtons.add(button);
-		return this.buildPredicate(button, shipPredicater, true);
+
+		return this.buildButtonPredicate(button, shipPredicater, true);
 	}
 
-	private Predicate<ShipDto> buildPredicate(Button button, Predicate<ShipDto> valueWhenSelected, boolean defaultValue) {
+	private Predicate<ShipDto> buildButtonPredicate(Button button, Predicate<ShipDto> valueWhenSelected, boolean defaultValue) {
 		return ship -> {
 			if (button.getSelection()) {
 				return valueWhenSelected.test(ship);
 			}
-			return true;
+			return defaultValue;
 		};
 	}
 }

@@ -9,7 +9,7 @@ import tdrz.update.context.GlobalContext;
 import tdrz.update.context.data.DataType;
 import tdrz.update.dto.word.QuestDto;
 import tdrz.update.dto.word.QuestDto.QuestInformationDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 /**
  * 所有任务
@@ -33,7 +33,7 @@ public class QuestListTable extends AbstractTable<QuestDto> {
 		tcms.add(new TableColumnManager("弹", true, rd -> materialString.apply(rd.getInformation().getMaterial()[1])));
 		tcms.add(new TableColumnManager("钢", true, rd -> materialString.apply(rd.getInformation().getMaterial()[2])));
 		tcms.add(new TableColumnManager("铝", true, rd -> materialString.apply(rd.getInformation().getMaterial()[3])));
-		tcms.add(new TableColumnManager("描述", rd -> rd.getInformation().getDetail()));
+		tcms.add(new TableColumnManager("描述", FunctionUtils.andThen(QuestDto::getInformation, QuestInformationDto::getDetail)));
 	}
 
 	@Override

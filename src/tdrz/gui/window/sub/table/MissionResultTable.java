@@ -10,7 +10,7 @@ import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.memory.MissionResultDto;
 import tdrz.update.dto.memory.MissionResultDto.MissionResultItem;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 /**
  * 远征记录

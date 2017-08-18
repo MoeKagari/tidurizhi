@@ -15,7 +15,7 @@ import tdrz.core.internal.AsyncExecApplicationMain;
 import tdrz.gui.window.WindowResource;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.context.server.TDRZServerSevlet;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public class MainStart {
 	public static TDRZServerSevlet server = null;

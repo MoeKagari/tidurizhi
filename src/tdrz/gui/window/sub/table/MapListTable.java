@@ -10,7 +10,7 @@ import tdrz.update.context.GlobalContext;
 import tdrz.update.context.data.DataType;
 import tdrz.update.dto.word.MapinfoDto;
 import tdrz.update.dto.word.MapinfoDto.OneMap;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 /**
  *  有血条的图的详情 

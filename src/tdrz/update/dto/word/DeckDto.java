@@ -13,7 +13,7 @@ import tdrz.core.translator.DeckDtoTranslator;
 import tdrz.core.translator.MasterDataTranslator;
 import tdrz.core.util.JsonUtils;
 import tdrz.update.dto.AbstractWord;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 /**
  * 舰队编成

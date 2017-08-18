@@ -21,7 +21,7 @@ import tdrz.update.context.data.DataType;
 import tdrz.update.dto.word.DeckDto;
 import tdrz.update.dto.word.ItemDto;
 import tdrz.update.dto.word.ShipDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public class FleetWindow implements ApiDataListener {
 	private final int id;//1,2,3,4

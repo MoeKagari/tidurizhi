@@ -51,8 +51,8 @@ import tdrz.update.dto.memory.battle.info.InfoBattleStartDto;
 import tdrz.update.dto.memory.battle.practice.PracticeBattleDayDto;
 import tdrz.update.dto.memory.battle.practice.PracticeBattleResultDto;
 import tdrz.update.dto.word.DeckDto;
-import tool.FunctionUtils;
-import tool.FunctionUtils.BiIntFunction;
+import tool.function.FunctionUtils;
+import tool.function.funcinte.BiIntFunction;
 
 public class BattleDtoTranslator {
 

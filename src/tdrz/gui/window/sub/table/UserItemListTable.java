@@ -8,7 +8,7 @@ import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.context.data.DataType;
 import tdrz.update.dto.word.UseItemDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public class UserItemListTable extends AbstractTable<UseItemDto> {
 	public UserItemListTable(ApplicationMain main, String title) {

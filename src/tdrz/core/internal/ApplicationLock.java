@@ -10,7 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import tdrz.core.config.AppConstants;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public class ApplicationLock {
 	private static final File LOCK_FILE = new File(AppConstants.LOCKFILEPATH);

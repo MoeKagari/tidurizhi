@@ -9,7 +9,7 @@ import javax.json.JsonValue;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.context.data.ApiData;
 import tdrz.update.dto.word.BasicDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public class MainRoom {
 	/** 最后一次返回母港的时间 */

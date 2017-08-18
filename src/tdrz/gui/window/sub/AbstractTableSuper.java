@@ -12,7 +12,7 @@ import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sup.WindowBase;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.context.data.DataType;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public abstract class AbstractTableSuper<T> extends WindowBase {
 	public AbstractTableSuper(ApplicationMain main, String title) {

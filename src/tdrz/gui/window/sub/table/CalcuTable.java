@@ -5,7 +5,7 @@ import java.util.Map;
 
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public abstract class CalcuTable<T> extends AbstractTable<T> {
 	public CalcuTable(ApplicationMain main, String title) {

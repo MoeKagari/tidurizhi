@@ -67,7 +67,7 @@ import tdrz.gui.window.sup.WindowBase;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.context.data.DataType;
 import tdrz.update.dto.word.ResourceDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public final class ApplicationMain extends AbstractWindow {
 	public static ApplicationMain main;

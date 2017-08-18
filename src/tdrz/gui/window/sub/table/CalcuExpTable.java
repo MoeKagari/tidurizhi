@@ -27,7 +27,7 @@ import tdrz.gui.window.listener.ControlSelectionListener;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.word.ShipDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 	private final Button updateShipDataButton;
@@ -197,10 +197,10 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 	protected void initTCMS(List<TableColumnManager> tcms) {
 		tcms.add(new TableColumnManager("目标等级", rd -> rd.targetLevel));
 		tcms.add(new TableColumnManager("升级所需", rd -> {
-			if (rd.currentLevel == rd.targetLevel) {
+			if (rd.targetIsCurrent()) {
 				return String.format("当前经验:%d", rd.currentExp);
 			} else {
-				return String.valueOf(rd.targetExp - rd.currentExp);
+				return String.valueOf(rd.needExp());
 			}
 		}));
 		FunctionUtils.toMapForEach(//
@@ -208,8 +208,8 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 				FunctionUtils::returnSelf, SeaExp.SEAEXPMAP::get, //
 				(sea, exp) -> tcms.add(new TableColumnManager(sea, rd -> {
 					int baseExp = this.calcuBaseExp(exp);
-					if (rd.currentLevel == rd.targetLevel) return String.format("基础经验:%d", baseExp);
-					int needExp = rd.targetExp - rd.currentExp;
+					if (rd.targetIsCurrent()) return String.format("基础经验:%d", baseExp);
+					int needExp = rd.needExp();
 					int count = (needExp / baseExp) + ((needExp % baseExp) != 0 ? 1 : 0);
 					return String.valueOf(count);
 				}))//
@@ -383,6 +383,14 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 			this.currentExp = currentExp;
 			this.targetLevel = targetLevel;
 			this.targetExp = ShipExp.EXPMAP.get(targetLevel);
+		}
+
+		public boolean targetIsCurrent() {
+			return this.targetLevel == this.currentLevel;
+		}
+
+		public int needExp() {
+			return this.targetExp - this.currentExp;
 		}
 	}
 

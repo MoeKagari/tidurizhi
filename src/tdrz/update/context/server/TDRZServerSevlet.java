@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import server.CommunicationHandler;
 import server.ProxyServerServlet;
 import server.ServerConfig;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 @SuppressWarnings("serial")
 public class TDRZServerSevlet extends ProxyServerServlet {

@@ -8,7 +8,7 @@ import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.memory.CreateshipDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 /**
  * 建造记录

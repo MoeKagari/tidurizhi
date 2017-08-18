@@ -20,7 +20,7 @@ import tdrz.gui.window.main.ApplicationMain;
 import tdrz.update.context.data.ApiData;
 import tdrz.update.context.data.ApiDataListener;
 import tdrz.update.context.data.DataType;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public class GlobalContextUpdater {
 	private final static Logger log = LogManager.getLogger(GlobalContextUpdater.class);

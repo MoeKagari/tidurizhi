@@ -7,6 +7,7 @@ import java.util.stream.IntStream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import tdrz.core.config.AppConstants;
 import tdrz.core.logic.HPMessage;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.context.room.DeckRoom;
@@ -15,7 +16,7 @@ import tdrz.update.dto.word.ItemDto;
 import tdrz.update.dto.word.MasterDataDto.MasterShipDto;
 import tdrz.update.dto.word.MasterDataDto.MasterSlotitemDto;
 import tdrz.update.dto.word.ShipDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 /** 全部方法 ship==null 可 */
 public class ShipDtoTranslator {
@@ -205,6 +206,10 @@ public class ShipDtoTranslator {
 			}
 		}
 		return -1;
+	}
+
+	public static String whichDeckString(ShipDto ship) {
+		return FunctionUtils.ifFunction(ShipDtoTranslator.whichDeck(ship), wd -> wd != -1, wd -> AppConstants.DEFAULT_FLEET_NAME[wd], "");
 	}
 
 	public static boolean canOpeningTaisen(ShipDto ship) {

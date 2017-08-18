@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.MenuItem;
 
 import tdrz.gui.window.WindowResource;
 import tdrz.gui.window.listener.ControlSelectionListener;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public final class SwtUtils {
 	private final static int DPI_BASE = 96;

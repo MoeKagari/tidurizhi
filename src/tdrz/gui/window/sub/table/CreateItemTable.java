@@ -8,7 +8,7 @@ import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.memory.CreateItemDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 /**
  * 开发记录

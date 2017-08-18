@@ -8,7 +8,7 @@ import tdrz.gui.window.sub.table.DropListTable;
 import tdrz.gui.window.sup.WindowBase;
 import tdrz.update.dto.memory.battle.AbstractBattle;
 import tdrz.update.dto.memory.battle.BattleDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 /**
  * 战斗流程<br>

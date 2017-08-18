@@ -15,7 +15,7 @@ import tdrz.core.translator.DeckDtoTranslator;
 import tdrz.core.translator.MasterDataTranslator;
 import tdrz.core.util.JsonUtils;
 import tdrz.core.util.ToolUtils;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public abstract class AbstractBattle extends BattleDto {
 	private static final long serialVersionUID = 1L;

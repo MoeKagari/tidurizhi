@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.SWT;
@@ -23,7 +24,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import tdrz.core.config.AppConstants;
 import tdrz.core.config.ShipGroup;
 import tdrz.core.translator.ItemDtoTranslator;
 import tdrz.core.translator.ShipDtoTranslator;
@@ -35,7 +35,7 @@ import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.word.ItemDto;
 import tdrz.update.dto.word.ShipDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public class ShipGroupTable extends AbstractTable<ShipDto> {
 	private final Button addButton, removeButton, editButton;
@@ -55,9 +55,7 @@ public class ShipGroupTable extends AbstractTable<ShipDto> {
 			this.addButton = new Button(leftContentComposite, SWT.PUSH);
 			this.addButton.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
 			this.addButton.setText("新建");
-			this.addButton.addSelectionListener(new ControlSelectionListener(ev -> {
-				this.addGroupWindow.displayWindow();
-			}));
+			this.addButton.addSelectionListener(new ControlSelectionListener(this.addGroupWindow::displayWindow));
 
 			this.removeButton = new Button(leftContentComposite, SWT.PUSH);
 			this.removeButton.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
@@ -74,9 +72,7 @@ public class ShipGroupTable extends AbstractTable<ShipDto> {
 			this.editButton = new Button(leftContentComposite, SWT.PUSH);
 			this.editButton.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
 			this.editButton.setText("编辑");
-			this.editButton.addSelectionListener(new ControlSelectionListener(ev -> {
-				this.editGroupWindow.displayWindow();
-			}));
+			this.editButton.addSelectionListener(new ControlSelectionListener(this.editGroupWindow::displayWindow));
 
 			this.groupList = new org.eclipse.swt.widgets.List(leftContentComposite, SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
 			this.groupList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));
@@ -106,28 +102,20 @@ public class ShipGroupTable extends AbstractTable<ShipDto> {
 	}
 
 	@Override
-	public boolean defaultVisible() {
-		return true;
-	}
-
-	@Override
 	protected void initTCMS(List<TableColumnManager> tcms) {
 		tcms.add(new TableColumnManager("ID", true, ShipDto::getId));
 		tcms.add(new TableColumnManager("舰娘", ShipDtoTranslator::getName));
 		tcms.add(new TableColumnManager("舰种", ShipDtoTranslator::getTypeString));
 		tcms.add(new TableColumnManager("等级", true, ShipDto::getLevel));
-		tcms.add(new TableColumnManager("所处", rd -> FunctionUtils.ifFunction(ShipDtoTranslator.whichDeck(rd), wd -> wd != -1, wd -> AppConstants.DEFAULT_FLEET_NAME[wd], "")));
+		tcms.add(new TableColumnManager("所处", ShipDtoTranslator::whichDeckString));
 		tcms.add(new TableColumnManager("Cond", true, ShipDto::getCond));
 		tcms.add(new TableColumnManager("现有经验", true, ShipDto::getCurrentExp));
 		tcms.add(new TableColumnManager("升级所需", true, ShipDto::getNextExp));
 		tcms.add(new TableColumnManager("入渠中", rd -> ShipDtoTranslator.isInNyukyo(rd) ? "是" : ""));
-		for (int i = 0; i < 5; i++) {
-			final int index = i;
-			tcms.add(new TableColumnManager("装备" + (index + 1), rd -> {
-				ItemDto item = GlobalContext.getItem(index == 4 ? rd.getSlotex() : rd.getSlots()[index]);
-				return FunctionUtils.notNull(item, ItemDtoTranslator::getNameWithLevel, "");
-			}));
-		}
+		IntStream.range(0, 5).mapToObj(index -> new TableColumnManager(String.format("装备%d", index + 1), rd -> {
+			ItemDto item = GlobalContext.getItem(index == 4 ? rd.getSlotex() : rd.getSlots()[index]);
+			return FunctionUtils.notNull(item, ItemDtoTranslator::getNameWithLevel, "");
+		})).forEach(tcms::add);
 		tcms.add(new TableColumnManager("出击海域", rd -> FunctionUtils.ifFunction(rd.getSallyArea(), sa -> sa != 0, String::valueOf, "")));
 	}
 
@@ -141,7 +129,7 @@ public class ShipGroupTable extends AbstractTable<ShipDto> {
 	}
 
 	private abstract class AbstractOperationWindow {
-		protected final Shell operationShell;
+		public final Shell operationShell;
 		public final Composite operationComposite;
 
 		public AbstractOperationWindow(String title) {
@@ -294,7 +282,7 @@ public class ShipGroupTable extends AbstractTable<ShipDto> {
 
 		@Override
 		public Point defaultSize() {
-			return SwtUtils.DPIAwareSize(new Point(200, 250));
+			return SwtUtils.DPIAwareSize(new Point(260, 570));
 		}
 	}
 }

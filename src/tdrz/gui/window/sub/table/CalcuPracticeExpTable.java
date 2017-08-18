@@ -17,7 +17,7 @@ import tdrz.update.context.GlobalContext;
 import tdrz.update.context.data.DataType;
 import tdrz.update.dto.word.PracticeEnemyDto;
 import tdrz.update.dto.word.PracticeEnemyDto.PracticeEnemyShip;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public class CalcuPracticeExpTable extends CalcuTable<CalcuPracticeExpTable.CalcuPracticeExpData> {
 	private final Spinner levelSpinner0, levelSpinner1;

@@ -9,7 +9,7 @@ import tdrz.core.translator.ItemDtoTranslator.ItemDataMap.ItemData;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.word.ItemDto;
 import tdrz.update.dto.word.MasterDataDto.MasterSlotitemDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public class ItemDtoTranslator {
 	public static String getName(ItemDto item) {

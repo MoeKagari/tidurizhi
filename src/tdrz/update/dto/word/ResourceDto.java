@@ -1,7 +1,7 @@
 package tdrz.update.dto.word;
 
 import tdrz.update.dto.AbstractWord;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 /**
  * 八种资源

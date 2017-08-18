@@ -18,7 +18,7 @@ import tdrz.update.dto.memory.battle.AbstractInfoBattleStartNext;
 import tdrz.update.dto.memory.battle.BattleDto;
 import tdrz.update.dto.memory.battle.info.InfoBattleResultDto;
 import tdrz.update.dto.memory.battle.info.InfoBattleStartAirBaseDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 /**
  * 掉落记录

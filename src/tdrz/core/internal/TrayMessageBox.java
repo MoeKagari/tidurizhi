@@ -8,7 +8,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.ToolTip;
 
 import tdrz.gui.window.main.ApplicationMain;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public class TrayMessageBox {
 	private Map<String, String> title_notice = null;

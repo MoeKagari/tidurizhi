@@ -3,7 +3,7 @@ package tdrz.update.dto.memory;
 import tdrz.core.translator.ShipDtoTranslator;
 import tdrz.update.dto.AbstractMemory;
 import tdrz.update.dto.word.ShipDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 /**
  * 开发记录

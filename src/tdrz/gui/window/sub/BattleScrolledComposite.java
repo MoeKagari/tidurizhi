@@ -8,7 +8,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ScrollBar;
 
 import tdrz.core.util.SwtUtils;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 /**
  * {@link BattleWindow}和{@link BattleFlowWindow}中的scrolled composite

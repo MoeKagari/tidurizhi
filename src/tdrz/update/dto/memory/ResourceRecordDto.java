@@ -2,7 +2,7 @@ package tdrz.update.dto.memory;
 
 import tdrz.update.dto.AbstractMemory;
 import tdrz.update.dto.word.ResourceDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 /**
  * 资源记录

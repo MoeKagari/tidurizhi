@@ -10,7 +10,7 @@ import tdrz.update.context.GlobalContext;
 import tdrz.update.context.data.ApiData;
 import tdrz.update.dto.memory.CreateshipDto;
 import tdrz.update.dto.word.KdockDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public class KdockRoom {
 	private final int id;

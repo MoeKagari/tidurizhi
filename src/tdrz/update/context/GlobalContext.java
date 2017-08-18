@@ -82,7 +82,7 @@ import tdrz.update.dto.word.QuestDto;
 import tdrz.update.dto.word.ResourceDto;
 import tdrz.update.dto.word.ShipDto;
 import tdrz.update.dto.word.UseItemDto;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public class GlobalContext {
 	private static final Logger LOG = LogManager.getLogger(GlobalContext.class);

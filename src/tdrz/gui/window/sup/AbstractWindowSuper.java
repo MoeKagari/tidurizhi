@@ -10,7 +10,7 @@ import tdrz.gui.window.listener.DefaultWindowConfig;
 import tdrz.gui.window.listener.MouseDragListener;
 import tdrz.gui.window.listener.WindowCanBeOperated;
 import tdrz.update.context.data.ApiDataListener;
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 /** 仅仅是为了分离 {@link AbstractWindow} 的功能部分 */
 public abstract class AbstractWindowSuper extends AbstractCompositeBase implements ApiDataListener, WindowCanBeOperated, DefaultWindowConfig {

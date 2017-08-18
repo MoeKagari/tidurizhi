@@ -18,9 +18,9 @@ import tdrz.update.context.GlobalContext;
 import tdrz.update.context.GlobalContext.PLTime;
 import tdrz.update.dto.word.DeckDto;
 import tdrz.update.dto.word.DeckDto.DeckMissionDto;
+import tool.function.FunctionUtils;
 import tdrz.update.dto.word.NdockDto;
 import tdrz.update.dto.word.ShipDto;
-import tool.FunctionUtils;
 
 public class AsyncExecApplicationMain extends Thread {
 	private static final Logger LOG = LogManager.getLogger(AsyncExecApplicationMain.class);

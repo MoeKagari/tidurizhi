@@ -3,7 +3,7 @@ package tdrz.update.context.data;
 import java.util.HashMap;
 import java.util.Map;
 
-import tool.FunctionUtils;
+import tool.function.FunctionUtils;
 
 public enum DataType {
 	//start battle相关

@@ -4,7 +4,6 @@ import java.util.List;
 
 import tdrz.core.logic.TimeString;
 import tdrz.core.translator.MasterDataTranslator;
-import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.memory.CreateItemDto;
@@ -15,9 +14,9 @@ import tool.function.FunctionUtils;
  * @author MoeKagari
  */
 public class CreateItemTable extends AbstractTable<CreateItemDto> {
-
-	public CreateItemTable(ApplicationMain main, String title) {
-		super(main, title);
+	@Override
+	public String defaultTitle() {
+		return "开发记录";
 	}
 
 	@Override

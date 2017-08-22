@@ -30,7 +30,6 @@ import tdrz.core.translator.ShipDtoTranslator;
 import tdrz.core.util.SwtUtils;
 import tdrz.gui.window.WindowResource;
 import tdrz.gui.window.listener.ControlSelectionListener;
-import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.word.ItemDto;
@@ -45,9 +44,7 @@ public class ShipGroupTable extends AbstractTable<ShipDto> {
 	private final AddGroupWindow addGroupWindow = new AddGroupWindow();
 	private final EditGroupWindow editGroupWindow = new EditGroupWindow();
 
-	public ShipGroupTable(ApplicationMain main, String title) {
-		super(main, title);
-
+	public ShipGroupTable() {
 		Composite leftContentComposite = new Composite(this.leftComposite, SWT.NONE);
 		leftContentComposite.setLayoutData(SwtUtils.makeGridData(GridData.FILL_BOTH, 200));
 		leftContentComposite.setLayout(SwtUtils.makeGridLayout(3, 0, 0, 0, 0, 0, 0, 0, 4));
@@ -89,6 +86,11 @@ public class ShipGroupTable extends AbstractTable<ShipDto> {
 				}
 			}));
 		}
+	}
+
+	@Override
+	public String defaultTitle() {
+		return "分组";
 	}
 
 	@Override

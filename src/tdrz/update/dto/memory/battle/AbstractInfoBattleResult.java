@@ -35,6 +35,8 @@ public abstract class AbstractInfoBattleResult extends AbstractInfoBattle {
 		} else {
 			this.mvpCombined = -1;
 		}
+
+		//TODO api_escape_flag
 	}
 
 	public int getMvp() {
@@ -85,5 +87,4 @@ public abstract class AbstractInfoBattleResult extends AbstractInfoBattle {
 			return this.type;
 		}
 	}
-
 }

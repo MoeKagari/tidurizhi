@@ -54,12 +54,13 @@ public class WindowConfig {
 	private boolean topMost;
 	private boolean showTitleBar;
 	private int opacity;
+	private boolean ignoreMouse;
 
 	public WindowConfig() {
-		this(new Point(0, 0), new Point(0, 0), false, false, false, true, 255);
+		this(new Point(0, 0), new Point(0, 0), false, false, false, true, 255, false);
 	}
 
-	public WindowConfig(Point size, Point location, boolean visible, boolean minimized, boolean topMost, boolean showTitleBar, int opacity) {
+	public WindowConfig(Point size, Point location, boolean visible, boolean minimized, boolean topMost, boolean showTitleBar, int opacity, boolean ignoreMouse) {
 		this.size = size;
 		this.location = location;
 		this.visible = visible;
@@ -67,6 +68,7 @@ public class WindowConfig {
 		this.topMost = topMost;
 		this.showTitleBar = showTitleBar;
 		this.opacity = opacity;
+		this.setIgnoreMouse(ignoreMouse);
 	}
 
 	public Point getLocation() {
@@ -123,5 +125,13 @@ public class WindowConfig {
 
 	public void setOpacity(int opacity) {
 		this.opacity = opacity;
+	}
+
+	public boolean isIgnoreMouse() {
+		return ignoreMouse;
+	}
+
+	public void setIgnoreMouse(boolean ignoreMouse) {
+		this.ignoreMouse = ignoreMouse;
 	}
 }

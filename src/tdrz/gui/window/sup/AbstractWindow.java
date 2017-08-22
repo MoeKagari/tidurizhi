@@ -2,34 +2,28 @@ package tdrz.gui.window.sup;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Shell;
 
 import tdrz.core.config.WindowConfig;
 import tdrz.gui.window.listener.WindowConfigChangedListener;
-import tdrz.update.context.GlobalContextUpdater;
 
 /**
  * 所有窗口的super class
  * @author MoeKagari
  */
 public abstract class AbstractWindow extends AbstractWindowSuper {
-	private WindowConfig windowConfig = null;
+	private final WindowConfig windowConfig;
 	private final List<WindowConfigChangedListener> windowConfigChangedListeners = new ArrayList<>();
 
-	public AbstractWindow(Shell parent, String title) {
-		super(parent, title);
-		this.restoreConfigAndAddShellListener();
-		GlobalContextUpdater.addListener(this);
-	}
-
-	private void restoreConfigAndAddShellListener() {
-		this.windowConfig = WindowConfig.get().get(this.getWindowConfigKey());
-		if (this.windowConfig == null) {
-			this.windowConfig = new WindowConfig(this.defaultSize(), this.shell.getLocation(), this.defaultVisible(), this.shell.getMinimized(), false, true, 255);
-			WindowConfig.get().put(this.getWindowConfigKey(), this.windowConfig);
-		}
+	public AbstractWindow() {
+		//窗口配置
+		String windowConfigKey = this.getWindowConfigKey();
+		this.windowConfig = Optional.ofNullable(WindowConfig.get().get(windowConfigKey)).orElse(//
+				new WindowConfig(this.defaultSize(), this.shell.getLocation(), this.defaultVisible(), this.shell.getMinimized(), false, true, 255, false)//
+		);
+		WindowConfig.get().put(windowConfigKey, this.windowConfig);
 
 		//在添加监听Resize和Move的listener前,恢复location,size
 		this.shell.setSize(this.windowConfig.getSize());//会产生Resize事件
@@ -39,16 +33,13 @@ public abstract class AbstractWindow extends AbstractWindowSuper {
 			this.windowConfig.setMinimized(true);
 			this.windowConfigChangedListeners.forEach(listener -> listener.minimizedChanged(true));
 		});
-
 		this.shell.addListener(SWT.Deiconify, ev -> {//[从最小化中恢复]事件
 			this.windowConfig.setMinimized(false);
 			this.windowConfigChangedListeners.forEach(listener -> listener.minimizedChanged(false));
 		});
-
 		this.shell.addListener(SWT.Resize, ev -> {//[改变窗口大小]事件
 			this.windowConfig.setSize(this.shell.getSize());
 		});
-
 		this.shell.addListener(SWT.Move, ev -> {//[移动窗口]事件
 			this.windowConfig.setLocation(this.shell.getLocation());
 		});
@@ -57,20 +48,22 @@ public abstract class AbstractWindow extends AbstractWindowSuper {
 	/*------------------------------------------------------------------------------------------------------------*/
 
 	/** 隐藏窗口 */
-	public void hiddenWindow() {
+	public final void hiddenWindow() {
 		if (this.shell.isVisible()) {
 			this.windowConfig.setVisible(false);
-			this.windowConfigChangedListeners.forEach(listener -> listener.visibleChanged(false));
+			this.windowConfigChangedListeners.forEach(listener -> listener.visibleChangedBefore(false));
 			this.shell.setVisible(false);
+			this.windowConfigChangedListeners.forEach(listener -> listener.visibleChangedAfter(false));
 		}
 	}
 
 	/** 显示窗口 */
-	public void displayWindow() {
+	public final void displayWindow() {
 		if (this.shell.isVisible() == false) {
 			this.windowConfig.setVisible(true);
-			this.windowConfigChangedListeners.forEach(listener -> listener.visibleChanged(true));
+			this.windowConfigChangedListeners.forEach(listener -> listener.visibleChangedBefore(true));
 			this.shell.setVisible(true);
+			this.windowConfigChangedListeners.forEach(listener -> listener.visibleChangedAfter(true));
 		}
 		this.setTop();
 		this.setTopMost(this.windowConfig.isTopMost());//解决topmost失效问题,重复setTopMost
@@ -97,16 +90,22 @@ public abstract class AbstractWindow extends AbstractWindowSuper {
 		this.shell.setMinimized(this.windowConfig.isMinimized());
 		this.changeOpacity(this.windowConfig.getOpacity());
 		this.toggleTitlebar(this.windowConfig.isShowTitleBar());
+		this.ignoreMouse(this.windowConfig.isIgnoreMouse());
 		if (this.windowConfig.isVisible()) {
 			this.displayWindow();
 		} else {
 			this.hiddenWindow();
 		}
-		//等显示窗口之后再topmost
-		this.setTopMost(this.windowConfig.isTopMost());
+		this.setTopMost(this.windowConfig.isTopMost());//等显示窗口之后再topmost
 	}
 
 	/*------------------------------------------------------------------------------------------------------------*/
+
+	@Override
+	public final void ignoreMouse(boolean ignoreMouse) {
+		this.windowConfig.setIgnoreMouse(ignoreMouse);
+		super.ignoreMouse(ignoreMouse);
+	}
 
 	/** 改变窗口透明度 */
 	@Override

@@ -2,7 +2,7 @@ package tdrz.gui.window.sub;
 
 import tdrz.core.config.AppConfig;
 import tdrz.core.translator.BattleDtoTranslator;
-import tdrz.gui.window.main.ApplicationMain;
+import tdrz.gui.composite.BattleScrolledComposite;
 import tdrz.gui.window.sup.WindowBase;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.context.data.DataType;
@@ -18,10 +18,14 @@ public class BattleWindow extends WindowBase {
 	private final BattleScrolledComposite sbc;//战斗窗口
 	private final BattleFlowWindow bfw;
 
-	public BattleWindow(ApplicationMain main, String title) {
-		super(main, title);
+	public BattleWindow() {
 		this.sbc = new BattleScrolledComposite(this.centerComposite, 0);
-		this.bfw = new BattleFlowWindow(main);
+		this.bfw = new BattleFlowWindow();
+	}
+
+	@Override
+	public String defaultTitle() {
+		return "出击";
 	}
 
 	@Override

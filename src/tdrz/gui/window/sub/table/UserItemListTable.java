@@ -3,7 +3,6 @@ package tdrz.gui.window.sub.table;
 import java.util.Collections;
 import java.util.List;
 
-import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.context.data.DataType;
@@ -11,8 +10,9 @@ import tdrz.update.dto.word.UseItemDto;
 import tool.function.FunctionUtils;
 
 public class UserItemListTable extends AbstractTable<UseItemDto> {
-	public UserItemListTable(ApplicationMain main, String title) {
-		super(main, title);
+	@Override
+	public String defaultTitle() {
+		return "所有道具";
 	}
 
 	@Override

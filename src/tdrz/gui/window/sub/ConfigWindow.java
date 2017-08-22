@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Text;
 import tdrz.core.config.AppConfig;
 import tdrz.core.util.SwtUtils;
 import tdrz.gui.window.listener.ControlSelectionListener;
+import tdrz.gui.window.listener.WindowConfigChangedAdapter;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.main.MainStart;
 import tdrz.gui.window.sup.WindowBase;
@@ -28,9 +29,7 @@ import tdrz.gui.window.sup.WindowBase;
 public class ConfigWindow extends WindowBase {
 	private final TabFolder tabFolder;
 
-	public ConfigWindow(ApplicationMain main, String title) {
-		super(main, title);
-
+	public ConfigWindow() {
 		this.tabFolder = new TabFolder(this.centerComposite, SWT.TOP);
 		this.tabFolder.setLayoutData(new GridData(GridData.FILL_BOTH));
 
@@ -39,30 +38,41 @@ public class ConfigWindow extends WindowBase {
 		saveButton.setText("保存");
 		saveButton.addSelectionListener(new ControlSelectionListener(ev -> {
 			//保存配置
-			Arrays.stream(this.tabFolder.getItems())//
+			Arrays.stream(ConfigWindow.this.tabFolder.getItems())//
 					.map(item -> (AbstractTabItemComposite) item.getControl())//
 					.flatMap(atc -> atc.saveActions.stream())//
 					.forEach(Runnable::run);
-			//并关闭窗口
+			//关闭窗口
 			this.hiddenWindow();
 			//重启Server
 			Optional.ofNullable(MainStart.server).ifPresent(server -> {
 				if (server.isConfigChanged()) {
 					try {
 						server.restart();
-						this.getMain().printMessage("服务器配置变更成功", true);
+						ApplicationMain.main.printMessage("服务器配置变更成功", true);
 					} catch (Exception ex) {
-						this.getMain().printMessage("服务器配置变更失败", true);
+						ApplicationMain.main.printMessage("服务器配置变更失败", true);
 					}
 				}
 			});
 			//更新主窗口标题
-			this.getMain().updateTitle();
+			ApplicationMain.main.updateTitle();
 		}));
 
 		this.newTabItem("通讯", new ProxyComposite());
 		this.newTabItem("窗口", new WindowComposite());
 		this.newTabItem("其它", new OthersComposite());
+
+		this.addWindowConfigChangedListener(new WindowConfigChangedAdapter() {
+			@Override
+			public void displayBefore() {
+				//显示之前重置窗口中的配置,使之以 AppConfig 相同
+				Arrays.stream(ConfigWindow.this.tabFolder.getItems())//
+						.map(item -> (AbstractTabItemComposite) item.getControl())//
+						.flatMap(atc -> atc.defaultActions.stream())//
+						.forEach(Runnable::run);
+			}
+		});
 	}
 
 	private TabItem newTabItem(String name, Control control) {
@@ -73,13 +83,8 @@ public class ConfigWindow extends WindowBase {
 	}
 
 	@Override
-	public void displayWindow() {
-		//显示之前重置窗口中的配置,使之以 AppConfig 相同
-		Arrays.stream(this.tabFolder.getItems())//
-				.map(item -> (AbstractTabItemComposite) item.getControl())//
-				.flatMap(atc -> atc.defaultActions.stream())//
-				.forEach(Runnable::run);
-		super.displayWindow();
+	public String defaultTitle() {
+		return "设置";
 	}
 
 	@Override

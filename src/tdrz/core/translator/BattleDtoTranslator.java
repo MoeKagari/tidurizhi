@@ -28,22 +28,22 @@ import tdrz.core.util.SwtUtils;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.memory.battle.AbstractBattle;
-import tdrz.update.dto.memory.battle.AbstractBattleDay;
-import tdrz.update.dto.memory.battle.AbstractBattleMidnight;
-import tdrz.update.dto.memory.battle.AbstractInfoBattle;
-import tdrz.update.dto.memory.battle.AbstractInfoBattleResult;
-import tdrz.update.dto.memory.battle.AbstractInfoBattleStartNext;
-import tdrz.update.dto.memory.battle.BattleDto;
 import tdrz.update.dto.memory.battle.AbstractBattle.BattleDeck;
 import tdrz.update.dto.memory.battle.AbstractBattle.BattleDeckAttackDamage;
 import tdrz.update.dto.memory.battle.AbstractBattle.BattleOneAttack;
+import tdrz.update.dto.memory.battle.AbstractBattleDay;
 import tdrz.update.dto.memory.battle.AbstractBattleDay.BattleDayStage;
 import tdrz.update.dto.memory.battle.AbstractBattleDay.InjectionKouko;
 import tdrz.update.dto.memory.battle.AbstractBattleDay.Kouko;
 import tdrz.update.dto.memory.battle.AbstractBattleDay.OpeningAttack;
 import tdrz.update.dto.memory.battle.AbstractBattleDay.OpeningTaisen;
+import tdrz.update.dto.memory.battle.AbstractBattleMidnight;
+import tdrz.update.dto.memory.battle.AbstractInfoBattle;
+import tdrz.update.dto.memory.battle.AbstractInfoBattleResult;
 import tdrz.update.dto.memory.battle.AbstractInfoBattleResult.BattleResult_GetShip;
+import tdrz.update.dto.memory.battle.AbstractInfoBattleStartNext;
 import tdrz.update.dto.memory.battle.AbstractInfoBattleStartNext.BattleStartNext_DestructionBattle;
+import tdrz.update.dto.memory.battle.BattleDto;
 import tdrz.update.dto.memory.battle.info.InfoBattleGobackPortDto;
 import tdrz.update.dto.memory.battle.info.InfoBattleShipdeckDto;
 import tdrz.update.dto.memory.battle.info.InfoBattleStartAirBaseDto;
@@ -113,7 +113,7 @@ public class BattleDtoTranslator {
 			newStateComposite(stateComposite, btr.after);
 
 			if (lastOne instanceof AbstractBattle) {//右键菜单,只对battle有效
-				MenuItem show = new MenuItem(new Menu(stateComposite), SWT.NONE);
+				MenuItem show = new MenuItem(new Menu(stateComposite), SWT.PUSH);
 				show.setText("战斗流程");
 				if (handler != null) {
 					show.addSelectionListener(new SelectionAdapter() {

@@ -24,7 +24,6 @@ import tdrz.core.translator.ShipDtoTranslator;
 import tdrz.core.util.SwtUtils;
 import tdrz.core.util.ToolUtils;
 import tdrz.gui.window.listener.ControlSelectionListener;
-import tdrz.gui.window.main.ApplicationMain;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.word.ShipDto;
 import tool.function.FunctionUtils;
@@ -45,9 +44,7 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 	private final List<ShipDataComposite> shipComposites = new ArrayList<>();
 	private AbstractDataComposite selected;
 
-	public CalcuExpTable(ApplicationMain main, String title) {
-		super(main, title);
-
+	public CalcuExpTable() {
 		Composite buttonComposite = new Composite(this.leftComposite, SWT.NONE);
 		buttonComposite.setLayout(SwtUtils.makeGridLayout(3, 0, 0, 0, 0));
 		buttonComposite.setLayoutData(SwtUtils.makeGridData(GridData.FILL_HORIZONTAL, 250));
@@ -119,6 +116,11 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 			this.shipCompositeList.setLayoutData(new GridData(GridData.FILL_BOTH));
 			this.scrolledComposite.setContent(this.shipCompositeList);
 		}
+	}
+
+	@Override
+	public String defaultTitle() {
+		return "经验计算器";
 	}
 
 	/**

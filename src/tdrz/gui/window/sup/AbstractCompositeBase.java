@@ -3,7 +3,6 @@ package tdrz.gui.window.sup;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Shell;
 
 import tdrz.core.util.SwtUtils;
 
@@ -37,9 +36,7 @@ public abstract class AbstractCompositeBase extends AbstractShellBase {
 	 */
 	public final Composite rightComposite;
 
-	public AbstractCompositeBase(Shell parent, String title) {
-		super(parent, title);
-
+	public AbstractCompositeBase() {
 		this.mainComposite = new Composite(this.shell, SWT.NONE);
 		this.mainComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		this.mainComposite.setLayout(SwtUtils.makeGridLayout((this.haveLeftComposite() ? 1 : 0) + 1 + (this.haveRightComposite() ? 1 : 0), 0, 0, 0, 0));

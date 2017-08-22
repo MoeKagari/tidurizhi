@@ -1,7 +1,12 @@
 package tdrz.update.context.server;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -67,6 +72,18 @@ public class TDRZServerSevlet extends ProxyServerServlet {
 		this.proxyPort = this.getConfig().getProxyPort();
 
 		super.restart();
+	}
+
+	@Override
+	protected void service(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws ServletException, IOException {
+		if (GAME_SERVER_LIST.contains(httpRequest.getServerName())) {
+			String uri = httpRequest.getRequestURI();
+			if (uri.startsWith("/kcs/")) {
+				//TODO 缓存
+			}
+		}
+
+		super.service(httpRequest, httpResponse);
 	}
 
 	@Override

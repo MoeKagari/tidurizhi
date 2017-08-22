@@ -12,7 +12,6 @@ import org.eclipse.swt.widgets.Spinner;
 
 import tdrz.core.util.SwtUtils;
 import tdrz.gui.window.listener.ControlSelectionListener;
-import tdrz.gui.window.main.ApplicationMain;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.context.data.DataType;
 import tdrz.update.dto.word.PracticeEnemyDto;
@@ -24,9 +23,7 @@ public class CalcuPracticeExpTable extends CalcuTable<CalcuPracticeExpTable.Calc
 	private final PracticeShipComposite[] shipComposites;
 	private boolean notUpdateShipComposite = false;
 
-	public CalcuPracticeExpTable(ApplicationMain main, String title) {
-		super(main, title);
-
+	public CalcuPracticeExpTable() {
 		Composite contentComposite = new Composite(this.leftComposite, SWT.NONE);
 		contentComposite.setLayoutData(SwtUtils.makeGridData(new GridData(SWT.FILL, SWT.CENTER, true, true), 175));
 		contentComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
@@ -56,6 +53,11 @@ public class CalcuPracticeExpTable extends CalcuTable<CalcuPracticeExpTable.Calc
 
 			this.shipComposites = IntStream.range(0, 6).mapToObj(index -> new PracticeShipComposite(contentComposite, index)).toArray(PracticeShipComposite[]::new);
 		}
+	}
+
+	@Override
+	public String defaultTitle() {
+		return "演习经验计算器";
 	}
 
 	@Override

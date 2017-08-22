@@ -3,7 +3,6 @@ package tdrz.gui.window.sub.table;
 import java.util.List;
 import java.util.function.IntFunction;
 
-import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.context.data.DataType;
@@ -16,8 +15,9 @@ import tool.function.FunctionUtils;
  * @author MoeKagari
  */
 public class QuestListTable extends AbstractTable<QuestDto> {
-	public QuestListTable(ApplicationMain main, String title) {
-		super(main, title);
+	@Override
+	public String defaultTitle() {
+		return "所有任务";
 	}
 
 	@Override

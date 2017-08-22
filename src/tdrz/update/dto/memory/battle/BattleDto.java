@@ -138,6 +138,8 @@ public abstract class BattleDto extends AbstractMemory {
 						return "警戒が必要です";
 					case 6:
 						return "静かな海です";
+					case 7:
+						return "我が「連合艦隊」はドーバー海峡を進撃中です。";
 				}
 				break;
 			case 7:

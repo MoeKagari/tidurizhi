@@ -12,21 +12,21 @@ import org.apache.commons.lang3.StringUtils;
 
 import tdrz.core.translator.MasterDataTranslator;
 import tdrz.core.translator.ShipDtoTranslator;
-import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.word.ItemDto;
 import tdrz.update.dto.word.MasterDataDto.MasterSlotitemDto;
-import tool.function.FunctionUtils;
 import tdrz.update.dto.word.ShipDto;
+import tool.function.FunctionUtils;
 
 /**
  * 所有装备
  * @author MoeKagari
  */
 public class ItemListTable extends AbstractTable<ItemListTable.SortItem> {
-	public ItemListTable(ApplicationMain main, String title) {
-		super(main, title);
+	@Override
+	public String defaultTitle() {
+		return "所有装备";
 	}
 
 	@Override

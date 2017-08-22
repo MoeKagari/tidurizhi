@@ -8,19 +8,13 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 
 import tdrz.core.util.SwtUtils;
-import tdrz.gui.window.main.ApplicationMain;
+import tdrz.gui.composite.FleetWindow;
 import tdrz.gui.window.sup.WindowBase;
 
-/**
- * 舰队面板-全
- * @author MoeKagari
- */
 public class FleetWindowAll extends WindowBase {
 	private final FleetWindow[] fleetWindows;
 
-	public FleetWindowAll(ApplicationMain main, String title) {
-		super(main, title);
-
+	public FleetWindowAll() {
 		Composite fleetComposite = new Composite(this.centerComposite, SWT.NONE);
 		fleetComposite.setLayout(SwtUtils.makeGridLayout(2, 2, 2, 0, 0));
 		fleetComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -32,6 +26,11 @@ public class FleetWindowAll extends WindowBase {
 
 	public FleetWindow[] getFleetWindows() {
 		return this.fleetWindows;
+	}
+
+	@Override
+	public String defaultTitle() {
+		return "全舰队";
 	}
 
 	@Override

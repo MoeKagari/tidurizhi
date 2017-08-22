@@ -7,7 +7,6 @@ import java.util.function.Supplier;
 
 import tdrz.core.config.AppConstants;
 import tdrz.core.translator.BattleDtoTranslator;
-import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.AbstractMemory;
@@ -16,7 +15,6 @@ import tdrz.update.dto.memory.battle.AbstractInfoBattleResult;
 import tdrz.update.dto.memory.battle.AbstractInfoBattleResult.BattleResult_GetShip;
 import tdrz.update.dto.memory.battle.AbstractInfoBattleStartNext;
 import tdrz.update.dto.memory.battle.BattleDto;
-import tdrz.update.dto.memory.battle.info.InfoBattleResultDto;
 import tdrz.update.dto.memory.battle.info.InfoBattleStartAirBaseDto;
 import tool.function.FunctionUtils;
 
@@ -25,8 +23,9 @@ import tool.function.FunctionUtils;
  * @author MoeKagari
  */
 public class DropListTable extends AbstractTable<DropListTable.SortDrop> {
-	public DropListTable(ApplicationMain main, String title) {
-		super(main, title);
+	@Override
+	public String defaultTitle() {
+		return "掉落记录";
 	}
 
 	@Override
@@ -102,8 +101,8 @@ public class DropListTable extends AbstractTable<DropListTable.SortDrop> {
 				haveDamage |= BattleDtoTranslator.haveDamage((AbstractBattle) battle);
 				battle = next.get();
 			}
-			if (FunctionUtils.isFalse(battle instanceof InfoBattleResultDto)) continue;
-			InfoBattleResultDto battleResult = (InfoBattleResultDto) battle;
+			if (FunctionUtils.isFalse(battle instanceof AbstractInfoBattleResult)) continue;
+			AbstractInfoBattleResult battleResult = (AbstractInfoBattleResult) battle;
 
 			datas.add(new SortDrop(battleStartNext, time, haveDamage, battleResult));
 		}

@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import tdrz.core.logic.TimeString;
-import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.memory.ResourceRecordDto;
@@ -15,8 +14,9 @@ import tdrz.update.dto.word.ResourceDto;
  * @author MoeKagari
  */
 public class MaterialRecordTable extends AbstractTable<ResourceRecordDto> {
-	public MaterialRecordTable(ApplicationMain main, String title) {
-		super(main, title);
+	@Override
+	public String defaultTitle() {
+		return "资源记录";
 	}
 
 	@Override

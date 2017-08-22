@@ -3,7 +3,7 @@ package tdrz.gui.window.sub;
 import org.eclipse.swt.events.SelectionEvent;
 
 import tdrz.core.translator.BattleDtoTranslator;
-import tdrz.gui.window.main.ApplicationMain;
+import tdrz.gui.composite.BattleScrolledComposite;
 import tdrz.gui.window.sub.table.DropListTable;
 import tdrz.gui.window.sup.WindowBase;
 import tdrz.update.dto.memory.battle.AbstractBattle;
@@ -18,9 +18,18 @@ import tool.function.FunctionUtils;
 public class BattleFlowWindow extends WindowBase {
 	public final BattleScrolledComposite sbc;//战斗流程窗口
 
-	public BattleFlowWindow(ApplicationMain main) {
-		super(main, "战斗流程");
+	public BattleFlowWindow() {
 		this.sbc = new BattleScrolledComposite(this.centerComposite, 5);
+	}
+
+	@Override
+	protected boolean canMaxSize() {
+		return true;
+	}
+
+	@Override
+	public String defaultTitle() {
+		return "战斗流程";
 	}
 
 	public void updateBattle(BattleDto battleDto, SelectionEvent ev) {

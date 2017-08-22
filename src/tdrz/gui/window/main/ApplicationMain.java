@@ -35,6 +35,7 @@ import tdrz.core.config.AppConstants;
 import tdrz.core.logic.DeckBuilder;
 import tdrz.core.logic.TimeString;
 import tdrz.core.util.SwtUtils;
+import tdrz.gui.composite.FleetWindow;
 import tdrz.gui.window.WindowResource;
 import tdrz.gui.window.listener.ControlSelectionListener;
 import tdrz.gui.window.listener.WindowConfigChangedAdapter;
@@ -42,7 +43,6 @@ import tdrz.gui.window.sub.BattleWindow;
 import tdrz.gui.window.sub.BookItemWindow;
 import tdrz.gui.window.sub.BookShipWindow;
 import tdrz.gui.window.sub.ConfigWindow;
-import tdrz.gui.window.sub.FleetWindow;
 import tdrz.gui.window.sub.FleetWindowAll;
 import tdrz.gui.window.sub.FleetWindowOut;
 import tdrz.gui.window.sub.WindowOperationWindow;
@@ -65,6 +65,7 @@ import tdrz.gui.window.sub.table.UserItemListTable;
 import tdrz.gui.window.sup.AbstractWindow;
 import tdrz.gui.window.sup.WindowBase;
 import tdrz.update.context.GlobalContext;
+import tdrz.update.context.GlobalContextUpdater;
 import tdrz.update.context.data.DataType;
 import tdrz.update.dto.word.ResourceDto;
 import tool.function.FunctionUtils;
@@ -143,16 +144,6 @@ public final class ApplicationMain extends AbstractWindow {
 	private MessageList messageList;
 
 	public ApplicationMain() {
-		super(new Shell(WindowResource.DISPLAY, SWT.TOOL), AppConstants.MAINWINDOWNAME);
-
-		this.initLeftComposite();
-		this.initRightComposite();
-		this.initMenuBar();
-		this.initTrayItem();
-
-		this.shipItemButtonComposite.shipList.addSelectionListener(new ControlSelectionListener(this.shipListTable1::displayWindow));
-		this.shipItemButtonComposite.itemList.addSelectionListener(new ControlSelectionListener(this.itemListTable::displayWindow));
-
 		this.shell.addListener(SWT.Iconify, ev -> this.hiddenWindow());
 		this.shell.addListener(SWT.Close, ev -> {
 			if (AppConfig.get().isCheckDoit()) {
@@ -166,6 +157,49 @@ public final class ApplicationMain extends AbstractWindow {
 				parent.dispose();
 			}
 		});
+		this.addWindowConfigChangedListener(new WindowConfigChangedAdapter() {
+			@Override
+			public void displayBefore() {
+				ApplicationMain.this.shell.setMinimized(false);
+			}
+		});
+
+		Composite leftContentComposite = new Composite(this.leftComposite, SWT.NONE);
+		leftContentComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
+		leftContentComposite.setLayoutData(SwtUtils.makeGridData(GridData.FILL_VERTICAL, 210));//左边面板的宽度在此控制
+		{
+			this.shipItemButtonComposite = new ShipItemButtonComposite(leftContentComposite);
+			this.resourceGroup = new ResourceGroup(leftContentComposite);
+			this.deckGroup = new NameTimeGroup(leftContentComposite, "远征");
+			this.ndockGroup = new NameTimeGroup(leftContentComposite, "入渠");
+			this.akashiTimerComposite = new AkashiTimerComposite(leftContentComposite);
+			this.messageList = new MessageList(leftContentComposite);
+		}
+
+		int fleetLength = 1;
+		Composite rightContentComposite = new Composite(this.centerComposite, SWT.NONE);
+		rightContentComposite.setLayout(SwtUtils.makeGridLayout(new int[] { 0, 1, 1, 2, 2 }[fleetLength], 2, 2, 1, 1));
+		rightContentComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		for (int index = 0; index < fleetLength; index++) {
+			new FleetWindow(index + 1, new Composite(rightContentComposite, SWT.BORDER));
+		}
+
+		this.initMenuBar();
+
+		this.shipItemButtonComposite.shipList.addSelectionListener(new ControlSelectionListener(this.shipListTable1::displayWindow));
+		this.shipItemButtonComposite.itemList.addSelectionListener(new ControlSelectionListener(this.itemListTable::displayWindow));
+
+		this.trayItem = new TrayItem(WindowResource.DISPLAY.getSystemTray(), SWT.NONE);
+		this.trayItem.setImage(WindowResource.LOGO);
+		this.trayItem.addSelectionListener(new ControlSelectionListener(ev -> {
+			if (this.getWindowConfig().isVisible()) {
+				this.hiddenWindow();
+			} else {
+				this.displayWindow();
+			}
+		}));
+		this.trayItem.addMenuDetectListener(new TrayItemMenuListener());
+		this.trayItem.setToolTipText(AppConstants.MAINWINDOWNAME);
 
 		//所有窗口
 		//null为 windowOperationWindow 中用的占位符
@@ -186,6 +220,7 @@ public final class ApplicationMain extends AbstractWindow {
 		windows.stream().filter(FunctionUtils::isNotNull).filter(window -> window != this.windowOperationWindow).forEach(window -> {
 			SwtUtils.layoutCompositeRecursively(window.mainComposite);
 			window.restoreWindowConfig();
+			GlobalContextUpdater.addListener(window);
 		});
 		//添加窗口到 [窗口操作] 窗口
 		windows.forEach(this.windowOperationWindow::addWindow);
@@ -194,102 +229,61 @@ public final class ApplicationMain extends AbstractWindow {
 		this.windowOperationWindow.restoreWindowConfig();
 	}
 
-	//左面板
-	private void initLeftComposite() {
-		Composite showContentComposite = new Composite(this.leftComposite, SWT.NONE);
-		showContentComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
-		showContentComposite.setLayoutData(SwtUtils.makeGridData(GridData.FILL_VERTICAL, 210));//左边面板的宽度在此控制
-
-		this.shipItemButtonComposite = new ShipItemButtonComposite(showContentComposite);
-		this.resourceGroup = new ResourceGroup(showContentComposite);
-		this.deckGroup = new NameTimeGroup(showContentComposite, "远征");
-		this.ndockGroup = new NameTimeGroup(showContentComposite, "入渠");
-		this.akashiTimerComposite = new AkashiTimerComposite(showContentComposite);
-		this.messageList = new MessageList(showContentComposite);
-	}
-
-	//右面板
-	private void initRightComposite() {
-		int fleetLength = 1;
-		Composite rightComposite = new Composite(this.centerComposite, SWT.NONE);
-		rightComposite.setLayout(SwtUtils.makeGridLayout(new int[] { 0, 1, 1, 2, 2 }[fleetLength], 2, 2, 1, 1));
-		rightComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-		IntStream.range(0, fleetLength)//
-				.map(index -> index + 1)//
-				.forEach(id -> new FleetWindow(id, new Composite(rightComposite, SWT.BORDER)));
-	}
-
-	//托盘图标
-	private void initTrayItem() {
-		this.trayItem = new TrayItem(WindowResource.DISPLAY.getSystemTray(), SWT.NONE);
-		this.trayItem.setImage(WindowResource.LOGO);
-		this.trayItem.addSelectionListener(new ControlSelectionListener(ev -> {
-			if (this.shell.isVisible()) {
-				this.hiddenWindow();
-			} else {
-				this.displayWindow();
-			}
-		}));
-		this.trayItem.addMenuDetectListener(new TrayItemMenuListener());
-		this.trayItem.setToolTipText(AppConstants.MAINWINDOWNAME);
-	}
-
 	//菜单栏
 	private void initMenuBar() {
 		Menu cmdMenu = SwtUtils.makeCasacdeMenu(this.menuBar, "主菜单");
 		{
-			this.shipListTable1 = this.addMenuItemForWindow(cmdMenu, new ShipListTable(this, "所有舰娘(信息)") {
+			this.shipListTable1 = this.addMenuItemForWindow(cmdMenu, new ShipListTable() {
 				@Override
 				protected ShipListTableMode getMode() {
 					return ShipListTableMode.INFORMATION;
 				}
 			});
-			this.shipListTable2 = this.addMenuItemForWindow(cmdMenu, new ShipListTable(this, "所有舰娘(属性)") {
+			this.shipListTable2 = this.addMenuItemForWindow(cmdMenu, new ShipListTable() {
 				@Override
 				protected ShipListTableMode getMode() {
 					return ShipListTableMode.PARAMENTER;
 				}
 			});
-			this.shipListTable3 = this.addMenuItemForWindow(cmdMenu, new ShipListTable(this, "所有舰娘(综合)") {
+			this.shipListTable3 = this.addMenuItemForWindow(cmdMenu, new ShipListTable() {
 				@Override
 				protected ShipListTableMode getMode() {
 					return ShipListTableMode.ALL;
 				}
 			});
-			this.itemListTable = this.addMenuItemForWindow(cmdMenu, new ItemListTable(this, "所有装备"));
-			this.questListTable = this.addMenuItemForWindow(cmdMenu, new QuestListTable(this, "所有任务"));
-			this.userItemListTable = this.addMenuItemForWindow(cmdMenu, new UserItemListTable(this, "所有道具"));
+			this.itemListTable = this.addMenuItemForWindow(cmdMenu, new ItemListTable());
+			this.questListTable = this.addMenuItemForWindow(cmdMenu, new QuestListTable());
+			this.userItemListTable = this.addMenuItemForWindow(cmdMenu, new UserItemListTable());
 			SwtUtils.makeSeparatorMenuItem(cmdMenu);
-			this.battleWindow = this.addMenuItemForWindow(cmdMenu, new BattleWindow(this, "出击"));
-			this.mapListTable = this.addMenuItemForWindow(cmdMenu, new MapListTable(this, "地图详情"));
+			this.battleWindow = this.addMenuItemForWindow(cmdMenu, new BattleWindow());
+			this.mapListTable = this.addMenuItemForWindow(cmdMenu, new MapListTable());
 			SwtUtils.makeSeparatorMenuItem(cmdMenu);
-			this.calcuExpTable = this.addMenuItemForWindow(cmdMenu, new CalcuExpTable(this, "经验计算器"));
-			this.calcuPracticeExpTable = this.addMenuItemForWindow(cmdMenu, new CalcuPracticeExpTable(this, "演习经验计算器"));
+			this.calcuExpTable = this.addMenuItemForWindow(cmdMenu, new CalcuExpTable());
+			this.calcuPracticeExpTable = this.addMenuItemForWindow(cmdMenu, new CalcuPracticeExpTable());
 			SwtUtils.makeSeparatorMenuItem(cmdMenu);
 			SwtUtils.makeMenuItem(cmdMenu, SWT.NONE, "退出", this.shell::close);
 		}
 
 		Menu recordMenu = SwtUtils.makeCasacdeMenu(this.menuBar, "记录");
 		{
-			this.createShipTable = this.addMenuItemForWindow(recordMenu, new CreateShipTable(this, "建造记录"));
-			this.createItemTable = this.addMenuItemForWindow(recordMenu, new CreateItemTable(this, "开发记录"));
-			this.missionResultTable = this.addMenuItemForWindow(recordMenu, new MissionResultTable(this, "远征记录"));
-			this.materialRecordTable = this.addMenuItemForWindow(recordMenu, new MaterialRecordTable(this, "资源记录"));
+			this.createShipTable = this.addMenuItemForWindow(recordMenu, new CreateShipTable());
+			this.createItemTable = this.addMenuItemForWindow(recordMenu, new CreateItemTable());
+			this.missionResultTable = this.addMenuItemForWindow(recordMenu, new MissionResultTable());
+			this.materialRecordTable = this.addMenuItemForWindow(recordMenu, new MaterialRecordTable());
 			SwtUtils.makeSeparatorMenuItem(recordMenu);
-			this.destroyShipTable = this.addMenuItemForWindow(recordMenu, new DestroyShipTable(this, "解体记录"));
-			this.destroyItemTable = this.addMenuItemForWindow(recordMenu, new DestroyItemTable(this, "废弃记录"));
+			this.destroyShipTable = this.addMenuItemForWindow(recordMenu, new DestroyShipTable());
+			this.destroyItemTable = this.addMenuItemForWindow(recordMenu, new DestroyItemTable());
 			SwtUtils.makeSeparatorMenuItem(recordMenu);
-			this.battleListTable = this.addMenuItemForWindow(recordMenu, new BattleListTable(this, "出击记录"));
-			this.dropListTable = this.addMenuItemForWindow(recordMenu, new DropListTable(this, "掉落记录"));
+			this.battleListTable = this.addMenuItemForWindow(recordMenu, new BattleListTable());
+			this.dropListTable = this.addMenuItemForWindow(recordMenu, new DropListTable());
 		}
 
 		Menu fleetMenu = SwtUtils.makeCasacdeMenu(this.menuBar, "舰队");
 		{
-			this.fleetWindowAll = this.addMenuItemForWindow(fleetMenu, new FleetWindowAll(this, "全舰队"));
+			this.fleetWindowAll = this.addMenuItemForWindow(fleetMenu, new FleetWindowAll());
 
 			this.fleetWindowOuts = IntStream.range(0, 4).map(index -> index + 1).mapToObj(id -> {
-				return this.addMenuItemForWindow(fleetMenu, new FleetWindowOut(this, id) {
+				return this.addMenuItemForWindow(fleetMenu, new FleetWindowOut() {
 					@Override
 					public int getId() {
 						return id;
@@ -302,18 +296,18 @@ public final class ApplicationMain extends AbstractWindow {
 		{
 			SwtUtils.makeMenuItem(etcMenu, SWT.PUSH, "DeckBuilder", ev -> new Clipboard(WindowResource.DISPLAY).setContents(new Object[] { DeckBuilder.build() }, new Transfer[] { TextTransfer.getInstance() }));
 			SwtUtils.makeSeparatorMenuItem(etcMenu);
-			this.shipGroupTable = this.addMenuItemForWindow(etcMenu, new ShipGroupTable(this, "分组"));
-			this.configWindow = this.addMenuItemForWindow(etcMenu, new ConfigWindow(this, "设置"));
-			this.windowOperationWindow = this.addMenuItemForWindow(etcMenu, new WindowOperationWindow(this, "窗口操作"));
+			this.shipGroupTable = this.addMenuItemForWindow(etcMenu, new ShipGroupTable());
+			this.configWindow = this.addMenuItemForWindow(etcMenu, new ConfigWindow());
+			this.windowOperationWindow = this.addMenuItemForWindow(etcMenu, new WindowOperationWindow());
 			SwtUtils.makeSeparatorMenuItem(etcMenu);
-			this.bookShipWindow = this.addMenuItemForWindow(etcMenu, new BookShipWindow(this, "舰娘图鉴"));
-			this.bookItemWindow = this.addMenuItemForWindow(etcMenu, new BookItemWindow(this, "装备图鉴"));
+			this.bookShipWindow = this.addMenuItemForWindow(etcMenu, new BookShipWindow());
+			this.bookItemWindow = this.addMenuItemForWindow(etcMenu, new BookItemWindow());
 		}
 	}
 
 	private <T extends WindowBase> T addMenuItemForWindow(Menu parent, T window) {
 		MenuItem menuItem = new MenuItem(parent, SWT.CHECK);
-		menuItem.setText(window.defaultTitle);
+		menuItem.setText(window.defaultTitle());
 		menuItem.addSelectionListener(new ControlSelectionListener(ev -> {
 			if (menuItem.getSelection()) {
 				window.displayWindow();
@@ -323,7 +317,7 @@ public final class ApplicationMain extends AbstractWindow {
 		}));
 		window.addWindowConfigChangedListener(new WindowConfigChangedAdapter() {
 			@Override
-			public void visibleChanged(boolean visible) {
+			public void visibleChangedBefore(boolean visible) {
 				menuItem.setSelection(visible);
 			}
 		});
@@ -420,11 +414,7 @@ public final class ApplicationMain extends AbstractWindow {
 		}
 	}
 
-	@Override
-	public void displayWindow() {
-		this.shell.setMinimized(false);
-		super.displayWindow();
-	}
+	/*----------------------------------------------------------------------------------------------------------------*/
 
 	@Override
 	public boolean defaultVisible() {
@@ -447,8 +437,8 @@ public final class ApplicationMain extends AbstractWindow {
 	}
 
 	@Override
-	protected int getShellStyle() {
-		return SWT.CLOSE | SWT.TITLE | SWT.MIN | SWT.RESIZE;
+	public String defaultTitle() {
+		return AppConstants.MAINWINDOWNAME;
 	}
 
 	private class TrayItemMenuListener implements MenuDetectListener {
@@ -511,7 +501,7 @@ public final class ApplicationMain extends AbstractWindow {
 		}
 
 		private MenuItem makeNewMenuItem(Menu parent, WindowBase window) {
-			return SwtUtils.makeMenuItem(parent, SWT.NONE, window.defaultTitle, window::displayWindow);
+			return SwtUtils.makeMenuItem(parent, SWT.NONE, window.defaultTitle(), window::displayWindow);
 		}
 
 		@Override

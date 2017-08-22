@@ -11,9 +11,11 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
 
 import tdrz.gui.window.WindowResource;
 import tdrz.gui.window.listener.ControlSelectionListener;
@@ -35,6 +37,10 @@ public final class SwtUtils {
 		return new Point(DPIAwareWidth(size.x), DPIAwareHeight(size.y));
 	}
 
+	public static Point DPIAwareSize(int width, int height) {
+		return new Point(DPIAwareWidth(width), DPIAwareHeight(height));
+	}
+
 	public static void layoutRecursively(Composite composite) {
 		FunctionUtils.forEach(composite.getChildren(), child -> {
 			if (child instanceof Composite) {
@@ -54,6 +60,18 @@ public final class SwtUtils {
 		});
 	}
 
+	public static Menu makeBarMenu(Shell parent) {
+		Menu menuBar = new Menu(parent, SWT.BAR);
+		parent.setMenuBar(menuBar);
+		return menuBar;
+	}
+
+	public static Menu makeNormalMenu(Control parent) {
+		Menu menu = new Menu(parent);
+		parent.setMenu(menu);
+		return menu;
+	}
+
 	public static Menu makeCasacdeMenu(Menu parent, String text) {
 		MenuItem menuItem = new MenuItem(parent, SWT.CASCADE);
 		menuItem.setText(text);
@@ -66,14 +84,9 @@ public final class SwtUtils {
 		return new MenuItem(parent, SWT.SEPARATOR);
 	}
 
-	public static MenuItem makeMenuItem(Menu parent, int style, String text) {
+	public static MenuItem makeMenuItem(Menu parent, int style, String text, SelectionListener listener) {
 		MenuItem menuItem = new MenuItem(parent, style);
 		menuItem.setText(text);
-		return menuItem;
-	}
-
-	public static MenuItem makeMenuItem(Menu parent, int style, String text, SelectionListener listener) {
-		MenuItem menuItem = makeMenuItem(parent, style, text);
 		menuItem.addSelectionListener(listener);
 		return menuItem;
 	}

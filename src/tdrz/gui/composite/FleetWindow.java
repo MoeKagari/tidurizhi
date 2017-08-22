@@ -1,4 +1,4 @@
-package tdrz.gui.window.sub;
+package tdrz.gui.composite;
 
 import java.util.stream.IntStream;
 import java.util.stream.Stream;

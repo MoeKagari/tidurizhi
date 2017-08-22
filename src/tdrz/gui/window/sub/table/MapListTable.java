@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
-import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.context.data.DataType;
@@ -17,8 +16,9 @@ import tool.function.FunctionUtils;
  * @author MoeKagari
  */
 public class MapListTable extends AbstractTable<MapinfoDto.OneMap> {
-	public MapListTable(ApplicationMain main, String title) {
-		super(main, title);
+	@Override
+	public String defaultTitle() {
+		return "地图详情";
 	}
 
 	@Override

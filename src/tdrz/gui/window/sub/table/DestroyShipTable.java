@@ -3,7 +3,6 @@ package tdrz.gui.window.sub.table;
 import java.util.List;
 
 import tdrz.core.logic.TimeString;
-import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.memory.DestroyShipDto;
@@ -13,9 +12,9 @@ import tdrz.update.dto.memory.DestroyShipDto;
  * @author MoeKagari
  */
 public class DestroyShipTable extends AbstractTable<DestroyShipDto> {
-
-	public DestroyShipTable(ApplicationMain main, String title) {
-		super(main, title);
+	@Override
+	public String defaultTitle() {
+		return "解体记录";
 	}
 
 	@Override

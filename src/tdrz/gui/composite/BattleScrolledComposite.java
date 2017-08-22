@@ -1,4 +1,4 @@
-package tdrz.gui.window.sub;
+package tdrz.gui.composite;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -8,6 +8,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ScrollBar;
 
 import tdrz.core.util.SwtUtils;
+import tdrz.gui.window.sub.BattleFlowWindow;
+import tdrz.gui.window.sub.BattleWindow;
 import tool.function.FunctionUtils;
 
 /**

@@ -5,7 +5,6 @@ import java.util.function.IntFunction;
 
 import tdrz.core.config.AppConstants;
 import tdrz.core.logic.TimeString;
-import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.memory.MissionResultDto;
@@ -17,9 +16,9 @@ import tool.function.FunctionUtils;
  * @author MoeKagari
  */
 public class MissionResultTable extends AbstractTable<MissionResultDto> {
-
-	public MissionResultTable(ApplicationMain main, String title) {
-		super(main, title);
+	@Override
+	public String defaultTitle() {
+		return "远征记录";
 	}
 
 	@Override

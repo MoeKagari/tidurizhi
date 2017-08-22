@@ -4,7 +4,6 @@ import java.util.List;
 
 import tdrz.core.logic.TimeString;
 import tdrz.core.translator.MasterDataTranslator;
-import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.memory.CreateshipDto;
@@ -15,8 +14,9 @@ import tool.function.FunctionUtils;
  * @author MoeKagari
  */
 public class CreateShipTable extends AbstractTable<CreateshipDto> {
-	public CreateShipTable(ApplicationMain main, String title) {
-		super(main, title);
+	@Override
+	public String defaultTitle() {
+		return "建造记录";
 	}
 
 	@Override

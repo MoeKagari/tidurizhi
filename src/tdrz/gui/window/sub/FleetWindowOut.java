@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import tdrz.core.config.AppConstants;
 import tdrz.core.util.SwtUtils;
-import tdrz.gui.window.main.ApplicationMain;
+import tdrz.gui.composite.FleetWindow;
 import tdrz.gui.window.sup.WindowBase;
 
 /**
@@ -16,9 +16,8 @@ import tdrz.gui.window.sup.WindowBase;
 public abstract class FleetWindowOut extends WindowBase {
 	private final FleetWindow fleetWindow;
 
-	public FleetWindowOut(ApplicationMain main, int id) {
-		super(main, AppConstants.DEFAULT_FLEET_NAME[id - 1]);
-		this.fleetWindow = new FleetWindow(id, new Composite(this.centerComposite, SWT.BORDER));
+	public FleetWindowOut() {
+		this.fleetWindow = new FleetWindow(this.getId(), new Composite(this.centerComposite, SWT.BORDER));
 	}
 
 	public FleetWindow getFleetWindow() {
@@ -26,6 +25,11 @@ public abstract class FleetWindowOut extends WindowBase {
 	}
 
 	public abstract int getId();
+
+	@Override
+	public String defaultTitle() {
+		return AppConstants.DEFAULT_FLEET_NAME[this.getId() - 1];
+	}
 
 	@Override
 	public String getWindowConfigKey() {

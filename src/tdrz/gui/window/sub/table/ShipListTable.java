@@ -23,7 +23,6 @@ import tdrz.core.translator.ItemDtoTranslator;
 import tdrz.core.translator.ShipDtoTranslator;
 import tdrz.core.util.SwtUtils;
 import tdrz.gui.window.listener.ControlSelectionListener;
-import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.word.ItemDto;
@@ -47,8 +46,9 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 	private List<Button> infoButtons;
 	private Composite infoFilterComposite;
 
-	public ShipListTable(ApplicationMain main, String title) {
-		super(main, title);
+	@Override
+	public String defaultTitle() {
+		return this.getMode().title;
 	}
 
 	@Override
@@ -68,9 +68,15 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 	}
 
 	public enum ShipListTableMode {
-		INFORMATION,
-		PARAMENTER,
-		ALL
+		INFORMATION("所有舰娘(信息)"),
+		PARAMENTER("所有舰娘(属性)"),
+		ALL("所有舰娘(综合)");
+
+		private final String title;
+
+		private ShipListTableMode(String title) {
+			this.title = title;
+		}
 	}
 
 	protected abstract ShipListTableMode getMode();
@@ -147,6 +153,9 @@ public abstract class ShipListTable extends AbstractTable<ShipDto> {
 		tcms.add(new TableColumnManager("对潜", true, rd -> rd.getTaisen()[0]));
 		tcms.add(new TableColumnManager("索敌", true, rd -> rd.getSakuteki()[0]));
 		tcms.add(new TableColumnManager("运", true, rd -> rd.getLuck()[0]));
+		tcms.add(new TableColumnManager("改造等级", true, rd -> FunctionUtils.notNull(rd.getMasterData(), md -> {
+			return FunctionUtils.ifFunction(md.getGaizhaoLv(), level -> level != 0, String::valueOf, "");
+		}, "")));
 	}
 
 	@Override

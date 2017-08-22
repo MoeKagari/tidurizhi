@@ -3,7 +3,6 @@ package tdrz.gui.window.sub.table;
 import java.util.List;
 
 import tdrz.core.config.AppConstants;
-import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.memory.battle.info.InfoBattleStartDto;
@@ -13,16 +12,17 @@ import tdrz.update.dto.memory.battle.info.InfoBattleStartDto;
  * @author MoeKagari
  */
 public class BattleListTable extends AbstractTable<BattleListTable.SortBattle> {
-	public BattleListTable(ApplicationMain main, String title) {
-		super(main, title);
-	}
-
 	@Override
 	protected void initTCMS(List<TableColumnManager> tcms) {
 		tcms.add(new TableColumnManager("时间", rd -> AppConstants.TABLE_TIME_FORMAT.format(rd.getTime())));
 		tcms.add(new TableColumnManager("舰队", SortBattle::getFleet));
 		tcms.add(new TableColumnManager("地图", SortBattle::getMap));
 		tcms.add(new TableColumnManager("起点", true, SortBattle::getStart));
+	}
+
+	@Override
+	public String defaultTitle() {
+		return "战斗记录";
 	}
 
 	@Override

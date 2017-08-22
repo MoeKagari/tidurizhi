@@ -5,6 +5,8 @@ import tdrz.gui.window.sup.AbstractWindowSuper;
 
 /** {@link AbstractWindowSuper}实现 , {@link WindowOperationWindow}中操作 */
 public interface WindowCanBeOperated {
+	public boolean canIgnoreMouseBeOperated();
+
 	public boolean canVisibleBeOperated();
 
 	public boolean canOpacityBeOperated();

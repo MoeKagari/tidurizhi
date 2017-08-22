@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.function.Function;
 
 import tdrz.core.logic.TimeString;
-import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.memory.DestroyItemDto;
@@ -14,9 +13,9 @@ import tdrz.update.dto.memory.DestroyItemDto;
  * @author MoeKagari
  */
 public class DestroyItemTable extends AbstractTable<DestroyItemDto> {
-
-	public DestroyItemTable(ApplicationMain main, String title) {
-		super(main, title);
+	@Override
+	public String defaultTitle() {
+		return "废弃记录";
 	}
 
 	@Override

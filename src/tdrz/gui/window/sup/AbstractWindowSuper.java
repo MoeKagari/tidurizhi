@@ -22,7 +22,7 @@ public abstract class AbstractWindowSuper extends AbstractCompositeBase implemen
 	}
 
 	@Override
-	protected final int getShellStyle() {
+	protected final int defaultShellStyle() {
 		return SWT.SHELL_TRIM | SWT.CLOSE | SWT.RESIZE | SWT.TITLE | SWT.MIN | (this.canMaxSize() ? SWT.MAX : SWT.NONE);
 	}
 

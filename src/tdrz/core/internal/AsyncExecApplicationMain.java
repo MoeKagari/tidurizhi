@@ -18,9 +18,9 @@ import tdrz.update.context.GlobalContext;
 import tdrz.update.context.GlobalContext.PLTime;
 import tdrz.update.dto.word.DeckDto;
 import tdrz.update.dto.word.DeckDto.DeckMissionDto;
-import tool.function.FunctionUtils;
 import tdrz.update.dto.word.NdockDto;
 import tdrz.update.dto.word.ShipDto;
+import tool.function.FunctionUtils;
 
 public class AsyncExecApplicationMain extends Thread {
 	private static final Logger LOG = LogManager.getLogger(AsyncExecApplicationMain.class);
@@ -74,13 +74,13 @@ public class AsyncExecApplicationMain extends Thread {
 		public static void update(ApplicationMain main, TrayMessageBox box, long currentTime) {
 			if (main.shell.isDisposed()) return;
 
-			main.getDeckGroup().setRedraw(false);
+			//main.getDeckGroup().setRedraw(false);
 			updateDeck(main, box, currentTime);
-			main.getDeckGroup().setRedraw(true);
+			//main.getDeckGroup().setRedraw(true);
 
-			main.getNdockGroup().setRedraw(false);
+			//main.getNdockGroup().setRedraw(false);
 			updateNdock(main, box, currentTime);
-			main.getNdockGroup().setRedraw(true);
+			//main.getNdockGroup().setRedraw(true);
 		}
 
 		private static void updateDeck(ApplicationMain main, TrayMessageBox box, long currentTime) {

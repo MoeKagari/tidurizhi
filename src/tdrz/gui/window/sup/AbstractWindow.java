@@ -25,9 +25,14 @@ public abstract class AbstractWindow extends AbstractWindowSuper {
 		);
 		WindowConfig.get().put(windowConfigKey, this.windowConfig);
 
+		//恢复窗口配置
 		//在添加监听Resize和Move的listener前,恢复location,size
 		this.shell.setSize(this.windowConfig.getSize());//会产生Resize事件
 		this.shell.setLocation(this.windowConfig.getLocation());//会产生Resize和Move事件
+		this.shell.setMinimized(this.windowConfig.isMinimized());
+		this.changeOpacity(this.windowConfig.getOpacity());
+		this.toggleTitlebar(this.windowConfig.isShowTitleBar());
+		this.ignoreMouse(this.windowConfig.isIgnoreMouse());
 
 		this.shell.addListener(SWT.Iconify, ev -> {//[最小化]事件
 			this.windowConfig.setMinimized(true);
@@ -38,7 +43,9 @@ public abstract class AbstractWindow extends AbstractWindowSuper {
 			this.windowConfigChangedListeners.forEach(listener -> listener.minimizedChanged(false));
 		});
 		this.shell.addListener(SWT.Resize, ev -> {//[改变窗口大小]事件
-			this.windowConfig.setSize(this.shell.getSize());
+			if (this.shell.getMaximized() == false) {//最大化不记录
+				this.windowConfig.setSize(this.shell.getSize());
+			}
 		});
 		this.shell.addListener(SWT.Move, ev -> {//[移动窗口]事件
 			this.windowConfig.setLocation(this.shell.getLocation());
@@ -87,16 +94,11 @@ public abstract class AbstractWindow extends AbstractWindowSuper {
 
 	/** 恢复窗口配置 */
 	public final void restoreWindowConfig() {
-		this.shell.setMinimized(this.windowConfig.isMinimized());
-		this.changeOpacity(this.windowConfig.getOpacity());
-		this.toggleTitlebar(this.windowConfig.isShowTitleBar());
-		this.ignoreMouse(this.windowConfig.isIgnoreMouse());
 		if (this.windowConfig.isVisible()) {
 			this.displayWindow();
 		} else {
 			this.hiddenWindow();
 		}
-		this.setTopMost(this.windowConfig.isTopMost());//等显示窗口之后再topmost
 	}
 
 	/*------------------------------------------------------------------------------------------------------------*/

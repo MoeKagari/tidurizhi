@@ -109,6 +109,9 @@ public class FleetWindow implements ApiDataListener {
 		DeckDto deck = GlobalContext.deckRooms[this.id - 1].getDeck();
 
 		switch (type) {
+			default:
+				break;
+
 			case DECK_UPDATEDECKNAME:
 				if (deck != null) {
 					SwtUtils.setText(this.fleetNameLabel, deck.getName());
@@ -141,9 +144,6 @@ public class FleetWindow implements ApiDataListener {
 				this.composite.setRedraw(false);
 				FunctionUtils.notNull(deck, this::updateDeck);
 				this.composite.setRedraw(true);
-				break;
-
-			default:
 				break;
 		}
 	}

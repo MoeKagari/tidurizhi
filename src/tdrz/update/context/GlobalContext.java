@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -212,7 +213,15 @@ public class GlobalContext {
 			destroyItem(time, event, ship.getSlotex(), -1);
 
 			memoryList.add(new DestroyShipDto(time, event, ship));
-			FunctionUtils.forEach(deckRooms, dr -> Optional.ofNullable(dr.getDeck()).ifPresent(deck -> deck.remove(id)));
+			FunctionUtils.forEach(deckRooms, dr -> Optional.ofNullable(dr.getDeck()).ifPresent(deck -> {
+				int shipIndex = DeckDtoTranslator.indexInDeck(deck, id);
+				if (shipIndex != -1) {
+					//把ship从deck中移除
+					deck.setShips(ArrayUtils.addAll(//
+							IntStream.range(0, deck.getShips().length).filter(i -> i != shipIndex).map(i -> deck.getShips()[i]).toArray()//
+					, -1));
+				}
+			}));
 			shipMap.remove(ship.getId());
 		});
 	}

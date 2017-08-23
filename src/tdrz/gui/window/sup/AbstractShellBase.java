@@ -13,7 +13,7 @@ public abstract class AbstractShellBase {
 	public final Menu menuBar;
 
 	public AbstractShellBase() {
-		this.shell = new Shell(new Shell(WindowResource.DISPLAY), this.getShellStyle());
+		this.shell = new Shell(new Shell(WindowResource.DISPLAY), this.defaultShellStyle());
 		this.shell.setText(this.defaultTitle());
 		this.shell.setImage(WindowResource.LOGO);
 		this.shell.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
@@ -23,7 +23,7 @@ public abstract class AbstractShellBase {
 	}
 
 	/** 默认shell style */
-	protected abstract int getShellStyle();
+	protected abstract int defaultShellStyle();
 
 	public abstract String defaultTitle();
 }

@@ -1,10 +1,13 @@
 package tdrz.update.context.room;
 
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import tdrz.core.translator.DeckDtoTranslator;
 import tdrz.update.context.GlobalContext;
@@ -45,9 +48,30 @@ public class DeckRoom {
 
 		int index = Integer.parseInt(data.getField("api_ship_idx"));//变更位置,0开始
 		int shipId = Integer.parseInt(data.getField("api_ship_id"));
-		this.deck.change(index, shipId);
 
 		//TODO 两deck交换ship , 未作考虑
+		if (index == -1) {
+			//除旗舰其余全解除
+			this.deck.setShips(new int[] { this.deck.getShips()[0], -1, -1, -1, -1, -1 });
+		} else {
+			if (shipId == -1) {
+				//解除某一艘船
+				this.deck.setShips(ArrayUtils.addAll(//
+						IntStream.range(0, this.deck.getShips().length).filter(i -> i != index).map(i -> this.deck.getShips()[i]).toArray()//
+						, -1));
+			} else {
+				//替换为另外的ship
+				for (int i = 0; i < GlobalContext.deckRooms.length; i++) {
+					int shipIndex = DeckDtoTranslator.indexInDeck(GlobalContext.deckRooms[i].deck, shipId);
+					if (shipIndex != -1) {
+						//替换的ship在其他deck中
+						GlobalContext.deckRooms[i].deck.getShips()[shipIndex] = this.deck.getShips()[index];
+						break;
+					}
+				}
+				this.deck.getShips()[index] = shipId;
+			}
+		}
 
 		if (DeckDtoTranslator.isAkashiFlagship(this.deck) && index != -1) {
 			//变更之后明石旗舰

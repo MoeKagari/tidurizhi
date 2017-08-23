@@ -114,8 +114,8 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 			this.shipCompositeList = new Composite(this.scrolledComposite, SWT.NONE);
 			this.shipCompositeList.setLayout(SwtUtils.makeGridLayout(1, 2, 0, 0, 0));
 			this.shipCompositeList.setLayoutData(new GridData(GridData.FILL_BOTH));
-			this.scrolledComposite.setContent(this.shipCompositeList);
 		}
+		this.scrolledComposite.setContent(this.shipCompositeList);
 	}
 
 	@Override

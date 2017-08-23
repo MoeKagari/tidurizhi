@@ -19,7 +19,7 @@ import tool.function.FunctionUtils;
 public class BattleScrolledComposite extends ScrolledComposite {
 	public final Composite contentComposite;
 
-	public BattleScrolledComposite(Composite composite, int space) {
+	public BattleScrolledComposite(Composite composite, int verticalSpacing) {
 		super(composite, SWT.V_SCROLL);
 		this.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
 		this.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -28,7 +28,7 @@ public class BattleScrolledComposite extends ScrolledComposite {
 		this.setAlwaysShowScrollBars(true);
 
 		this.contentComposite = new Composite(this, SWT.NONE);
-		this.contentComposite.setLayout(SwtUtils.makeGridLayout(1, 0, space, 0, 0, 5, 5));
+		this.contentComposite.setLayout(SwtUtils.makeGridLayout(1, 0, verticalSpacing, 0, 0, 5, 5));
 		this.contentComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		this.setContent(this.contentComposite);

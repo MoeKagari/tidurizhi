@@ -146,10 +146,9 @@ public abstract class AbstractTable<T> extends WindowBase {
 							this.tcms.stream().map(tcm -> tcm.getValue(data)).toArray(String[]::new)//
 					)//
 			);
-			this.refreshRowHeader();
 			this.datas.clear();
 
-			if (this.table.getData("autoWidth") == null) {//只自动pack一次
+			if (this.table.getData("autoWidth") == null) {//只自动 autoWidth 一次
 				this.autoWidth();
 				this.table.setData("autoWidth", "");
 			}

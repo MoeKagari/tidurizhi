@@ -1,19 +1,12 @@
 package tdrz.update.dto.word;
 
-import java.util.Arrays;
-import java.util.stream.IntStream;
-
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import tdrz.core.internal.TimerCounter;
-import tdrz.core.translator.DeckDtoTranslator;
 import tdrz.core.translator.MasterDataTranslator;
 import tdrz.core.util.JsonUtils;
 import tdrz.update.dto.AbstractWord;
-import tool.function.FunctionUtils;
 
 /**
  * 舰队编成
@@ -26,52 +19,16 @@ public class DeckDto extends AbstractWord {
 	private final long time;//此deck的刷新时间
 
 	public DeckDto(JsonObject json, long time) {
+		this.time = time;
 		this.name = json.getString("api_name");
 		this.ships = JsonUtils.getIntArray(json, "api_ship");
 		this.deckMission = new DeckMissionDto(json.getJsonArray("api_mission"));
-
-		this.time = time;
 	}
 
 	/*-------------------------------------------------------------------------------------------*/
 
-	public void change(int index, int shipId) {
-		if (index == -1) {
-			//1.除旗舰其余全解除
-			this.ships = new int[] { this.ships[0], -1, -1, -1, -1, -1 };
-			return;
-		}
-
-		int[] shipsTemp = FunctionUtils.arrayCopy(this.ships);
-		int shipIndex = DeckDtoTranslator.indexInDeck(this, shipId);
-		if (shipIndex != -1) {
-			//2.交换两艘船
-			int temp = shipsTemp[index];
-			shipsTemp[index] = shipsTemp[shipIndex];
-			shipsTemp[shipIndex] = temp;
-		} else {
-			//3.替换某一艘船
-			//或者
-			//4.解除某一艘船(shipId=-1时)
-			shipsTemp[index] = shipId;
-		}
-		this.setShips(shipsTemp);
-	}
-
-	public void remove(int shipId) {
-		int shipIndex = DeckDtoTranslator.indexInDeck(this, shipId);
-		if (shipIndex != -1) {
-			int[] shipsTemp = FunctionUtils.arrayCopy(this.ships);
-			shipsTemp[shipIndex] = -1;
-			this.setShips(shipsTemp);
-		}
-	}
-
-	private void setShips(int[] shipsTemp) {
-		shipsTemp = IntStream.of(shipsTemp).filter(ship -> ship != -1).toArray();//非 -1 提到前面
-		int[] empty = new int[this.ships.length - shipsTemp.length];
-		Arrays.fill(empty, -1);//空缺 为 -1
-		this.ships = ArrayUtils.addAll(shipsTemp, empty);
+	public void setShips(int[] ships) {
+		this.ships = ships;
 	}
 
 	public void setDeckName(String name) {

@@ -39,6 +39,7 @@ import tdrz.gui.composite.FleetWindow;
 import tdrz.gui.window.WindowResource;
 import tdrz.gui.window.listener.ControlSelectionListener;
 import tdrz.gui.window.listener.WindowConfigChangedAdapter;
+import tdrz.gui.window.sub.BattleFlowWindow;
 import tdrz.gui.window.sub.BattleWindow;
 import tdrz.gui.window.sub.BookItemWindow;
 import tdrz.gui.window.sub.BookShipWindow;
@@ -88,6 +89,8 @@ public final class ApplicationMain extends AbstractWindow {
 
 	/** 战斗窗口 */
 	private BattleWindow battleWindow;
+	/** 战斗流程 */
+	private BattleFlowWindow battleFlowWindow;
 	/** 地图详情 */
 	private MapListTable mapListTable;
 
@@ -207,7 +210,7 @@ public final class ApplicationMain extends AbstractWindow {
 				this, this.fleetWindowAll, null, null,    //
 				this.fleetWindowOuts[0], this.fleetWindowOuts[1], this.fleetWindowOuts[2], this.fleetWindowOuts[3],//
 				this.calcuExpTable, this.calcuPracticeExpTable, null, null, //
-				this.mapListTable, this.battleWindow, this.battleWindow.getBattleFlowWindow(), null, //
+				this.mapListTable, this.battleWindow, this.battleFlowWindow, null, //
 				this.createItemTable, this.createShipTable, this.missionResultTable, this.materialRecordTable, //
 				this.destroyItemTable, this.destroyShipTable, this.battleListTable, this.dropListTable, //
 				this.shipListTable1, this.shipListTable2, this.shipListTable3, null, //
@@ -218,7 +221,7 @@ public final class ApplicationMain extends AbstractWindow {
 
 		//恢复窗口配置
 		windows.stream().filter(FunctionUtils::isNotNull).filter(window -> window != this.windowOperationWindow).forEach(window -> {
-			SwtUtils.layoutCompositeRecursively(window.mainComposite);
+			SwtUtils.layoutRecursively(window.mainComposite);
 			window.restoreWindowConfig();
 			GlobalContextUpdater.addListener(window);
 		});
@@ -255,7 +258,11 @@ public final class ApplicationMain extends AbstractWindow {
 			this.questListTable = this.addMenuItemForWindow(cmdMenu, new QuestListTable());
 			this.userItemListTable = this.addMenuItemForWindow(cmdMenu, new UserItemListTable());
 			SwtUtils.makeSeparatorMenuItem(cmdMenu);
-			this.battleWindow = this.addMenuItemForWindow(cmdMenu, new BattleWindow());
+
+			this.battleFlowWindow = new BattleFlowWindow();
+			this.battleWindow = this.addMenuItemForWindow(cmdMenu, new BattleWindow(this.battleFlowWindow));
+			this.addMenuItemForWindow(cmdMenu, this.battleFlowWindow);
+
 			this.mapListTable = this.addMenuItemForWindow(cmdMenu, new MapListTable());
 			SwtUtils.makeSeparatorMenuItem(cmdMenu);
 			this.calcuExpTable = this.addMenuItemForWindow(cmdMenu, new CalcuExpTable());
@@ -487,7 +494,7 @@ public final class ApplicationMain extends AbstractWindow {
 			this.makeNewMenuItem(this.menu, ApplicationMain.this.questListTable);
 			SwtUtils.makeSeparatorMenuItem(this.menu);
 			this.makeNewMenuItem(this.menu, ApplicationMain.this.battleWindow);
-			this.makeNewMenuItem(this.menu, ApplicationMain.this.battleWindow.getBattleFlowWindow());
+			this.makeNewMenuItem(this.menu, ApplicationMain.this.battleFlowWindow);
 			this.makeNewMenuItem(this.menu, ApplicationMain.this.mapListTable);
 			SwtUtils.makeSeparatorMenuItem(this.menu);
 			this.makeNewMenuItem(this.menu, ApplicationMain.this.shipGroupTable);

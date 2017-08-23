@@ -49,7 +49,6 @@ public class DeckRoom {
 		int index = Integer.parseInt(data.getField("api_ship_idx"));//变更位置,0开始
 		int shipId = Integer.parseInt(data.getField("api_ship_id"));
 
-		//TODO 两deck交换ship , 未作考虑
 		if (index == -1) {
 			//除旗舰其余全解除
 			this.deck.setShips(new int[] { this.deck.getShips()[0], -1, -1, -1, -1, -1 });
@@ -64,7 +63,7 @@ public class DeckRoom {
 				for (int i = 0; i < GlobalContext.deckRooms.length; i++) {
 					int shipIndex = DeckDtoTranslator.indexInDeck(GlobalContext.deckRooms[i].deck, shipId);
 					if (shipIndex != -1) {
-						//替换的ship在其他deck中
+						//替换的ship在某deck中
 						GlobalContext.deckRooms[i].deck.getShips()[shipIndex] = this.deck.getShips()[index];
 						break;
 					}
@@ -73,7 +72,7 @@ public class DeckRoom {
 			}
 		}
 
-		if (DeckDtoTranslator.isAkashiFlagship(this.deck) && index != -1) {
+		if (index != -1 && DeckDtoTranslator.isAkashiFlagship(this.deck)) {
 			//变更之后明石旗舰
 			//并且不是[随伴舰一括解除](index == -1)
 			GlobalContext.getAkashiTimer().resetAkashiFlagshipWhenChange(data.getTime());

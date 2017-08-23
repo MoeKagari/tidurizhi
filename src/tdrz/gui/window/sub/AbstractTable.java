@@ -13,6 +13,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -57,6 +58,9 @@ public abstract class AbstractTable<T> extends WindowBase {
 		this.table.setHeaderVisible(true);
 		this.table.setLinesVisible(true);
 		FunctionUtils.forEachUseIndex(this.tcms, SortedTableColumn::new);
+		this.table.addListener(SWT.MouseDoubleClick, ev -> {
+			this.mouseDoubleClickEvent(ev, this.table.getSelection());
+		});
 
 		//对table的一些操作
 		Menu operationMenu = SwtUtils.makeCasacdeMenu(this.menuBar, "操作");
@@ -80,6 +84,13 @@ public abstract class AbstractTable<T> extends WindowBase {
 	}
 
 	/*------------------------------------------------------------------------------------------------------------------------*/
+
+	/**
+	 * 双击table的事件处理
+	 * @param ev 双击事件的详细信息
+	 * @param items 此时table的选中items
+	 */
+	public void mouseDoubleClickEvent(Event ev, TableItem[] items) {}
 
 	/** new一个 更新table 的listener */
 	protected final ControlSelectionListener getUpdateTableListener() {
@@ -147,12 +158,15 @@ public abstract class AbstractTable<T> extends WindowBase {
 					)//
 			);
 			this.datas.clear();
+			this.refreshRowHeader();
 
-			if (this.table.getData("autoWidth") == null) {//只自动 autoWidth 一次
+			if (this.table.getData("autoWidth") == null) {
+				//只自动 autoWidth 一次
 				this.autoWidth();
 				this.table.setData("autoWidth", "");
 			}
 		}
+
 		this.table.setTopIndex(top);
 	}
 

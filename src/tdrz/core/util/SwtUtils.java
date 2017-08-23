@@ -42,9 +42,9 @@ public final class SwtUtils {
 	}
 
 	public static void layoutRecursively(Composite composite) {
-		FunctionUtils.forEach(composite.getChildren(), child -> {
-			if (child instanceof Composite) {
-				layoutRecursively((Composite) child);
+		FunctionUtils.forEach(composite.getChildren(), control -> {
+			if (control instanceof Composite) {
+				layoutRecursively((Composite) control);
 			}
 		});
 		composite.layout();
@@ -149,15 +149,6 @@ public final class SwtUtils {
 		gl.marginLeft = marginLeft;
 		gl.marginRight = marginRight;
 		return gl;
-	}
-
-	public static void layoutCompositeRecursively(Composite composite) {
-		FunctionUtils.forEach(composite.getChildren(), control -> {
-			if (control instanceof Composite) {
-				layoutCompositeRecursively((Composite) control);
-			}
-		});
-		composite.layout();
 	}
 
 	public static Label initLabel(Label label, String text, GridData gd) {

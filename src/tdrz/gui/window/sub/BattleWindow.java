@@ -18,9 +18,9 @@ public class BattleWindow extends WindowBase {
 	private final BattleScrolledComposite sbc;//战斗窗口
 	private final BattleFlowWindow bfw;
 
-	public BattleWindow() {
+	public BattleWindow(BattleFlowWindow bfw) {
 		this.sbc = new BattleScrolledComposite(this.centerComposite, 0);
-		this.bfw = new BattleFlowWindow();
+		this.bfw = bfw;
 	}
 
 	@Override
@@ -31,28 +31,35 @@ public class BattleWindow extends WindowBase {
 	@Override
 	public void update(DataType type) {
 		BattleDto last = GlobalContext.getMemorylist().getLastBattle();
+
 		if (last != null) {
 			if (AppConfig.get().isAutoUpdateBattleFlow()) {//自动更新
 				this.bfw.updateBattle(last, null);
 			}
-
-			//面板没有内容时,没有downarrow
-			boolean haveDownArrow = this.sbc.contentComposite.getChildren().length != 0;
-			//battleresult → shipdeck → next ,后两个之间加入downarrow
-			haveDownArrow &= this.lastInWindow instanceof InfoBattleShipdeckDto;
-			BattleDtoTranslator.newBattleComposite(this.sbc.contentComposite, this.bfw::updateBattle, haveDownArrow, last);
+			this.addNewBattle(last);
 		} else {
 			if (type == DataType.PORT) {
-				this.sbc.clearWindow();
-				this.bfw.sbc.clearWindow();
+				this.clearWindow();
 			}
 		}
+	}
+
+	public void addNewBattle(BattleDto last) {
+		//面板没有内容时,没有downarrow
+		boolean haveDownArrow = this.sbc.contentComposite.getChildren().length != 0;
+		//battleresult → shipdeck → next ,后两个之间加入downarrow
+		haveDownArrow &= this.lastInWindow instanceof InfoBattleShipdeckDto;
+		BattleDtoTranslator.newBattleComposite(this.sbc.contentComposite, this.bfw::updateBattle, haveDownArrow, last);
 
 		this.lastInWindow = last;
 		this.sbc.layoutContent(true);
 	}
 
-	public BattleFlowWindow getBattleFlowWindow() {
-		return this.bfw;
+	public void clearWindow() {
+		this.sbc.clearWindow();
+		this.bfw.sbc.clearWindow();
+
+		this.lastInWindow = null;
+		this.sbc.layoutContent(true);
 	}
 }

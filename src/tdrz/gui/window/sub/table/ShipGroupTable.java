@@ -10,7 +10,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.SWT;
@@ -25,18 +24,15 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import tdrz.core.config.ShipGroup;
-import tdrz.core.translator.ItemDtoTranslator;
 import tdrz.core.translator.ShipDtoTranslator;
 import tdrz.core.util.SwtUtils;
 import tdrz.gui.other.ControlSelectionListener;
 import tdrz.gui.window.WindowResource;
-import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
-import tdrz.update.dto.word.ItemDto;
 import tdrz.update.dto.word.ShipDto;
 import tool.function.FunctionUtils;
 
-public class ShipGroupTable extends AbstractTable<ShipDto> {
+public class ShipGroupTable extends ShipListAbstract {
 	private final Button addButton, removeButton, editButton;
 	private final org.eclipse.swt.widgets.List groupList;
 
@@ -89,6 +85,11 @@ public class ShipGroupTable extends AbstractTable<ShipDto> {
 	}
 
 	@Override
+	protected ShipListTableMode getMode() {
+		return ShipListTableMode.ALL;
+	}
+
+	@Override
 	public String defaultTitle() {
 		return "分组";
 	}
@@ -99,26 +100,8 @@ public class ShipGroupTable extends AbstractTable<ShipDto> {
 	}
 
 	@Override
-	protected boolean haveLeftComposite() {
+	public boolean haveLeftComposite() {
 		return true;
-	}
-
-	@Override
-	protected void initTCMS(List<TableColumnManager> tcms) {
-		tcms.add(new TableColumnManager("ID", true, ShipDto::getId));
-		tcms.add(new TableColumnManager("舰娘", ShipDtoTranslator::getName));
-		tcms.add(new TableColumnManager("舰种", ShipDtoTranslator::getTypeString));
-		tcms.add(new TableColumnManager("等级", true, ShipDto::getLevel));
-		tcms.add(new TableColumnManager("所处", ShipDtoTranslator::whichDeckString));
-		tcms.add(new TableColumnManager("Cond", true, ShipDto::getCond));
-		tcms.add(new TableColumnManager("现有经验", true, ShipDto::getCurrentExp));
-		tcms.add(new TableColumnManager("升级所需", true, ShipDto::getNextExp));
-		tcms.add(new TableColumnManager("入渠中", rd -> ShipDtoTranslator.isInNyukyo(rd) ? "是" : ""));
-		IntStream.range(0, 5).mapToObj(index -> new TableColumnManager(String.format("装备%d", index + 1), rd -> {
-			ItemDto item = GlobalContext.getItem(index == 4 ? rd.getSlotex() : rd.getSlots()[index]);
-			return FunctionUtils.notNull(item, ItemDtoTranslator::getNameWithLevel, "");
-		})).forEach(tcms::add);
-		tcms.add(new TableColumnManager("出击海域", rd -> FunctionUtils.ifFunction(rd.getSallyArea(), sa -> sa != 0, String::valueOf, "")));
 	}
 
 	@Override

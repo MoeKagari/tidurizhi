@@ -23,10 +23,10 @@ public abstract class CalcuTable<T> extends AbstractTable<T> {
 	}
 
 	protected enum Eval {
-		S("S胜利", 1.2),
-		AB("AB胜利", 1.0),
-		C("C败北", 0.8),
-		D("D败北", 0.7);
+		S("S胜利", 1.2, 1.2),
+		AB("AB胜利", 1.0, 1.0),
+		C("C败北", 0.8, 0.64),
+		D("D败北", 0.7, 0.56);
 
 		protected final static Map<String, Eval> EVALMAP = new HashMap<>();
 		static {
@@ -35,10 +35,12 @@ public abstract class CalcuTable<T> extends AbstractTable<T> {
 
 		protected final String name;
 		protected final double value;
+		protected final double valueP;
 
-		private Eval(String name, double value) {
+		private Eval(String name, double value, double valueP) {
 			this.name = name;
 			this.value = value;
+			this.valueP = valueP;
 		}
 	}
 

@@ -1,6 +1,6 @@
 package tdrz.gui.window.sub.table;
 
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import tdrz.gui.window.sub.AbstractTable;
@@ -31,7 +31,7 @@ public class UserItemListTable extends AbstractTable<UseItemDto> {
 	@Override
 	protected void updateData(List<UseItemDto> datas) {
 		datas.addAll(GlobalContext.getUseitemMap().values());
-		Collections.sort(datas, (a, b) -> Integer.compare(a.getId(), b.getId()));
+		datas.sort(Comparator.comparingInt(UseItemDto::getId));
 	}
 
 	@Override

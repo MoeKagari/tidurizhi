@@ -5,19 +5,25 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 
 import tdrz.core.util.SwtUtils;
+import tool.function.FunctionUtils;
 
-/** 和 {@link AbstractShellBase} 一样,只是为了分层而分离的super class ,编写窗口类应使用 {@link AbstractWindow} 或其子类 */
+/**
+ * 和 {@link AbstractShellBase} 一样,只是为了分层而分离的super class ,编写窗口类应使用
+ * {@link AbstractWindowBase} 或其子类
+ */
 public abstract class AbstractCompositeBase extends AbstractShellBase {
 	public final Composite mainComposite;
 
 	/**
 	 * 需要先将标志置为true,否则null
+	 * 
 	 * @see AbstractCompositeBase#haveLeftComposite()
 	 */
 	public final Composite leftComposite;
 
 	/**
 	 * 需要先将标志置为true,否则null
+	 * 
 	 * @see AbstractCompositeBase#haveTopComposite()
 	 */
 	public final Composite topComposite;
@@ -26,21 +32,33 @@ public abstract class AbstractCompositeBase extends AbstractShellBase {
 
 	/**
 	 * 需要先将标志置为true,否则null
+	 * 
 	 * @see AbstractCompositeBase#haveBottomComposite()
 	 */
 	public final Composite bottomComposite;
 
 	/**
 	 * 需要先将标志置为true,否则null
+	 * 
 	 * @see AbstractCompositeBase#haveRightComposite()
 	 */
 	public final Composite rightComposite;
 
 	public AbstractCompositeBase() {
+		int numColumns = (this.haveLeftComposite() ? 1 : 0) + 1 + (this.haveRightComposite() ? 1 : 0);
+
 		this.mainComposite = new Composite(this.shell, SWT.NONE);
 		this.mainComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-		this.mainComposite.setLayout(SwtUtils.makeGridLayout((this.haveLeftComposite() ? 1 : 0) + 1 + (this.haveRightComposite() ? 1 : 0), 0, 0, 0, 0));
+		this.mainComposite.setLayout(SwtUtils.makeGridLayout(numColumns, 0, 0, 0, 0));
 		{
+			if (this.haveTopComposite()) {
+				this.topComposite = new Composite(this.mainComposite, SWT.NONE);
+				this.topComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, numColumns, 1));
+				this.topComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
+			} else {
+				this.topComposite = null;
+			}
+
 			if (this.haveLeftComposite()) {
 				this.leftComposite = new Composite(this.mainComposite, SWT.NONE);
 				this.leftComposite.setLayoutData(new GridData(GridData.FILL_VERTICAL));
@@ -49,30 +67,9 @@ public abstract class AbstractCompositeBase extends AbstractShellBase {
 				this.leftComposite = null;
 			}
 
-			Composite subComposite = new Composite(this.mainComposite, SWT.NONE);
-			subComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-			subComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
-			{
-				if (this.haveTopComposite()) {
-					this.topComposite = new Composite(subComposite, SWT.NONE);
-					this.topComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-					this.topComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
-				} else {
-					this.topComposite = null;
-				}
-
-				this.centerComposite = new Composite(subComposite, SWT.NONE);
-				this.centerComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
-				this.centerComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
-
-				if (this.haveBottomComposite()) {
-					this.bottomComposite = new Composite(subComposite, SWT.NONE);
-					this.bottomComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-					this.bottomComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
-				} else {
-					this.bottomComposite = null;
-				}
-			}
+			this.centerComposite = new Composite(this.mainComposite, SWT.NONE);
+			this.centerComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
+			this.centerComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
 
 			if (this.haveRightComposite()) {
 				this.rightComposite = new Composite(this.mainComposite, SWT.NONE);
@@ -81,38 +78,59 @@ public abstract class AbstractCompositeBase extends AbstractShellBase {
 			} else {
 				this.rightComposite = null;
 			}
+
+			if (this.haveBottomComposite()) {
+				this.bottomComposite = new Composite(this.mainComposite, SWT.NONE);
+				this.bottomComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, numColumns, 1));
+				this.bottomComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
+			} else {
+				this.bottomComposite = null;
+			}
 		}
 	}
 
+	public final void layout() {
+		this.mainComposite.layout();
+		FunctionUtils.forEach(this.mainComposite.getChildren(), child -> {
+			if (child instanceof Composite) {
+				((Composite) child).layout();
+			}
+		});
+	}
+
 	/**
 	 * 是否有此Composite
+	 * 
 	 * @see AbstractCompositeBase#leftComposite
 	 */
-	protected boolean haveLeftComposite() {
+	public boolean haveLeftComposite() {
 		return false;
 	}
 
 	/**
 	 * 是否有此Composite
+	 * 
 	 * @see AbstractCompositeBase#topComposite
 	 */
-	protected boolean haveTopComposite() {
+	public boolean haveTopComposite() {
 		return false;
 	}
 
 	/**
 	 * 是否有此Composite
+	 * 
 	 * @see AbstractCompositeBase#bottomComposite
 	 */
-	protected boolean haveBottomComposite() {
+	public boolean haveBottomComposite() {
 		return false;
 	}
 
 	/**
 	 * 是否有此Composite
+	 * 
 	 * @see AbstractCompositeBase#rightComposite
 	 */
-	protected boolean haveRightComposite() {
+	public boolean haveRightComposite() {
 		return false;
 	}
 

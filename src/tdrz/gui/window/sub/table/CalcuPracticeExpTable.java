@@ -38,8 +38,7 @@ public class CalcuPracticeExpTable extends CalcuTable<CalcuPracticeExpTable.Calc
 				this.levelSpinner0.setMaximum(ShipExp.EXPMAP.size());
 				this.levelSpinner0.addSelectionListener(new ControlSelectionListener(ev -> {
 					this.notUpdateShipComposite = true;
-					this.getUpdateTableListener().widgetSelected(ev);
-				}));
+				}).andThen(this.getUpdateTableListener()));
 
 				this.levelSpinner1 = new Spinner(mainLevelComposite, SWT.LEFT);
 				this.levelSpinner1.setLayoutData(SwtUtils.makeGridData(new GridData(SWT.CENTER, SWT.CENTER, true, true), 40));
@@ -47,8 +46,7 @@ public class CalcuPracticeExpTable extends CalcuTable<CalcuPracticeExpTable.Calc
 				this.levelSpinner1.setMaximum(ShipExp.EXPMAP.size());
 				this.levelSpinner1.addSelectionListener(new ControlSelectionListener(ev -> {
 					this.notUpdateShipComposite = true;
-					this.getUpdateTableListener().widgetSelected(ev);
-				}));
+				}).andThen(this.getUpdateTableListener()));
 			}
 
 			this.shipComposites = IntStream.range(0, 6).mapToObj(index -> new PracticeShipComposite(contentComposite, index)).toArray(PracticeShipComposite[]::new);
@@ -61,7 +59,7 @@ public class CalcuPracticeExpTable extends CalcuTable<CalcuPracticeExpTable.Calc
 	}
 
 	@Override
-	protected boolean haveLeftComposite() {
+	public boolean haveLeftComposite() {
 		return true;
 	}
 
@@ -161,9 +159,9 @@ public class CalcuPracticeExpTable extends CalcuTable<CalcuPracticeExpTable.Calc
 		TRUE_FALSE("旗舰", true, false),
 		FALSE_FALSE("基本经验", false, false);
 
-		protected final String name;
-		protected final boolean isFlagship;
-		protected final boolean isMVP;
+		private final String name;
+		private final boolean isFlagship;
+		private final boolean isMVP;
 
 		private FlagshipMVP(String name, boolean isFlagship, boolean isMVP) {
 			this.name = name;
@@ -177,7 +175,7 @@ public class CalcuPracticeExpTable extends CalcuTable<CalcuPracticeExpTable.Calc
 		private final int lv1;
 		private final FlagshipMVP fm;
 
-		public CalcuPracticeExpData(int lv0, int lv1, FlagshipMVP fm) {
+		private CalcuPracticeExpData(int lv0, int lv1, FlagshipMVP fm) {
 			this.lv0 = lv0;
 			this.lv1 = lv1;
 			this.fm = fm;
@@ -187,7 +185,7 @@ public class CalcuPracticeExpTable extends CalcuTable<CalcuPracticeExpTable.Calc
 			double exp = Math.floor(ShipExp.EXPMAP.get(this.lv0) / 100.0 + ShipExp.EXPMAP.get(this.lv1) / 300.0);
 
 			if (exp > 500) exp = Math.floor(500 + Math.sqrt(exp - 500));
-			exp = Math.floor(exp * eval.value);
+			exp = Math.floor(exp * eval.valueP);
 			if (this.fm.isFlagship) exp *= 1.5;
 			if (this.fm.isMVP) exp *= 2;
 

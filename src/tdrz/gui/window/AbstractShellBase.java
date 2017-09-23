@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import tdrz.core.util.SwtUtils;
 
-/** 和 {@link AbstractCompositeBase} 一样,只是为了分层而分离的super class ,编写窗口类应使用 {@link AbstractWindow} 或其子类 */
+/** 和 {@link AbstractCompositeBase} 一样,只是为了分层而分离的super class ,编写窗口类应使用 {@link AbstractWindowBase} 或其子类 */
 public abstract class AbstractShellBase {
 	public final Shell shell;
 	public final Menu menuBar;

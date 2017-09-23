@@ -23,7 +23,7 @@ import tdrz.core.util.SwtUtils;
 import tdrz.core.util.ToolUtils;
 import tdrz.gui.other.ControlSelectionListener;
 import tdrz.gui.other.WindowConfigChangedAdapter;
-import tdrz.gui.window.AbstractWindowBase;
+import tdrz.gui.window.AbstractWindow;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.context.data.DataType;
 import tool.function.FunctionUtils;
@@ -32,7 +32,7 @@ import tool.function.FunctionUtils;
  * 所有table的超类
  * @author MoeKagari
  */
-public abstract class AbstractTable<T> extends AbstractWindowBase {
+public abstract class AbstractTable<T> extends AbstractWindow {
 	private final Table table;
 	private final Predicate<T> filter;
 	private final List<TableColumnManager> tcms = new ArrayList<>();

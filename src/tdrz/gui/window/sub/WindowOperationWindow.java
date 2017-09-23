@@ -14,10 +14,10 @@ import org.eclipse.swt.widgets.Scale;
 import tdrz.core.util.SwtUtils;
 import tdrz.gui.other.ControlSelectionListener;
 import tdrz.gui.other.WindowConfigChangedAdapter;
-import tdrz.gui.window.AbstractWindow;
 import tdrz.gui.window.AbstractWindowBase;
+import tdrz.gui.window.AbstractWindow;
 
-public class WindowOperationWindow extends AbstractWindowBase {
+public class WindowOperationWindow extends AbstractWindow {
 	private final Composite contentComposite;
 	private final List<AbstractOperationComposite> aocs = new ArrayList<>();
 
@@ -28,7 +28,7 @@ public class WindowOperationWindow extends AbstractWindowBase {
 		this.allowMouseDragRecursively(this.contentComposite);
 	}
 
-	public void addWindow(AbstractWindow window) {
+	public void addWindow(AbstractWindowBase window) {
 		if (window != null) {
 			this.aocs.add(new WindowOperationComposite(window));
 		} else {
@@ -75,9 +75,9 @@ public class WindowOperationWindow extends AbstractWindowBase {
 	}
 
 	private class WindowOperationComposite extends AbstractOperationComposite {
-		private final AbstractWindow window;
+		private final AbstractWindowBase window;
 
-		public WindowOperationComposite(AbstractWindow window) {
+		public WindowOperationComposite(AbstractWindowBase window) {
 			super(SWT.BORDER);
 			this.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
 			this.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));

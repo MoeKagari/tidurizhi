@@ -3,7 +3,7 @@ package tdrz.gui.window.sub;
 import tdrz.core.config.AppConfig;
 import tdrz.core.translator.BattleDtoTranslator;
 import tdrz.gui.composite.BattleScrolledComposite;
-import tdrz.gui.window.AbstractWindowBase;
+import tdrz.gui.window.AbstractWindow;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.context.data.DataType;
 import tdrz.update.dto.memory.battle.BattleDto;
@@ -13,7 +13,7 @@ import tdrz.update.dto.memory.battle.info.InfoBattleShipdeckDto;
  * 战斗窗口
  * @author MoeKagari
  */
-public class BattleWindow extends AbstractWindowBase {
+public class BattleWindow extends AbstractWindow {
 	private BattleDto lastInWindow = null;//最后一个battleDto(此面板中的)
 	private final BattleScrolledComposite sbc;//战斗窗口
 	private final BattleFlowWindow bfw;

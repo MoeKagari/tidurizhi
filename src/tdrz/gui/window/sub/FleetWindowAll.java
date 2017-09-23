@@ -9,9 +9,9 @@ import org.eclipse.swt.widgets.Composite;
 
 import tdrz.core.util.SwtUtils;
 import tdrz.gui.composite.FleetWindow;
-import tdrz.gui.window.AbstractWindowBase;
+import tdrz.gui.window.AbstractWindow;
 
-public class FleetWindowAll extends AbstractWindowBase {
+public class FleetWindowAll extends AbstractWindow {
 	private final FleetWindow[] fleetWindows;
 
 	public FleetWindowAll() {

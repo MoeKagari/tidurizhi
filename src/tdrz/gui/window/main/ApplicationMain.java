@@ -8,7 +8,6 @@ import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -72,72 +71,71 @@ import tdrz.update.context.data.DataType;
 import tdrz.update.dto.word.ResourceDto;
 import tool.function.FunctionUtils;
 
-public final class ApplicationMain extends AbstractWindow {
+public final class ApplicationMain extends AbstractWindowBase {
 	public static ApplicationMain main;
-	private static final Logger userLogger = LogManager.getLogger("user");
 
 	/*------------------------------------------------------------------------------------------------------*/
 
 	/** 舰队面板-全 */
-	private FleetWindowAll fleetWindowAll;
+	private final FleetWindowAll fleetWindowAll;
 	/** 舰队面板-单 */
-	private FleetWindowOut[] fleetWindowOuts;
+	private final FleetWindowOut[] fleetWindowOuts;
 
 	/** 经验计算器 */
-	private CalcuExpTable calcuExpTable;
+	private final CalcuExpTable calcuExpTable;
 	/** 演习经验计算器 */
-	private CalcuPracticeExpTable calcuPracticeExpTable;
+	private final CalcuPracticeExpTable calcuPracticeExpTable;
 
 	/** 战斗窗口 */
-	private BattleWindow battleWindow;
+	private final BattleWindow battleWindow;
 	/** 战斗流程 */
-	private BattleFlowWindow battleFlowWindow;
+	private final BattleFlowWindow battleFlowWindow;
 	/** 地图详情 */
-	private MapListTable mapListTable;
+	private final MapListTable mapListTable;
 
 	/** 开发记录 */
-	private CreateItemTable createItemTable;
+	private final CreateItemTable createItemTable;
 	/** 建造记录 */
-	private CreateShipTable createShipTable;
+	private final CreateShipTable createShipTable;
 	/** 远征记录 */
-	private MissionResultTable missionResultTable;
+	private final MissionResultTable missionResultTable;
 	/** 资源记录 */
-	private MaterialRecordTable materialRecordTable;
+	private final MaterialRecordTable materialRecordTable;
 
 	/** 解体记录 */
-	private DestroyShipTable destroyShipTable;
+	private final DestroyShipTable destroyShipTable;
 	/** 废弃记录 */
-	private DestroyItemTable destroyItemTable;
+	private final DestroyItemTable destroyItemTable;
 	/** 改修记录 */
-	private RemodleRecordTable remodleRecordTable;
+	private final RemodleRecordTable remodleRecordTable;
 
 	/** 战斗记录 */
-	private BattleListTable battleListTable;
+	private final BattleListTable battleListTable;
 	/** 掉落记录 */
-	private DropListTable dropListTable;
+	private final DropListTable dropListTable;
 
 	/** 所有舰娘(信息) */
-	private ShipListTable shipListTable1;
+	private final ShipListTable shipListTable1;
 	/** 所有舰娘(属性) */
-	private ShipListTable shipListTable2;
+	private final ShipListTable shipListTable2;
 	/** 所有舰娘(综合) */
-	private ShipListTable shipListTable3;
+	private final ShipListTable shipListTable3;
 	/** 所有装备 */
-	private ItemListTable itemListTable;
+	private final ItemListTable itemListTable;
 	/** 所有任务 */
-	private QuestListTable questListTable;
+	private final QuestListTable questListTable;
 	/** 所有道具 */
-	private UserItemListTable userItemListTable;
+	private final UserItemListTable userItemListTable;
 
-	private ShipGroupTable shipGroupTable;
+	private final ShipGroupTable shipGroupTable;
 	/** 窗口操作 */
-	private WindowOperationWindow windowOperationWindow;
+	private final WindowOperationWindow windowOperationWindow;
 	/** 设置 */
-	private ConfigWindow configWindow;
+	private final ConfigWindow configWindow;
 	/** 舰娘图鉴 */
-	private BookShipWindow bookShipWindow;
+	private final BookShipWindow bookShipWindow;
 	/** 装备图鉴 */
-	private BookItemWindow bookItemWindow;
+	private final BookItemWindow bookItemWindow;
 
 	/*------------------------------------------------------------------------------------------------------*/
 
@@ -170,31 +168,115 @@ public final class ApplicationMain extends AbstractWindow {
 			}
 		});
 
-		Composite leftContentComposite = new Composite(this.leftComposite, SWT.NONE);
-		leftContentComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
-		leftContentComposite.setLayoutData(SwtUtils.makeGridData(GridData.FILL_VERTICAL, 210));//左边面板的宽度在此控制
+		//左边信息面板
+		Composite centerContentComposite = new Composite(this.centerComposite, SWT.NONE);
+		centerContentComposite.setLayout(SwtUtils.makeGridLayout(1, 0, 0, 0, 0));
+		centerContentComposite.setLayoutData(SwtUtils.makeGridData(GridData.FILL_VERTICAL, 210));//左边面板的宽度在此控制
 		{
-			this.shipItemButtonComposite = new ShipItemButtonComposite(leftContentComposite);
-			this.resourceGroup = new ResourceGroup(leftContentComposite);
-			this.deckGroup = new NameTimeGroup(leftContentComposite, "远征");
-			this.ndockGroup = new NameTimeGroup(leftContentComposite, "入渠");
-			this.akashiTimerComposite = new AkashiTimerComposite(leftContentComposite);
-			this.messageList = new MessageList(leftContentComposite);
+			this.shipItemButtonComposite = new ShipItemButtonComposite(centerContentComposite);
+			this.resourceGroup = new ResourceGroup(centerContentComposite);
+			this.deckGroup = new NameTimeGroup(centerContentComposite, "远征");
+			this.ndockGroup = new NameTimeGroup(centerContentComposite, "入渠");
+			this.akashiTimerComposite = new AkashiTimerComposite(centerContentComposite);
+			this.messageList = new MessageList(centerContentComposite);
 		}
 
+		//右边舰队面板
 		int fleetLength = 1;
-		Composite rightContentComposite = new Composite(this.centerComposite, SWT.NONE);
+		Composite rightContentComposite = new Composite(this.rightComposite, SWT.NONE);
 		rightContentComposite.setLayout(SwtUtils.makeGridLayout(new int[] { 0, 1, 1, 2, 2 }[fleetLength], 2, 2, 1, 1));
 		rightContentComposite.setLayoutData(new GridData(GridData.FILL_BOTH));
 		for (int index = 0; index < fleetLength; index++) {
 			new FleetWindow(index + 1, new Composite(rightContentComposite, SWT.BORDER));
 		}
 
-		this.initMenuBar();
+		//菜单栏
+		{
+			Menu cmdMenu = SwtUtils.makeCasacdeMenu(this.menuBar, "主菜单");
+			{
+				this.shipListTable1 = this.addMenuItemForWindow(cmdMenu, new ShipListTable() {
+					@Override
+					protected ShipListTableMode getMode() {
+						return ShipListTableMode.INFORMATION;
+					}
+				});
+				this.shipListTable2 = this.addMenuItemForWindow(cmdMenu, new ShipListTable() {
+					@Override
+					protected ShipListTableMode getMode() {
+						return ShipListTableMode.PARAMENTER;
+					}
+				});
+				this.shipListTable3 = this.addMenuItemForWindow(cmdMenu, new ShipListTable() {
+					@Override
+					protected ShipListTableMode getMode() {
+						return ShipListTableMode.ALL;
+					}
+				});
+				this.itemListTable = this.addMenuItemForWindow(cmdMenu, new ItemListTable());
+				this.questListTable = this.addMenuItemForWindow(cmdMenu, new QuestListTable());
+				this.userItemListTable = this.addMenuItemForWindow(cmdMenu, new UserItemListTable());
+				SwtUtils.makeSeparatorMenuItem(cmdMenu);
 
+				this.battleFlowWindow = new BattleFlowWindow();
+				this.battleWindow = this.addMenuItemForWindow(cmdMenu, new BattleWindow(this.battleFlowWindow));
+				this.addMenuItemForWindow(cmdMenu, this.battleFlowWindow);
+
+				this.mapListTable = this.addMenuItemForWindow(cmdMenu, new MapListTable());
+				SwtUtils.makeSeparatorMenuItem(cmdMenu);
+				this.calcuExpTable = this.addMenuItemForWindow(cmdMenu, new CalcuExpTable());
+				this.calcuPracticeExpTable = this.addMenuItemForWindow(cmdMenu, new CalcuPracticeExpTable());
+				SwtUtils.makeSeparatorMenuItem(cmdMenu);
+				SwtUtils.makeMenuItem(cmdMenu, SWT.NONE, "退出", this.shell::close);
+			}
+
+			Menu recordMenu = SwtUtils.makeCasacdeMenu(this.menuBar, "记录");
+			{
+				this.createShipTable = this.addMenuItemForWindow(recordMenu, new CreateShipTable());
+				this.createItemTable = this.addMenuItemForWindow(recordMenu, new CreateItemTable());
+				this.missionResultTable = this.addMenuItemForWindow(recordMenu, new MissionResultTable());
+				this.materialRecordTable = this.addMenuItemForWindow(recordMenu, new MaterialRecordTable());
+				SwtUtils.makeSeparatorMenuItem(recordMenu);
+				this.destroyShipTable = this.addMenuItemForWindow(recordMenu, new DestroyShipTable());
+				this.destroyItemTable = this.addMenuItemForWindow(recordMenu, new DestroyItemTable());
+				this.remodleRecordTable = this.addMenuItemForWindow(recordMenu, new RemodleRecordTable());
+				SwtUtils.makeSeparatorMenuItem(recordMenu);
+				this.battleListTable = this.addMenuItemForWindow(recordMenu, new BattleListTable());
+				this.dropListTable = this.addMenuItemForWindow(recordMenu, new DropListTable());
+			}
+
+			Menu fleetMenu = SwtUtils.makeCasacdeMenu(this.menuBar, "舰队");
+			{
+				this.fleetWindowAll = this.addMenuItemForWindow(fleetMenu, new FleetWindowAll());
+
+				this.fleetWindowOuts = IntStream.rangeClosed(1, 4)//
+						.mapToObj(id -> this.addMenuItemForWindow(fleetMenu,//
+								new FleetWindowOut() {
+									@Override
+									public int getId() {
+										return id;
+									}
+								}//
+						)).toArray(FleetWindowOut[]::new);
+			}
+
+			Menu etcMenu = SwtUtils.makeCasacdeMenu(this.menuBar, "其它");
+			{
+				SwtUtils.makeMenuItem(etcMenu, SWT.PUSH, "DeckBuilder", ev -> new Clipboard(WindowResource.DISPLAY).setContents(new Object[] { DeckBuilder.build() }, new Transfer[] { TextTransfer.getInstance() }));
+				SwtUtils.makeSeparatorMenuItem(etcMenu);
+				this.shipGroupTable = this.addMenuItemForWindow(etcMenu, new ShipGroupTable());
+				this.configWindow = this.addMenuItemForWindow(etcMenu, new ConfigWindow());
+				this.windowOperationWindow = this.addMenuItemForWindow(etcMenu, new WindowOperationWindow());
+				SwtUtils.makeSeparatorMenuItem(etcMenu);
+				this.bookShipWindow = this.addMenuItemForWindow(etcMenu, new BookShipWindow());
+				this.bookItemWindow = this.addMenuItemForWindow(etcMenu, new BookItemWindow());
+			}
+		}
+
+		//左边信息面板 的 两个按钮
 		this.shipItemButtonComposite.shipList.addSelectionListener(new ControlSelectionListener(this.shipListTable1::displayWindow));
 		this.shipItemButtonComposite.itemList.addSelectionListener(new ControlSelectionListener(this.itemListTable::displayWindow));
 
+		//托盘
 		this.trayItem = new TrayItem(WindowResource.DISPLAY.getSystemTray(), SWT.NONE);
 		this.trayItem.setImage(WindowResource.LOGO);
 		this.trayItem.addSelectionListener(new ControlSelectionListener(ev -> {
@@ -205,11 +287,11 @@ public final class ApplicationMain extends AbstractWindow {
 			}
 		}));
 		this.trayItem.addMenuDetectListener(new TrayItemMenuListener());
-		this.trayItem.setToolTipText(AppConstants.MAINWINDOWNAME);
+		this.trayItem.setToolTipText(this.defaultTitle());
 
 		//所有窗口
 		//null为 windowOperationWindow 中用的占位符
-		List<AbstractWindow> windows = Arrays.asList(//
+		List<AbstractWindowBase> windows = Arrays.asList(//
 				this, this.fleetWindowAll, null, null,    //
 				this.fleetWindowOuts[0], this.fleetWindowOuts[1], this.fleetWindowOuts[2], this.fleetWindowOuts[3],//
 				this.calcuExpTable, this.calcuPracticeExpTable, null, null, //
@@ -222,101 +304,20 @@ public final class ApplicationMain extends AbstractWindow {
 				this.bookShipWindow, this.bookItemWindow, this.remodleRecordTable, null//
 		);
 
-		//恢复窗口配置
-		windows.stream().filter(FunctionUtils::isNotNull).filter(window -> window != this.windowOperationWindow).forEach(window -> {
-			SwtUtils.layoutRecursively(window.mainComposite);
-			window.restoreWindowConfig();
-			GlobalContextUpdater.addListener(window);
-		});
 		//添加窗口到 [窗口操作] 窗口
 		windows.forEach(this.windowOperationWindow::addWindow);
 
-		this.windowOperationWindow.centerComposite.layout();
-		this.windowOperationWindow.restoreWindowConfig();
+		//恢复窗口配置
+		windows.forEach(window -> {
+			if (window != null) {
+				GlobalContextUpdater.addListener(window);
+				window.layout();
+				window.restoreWindowConfig();
+			}
+		});
 	}
 
-	//菜单栏
-	private void initMenuBar() {
-		Menu cmdMenu = SwtUtils.makeCasacdeMenu(this.menuBar, "主菜单");
-		{
-			this.shipListTable1 = this.addMenuItemForWindow(cmdMenu, new ShipListTable() {
-				@Override
-				protected ShipListTableMode getMode() {
-					return ShipListTableMode.INFORMATION;
-				}
-			});
-			this.shipListTable2 = this.addMenuItemForWindow(cmdMenu, new ShipListTable() {
-				@Override
-				protected ShipListTableMode getMode() {
-					return ShipListTableMode.PARAMENTER;
-				}
-			});
-			this.shipListTable3 = this.addMenuItemForWindow(cmdMenu, new ShipListTable() {
-				@Override
-				protected ShipListTableMode getMode() {
-					return ShipListTableMode.ALL;
-				}
-			});
-			this.itemListTable = this.addMenuItemForWindow(cmdMenu, new ItemListTable());
-			this.questListTable = this.addMenuItemForWindow(cmdMenu, new QuestListTable());
-			this.userItemListTable = this.addMenuItemForWindow(cmdMenu, new UserItemListTable());
-			SwtUtils.makeSeparatorMenuItem(cmdMenu);
-
-			this.battleFlowWindow = new BattleFlowWindow();
-			this.battleWindow = this.addMenuItemForWindow(cmdMenu, new BattleWindow(this.battleFlowWindow));
-			this.addMenuItemForWindow(cmdMenu, this.battleFlowWindow);
-
-			this.mapListTable = this.addMenuItemForWindow(cmdMenu, new MapListTable());
-			SwtUtils.makeSeparatorMenuItem(cmdMenu);
-			this.calcuExpTable = this.addMenuItemForWindow(cmdMenu, new CalcuExpTable());
-			this.calcuPracticeExpTable = this.addMenuItemForWindow(cmdMenu, new CalcuPracticeExpTable());
-			SwtUtils.makeSeparatorMenuItem(cmdMenu);
-			SwtUtils.makeMenuItem(cmdMenu, SWT.NONE, "退出", this.shell::close);
-		}
-
-		Menu recordMenu = SwtUtils.makeCasacdeMenu(this.menuBar, "记录");
-		{
-			this.createShipTable = this.addMenuItemForWindow(recordMenu, new CreateShipTable());
-			this.createItemTable = this.addMenuItemForWindow(recordMenu, new CreateItemTable());
-			this.missionResultTable = this.addMenuItemForWindow(recordMenu, new MissionResultTable());
-			this.materialRecordTable = this.addMenuItemForWindow(recordMenu, new MaterialRecordTable());
-			SwtUtils.makeSeparatorMenuItem(recordMenu);
-			this.destroyShipTable = this.addMenuItemForWindow(recordMenu, new DestroyShipTable());
-			this.destroyItemTable = this.addMenuItemForWindow(recordMenu, new DestroyItemTable());
-			this.remodleRecordTable = this.addMenuItemForWindow(recordMenu, new RemodleRecordTable());
-			SwtUtils.makeSeparatorMenuItem(recordMenu);
-			this.battleListTable = this.addMenuItemForWindow(recordMenu, new BattleListTable());
-			this.dropListTable = this.addMenuItemForWindow(recordMenu, new DropListTable());
-		}
-
-		Menu fleetMenu = SwtUtils.makeCasacdeMenu(this.menuBar, "舰队");
-		{
-			this.fleetWindowAll = this.addMenuItemForWindow(fleetMenu, new FleetWindowAll());
-
-			this.fleetWindowOuts = IntStream.range(0, 4).map(index -> index + 1).mapToObj(id -> {
-				return this.addMenuItemForWindow(fleetMenu, new FleetWindowOut() {
-					@Override
-					public int getId() {
-						return id;
-					}
-				});
-			}).toArray(FleetWindowOut[]::new);
-		}
-
-		Menu etcMenu = SwtUtils.makeCasacdeMenu(this.menuBar, "其它");
-		{
-			SwtUtils.makeMenuItem(etcMenu, SWT.PUSH, "DeckBuilder", ev -> new Clipboard(WindowResource.DISPLAY).setContents(new Object[] { DeckBuilder.build() }, new Transfer[] { TextTransfer.getInstance() }));
-			SwtUtils.makeSeparatorMenuItem(etcMenu);
-			this.shipGroupTable = this.addMenuItemForWindow(etcMenu, new ShipGroupTable());
-			this.configWindow = this.addMenuItemForWindow(etcMenu, new ConfigWindow());
-			this.windowOperationWindow = this.addMenuItemForWindow(etcMenu, new WindowOperationWindow());
-			SwtUtils.makeSeparatorMenuItem(etcMenu);
-			this.bookShipWindow = this.addMenuItemForWindow(etcMenu, new BookShipWindow());
-			this.bookItemWindow = this.addMenuItemForWindow(etcMenu, new BookItemWindow());
-		}
-	}
-
-	private <T extends AbstractWindowBase> T addMenuItemForWindow(Menu parent, T window) {
+	private <T extends AbstractWindow> T addMenuItemForWindow(Menu parent, T window) {
 		MenuItem menuItem = new MenuItem(parent, SWT.CHECK);
 		menuItem.setText(window.defaultTitle());
 		menuItem.addSelectionListener(new ControlSelectionListener(ev -> {
@@ -401,7 +402,7 @@ public final class ApplicationMain extends AbstractWindow {
 	public void printMessage(String mes, boolean printToLog) {
 		String message = mes;
 		if (printToLog) {
-			userLogger.info(mes);
+			LogManager.getLogger("user").info(mes);
 			message = AppConstants.CONSOLE_TIME_FORMAT.format(TimeString.getCurrentTime()) + "  " + message;
 		}
 		WindowResource.DISPLAY.asyncExec(FunctionUtils.getRunnable(this::printMessage, message));
@@ -441,7 +442,7 @@ public final class ApplicationMain extends AbstractWindow {
 	}
 
 	@Override
-	public boolean haveLeftComposite() {
+	public boolean haveRightComposite() {
 		return true;
 	}
 
@@ -515,7 +516,7 @@ public final class ApplicationMain extends AbstractWindow {
 			SwtUtils.makeMenuItem(this.menu, SWT.NONE, "退出", ApplicationMain.this.shell::close);
 		}
 
-		private MenuItem makeNewMenuItem(Menu parent, AbstractWindowBase window) {
+		private MenuItem makeNewMenuItem(Menu parent, AbstractWindow window) {
 			return SwtUtils.makeMenuItem(parent, SWT.NONE, window.defaultTitle(), window::displayWindow);
 		}
 

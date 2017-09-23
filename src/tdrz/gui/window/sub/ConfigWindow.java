@@ -22,11 +22,11 @@ import tdrz.core.config.AppConfig;
 import tdrz.core.util.SwtUtils;
 import tdrz.gui.other.ControlSelectionListener;
 import tdrz.gui.other.WindowConfigChangedAdapter;
-import tdrz.gui.window.AbstractWindowBase;
+import tdrz.gui.window.AbstractWindow;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.main.MainStart;
 
-public class ConfigWindow extends AbstractWindowBase {
+public class ConfigWindow extends AbstractWindow {
 	private final TabFolder tabFolder;
 
 	public ConfigWindow() {
@@ -47,12 +47,14 @@ public class ConfigWindow extends AbstractWindowBase {
 			//重启Server
 			Optional.ofNullable(MainStart.server).ifPresent(server -> {
 				if (server.isConfigChanged()) {
+					boolean success;
 					try {
 						server.restart();
-						ApplicationMain.main.printMessage("服务器配置变更成功", true);
+						success = true;
 					} catch (Exception ex) {
-						ApplicationMain.main.printMessage("服务器配置变更失败", true);
+						success = false;
 					}
+					ApplicationMain.main.printMessage("服务器配置变更" + (success ? "成功" : "失败"), true);
 				}
 			});
 			//更新主窗口标题

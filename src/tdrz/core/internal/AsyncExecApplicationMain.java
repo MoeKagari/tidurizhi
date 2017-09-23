@@ -35,8 +35,9 @@ public class AsyncExecApplicationMain extends Thread {
 	public void run() {
 		try {
 			long nextUpdateTime = 0;
-			while (WindowResource.DISPLAY.isDisposed() == false) {
+			while (true) {
 				long currentTime = TimeString.getCurrentTime();
+
 				WindowResource.DISPLAY.asyncExec(() -> {
 					TrayMessageBox box = new TrayMessageBox();
 
@@ -46,6 +47,7 @@ public class AsyncExecApplicationMain extends Thread {
 
 					TrayMessageBox.show(this.main, box);
 				});
+
 				if (nextUpdateTime <= currentTime) nextUpdateTime = currentTime;
 				nextUpdateTime += TimeUnit.SECONDS.toMillis(1);
 				Thread.sleep(nextUpdateTime - currentTime);

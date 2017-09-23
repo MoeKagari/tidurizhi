@@ -1,9 +1,9 @@
 package tdrz.gui.window.sub;
 
-import tdrz.gui.window.AbstractWindowBase;
+import tdrz.gui.window.AbstractWindow;
 
 /** 装备图鉴 */
-public class BookItemWindow extends AbstractWindowBase {
+public class BookItemWindow extends AbstractWindow {
 	public BookItemWindow() {
 		//TODO
 	}

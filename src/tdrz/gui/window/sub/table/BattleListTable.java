@@ -10,7 +10,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.TableItem;
 
 import tdrz.core.config.AppConstants;
-import tdrz.core.util.SwtUtils;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.gui.window.sub.BattleFlowWindow;
 import tdrz.gui.window.sub.BattleWindow;
@@ -23,28 +22,27 @@ import tool.function.FunctionUtils;
 
 /**
  * 出击记录
+ * 
  * @author MoeKagari
  */
 public class BattleListTable extends AbstractTable<BattleListTable.SortBattle> {
 	private final BattleWindow battleWindow;
 
 	public BattleListTable() {
-		BattleFlowWindow bfw = new BattleFlowWindow() {
+		this.battleWindow = new BattleWindow(new BattleFlowWindow() {
 			@Override
 			public String defaultTitle() {
-				return super.defaultTitle() + " for 出击记录";
+				return super.defaultTitle() + " for " + BattleListTable.this.defaultTitle();
 			}
 
 			@Override
 			public String getWindowConfigKey() {
 				return super.getWindowConfigKey() + "ForBattleListTable";
 			}
-		};
-
-		this.battleWindow = new BattleWindow(bfw) {
+		}) {
 			@Override
 			public String defaultTitle() {
-				return super.defaultTitle() + " for 出击记录";
+				return super.defaultTitle() + " for " + BattleListTable.this.defaultTitle();
 			}
 
 			@Override
@@ -55,9 +53,6 @@ public class BattleListTable extends AbstractTable<BattleListTable.SortBattle> {
 			@Override
 			public void update(DataType type) {}
 		};
-
-		SwtUtils.layoutRecursively(bfw.mainComposite);
-		SwtUtils.layoutRecursively(this.battleWindow.mainComposite);
 	}
 
 	@Override

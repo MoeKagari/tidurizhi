@@ -25,6 +25,7 @@ import tdrz.core.util.SwtUtils;
 import tdrz.core.util.ToolUtils;
 import tdrz.gui.other.ControlSelectionListener;
 import tdrz.update.context.GlobalContext;
+import tdrz.update.dto.word.MasterDataDto.MasterShipDto;
 import tdrz.update.dto.word.ShipDto;
 import tool.function.FunctionUtils;
 
@@ -125,6 +126,7 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 
 	/**
 	 * 更新左侧的data
+	 * 
 	 * @return 是否重新更新table
 	 */
 	private boolean updateShipData() {
@@ -191,13 +193,19 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 	}
 
 	@Override
-	protected boolean haveLeftComposite() {
+	public boolean haveLeftComposite() {
 		return true;
 	}
 
 	@Override
 	protected void initTCMS(List<TableColumnManager> tcms) {
-		tcms.add(new TableColumnManager("目标等级", rd -> rd.targetLevel));
+		tcms.add(new TableColumnManager("目标等级", rd -> {
+			if (rd.targetIsCurrent()) {
+				return String.format("当前等级:%d", rd.currentLevel);
+			} else {
+				return String.valueOf(rd.targetLevel);
+			}
+		}));
 		tcms.add(new TableColumnManager("升级所需", rd -> {
 			if (rd.targetIsCurrent()) {
 				return String.format("当前经验:%d", rd.currentExp);
@@ -259,8 +267,8 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 		public final void select() {
 			String text = FunctionUtils.ifFunction(this.getGaizhaoLevel(), gaizhaoLevel -> gaizhaoLevel != 0, String::valueOf, "");
 			CalcuExpTable.this.gaizhaoLevelLabel.setText(text);
-			this.check.setSelection(true);
 			CalcuExpTable.this.selected = this;
+			this.check.setSelection(true);
 		}
 
 		public final void notSelect() {
@@ -350,7 +358,7 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 			this.shipId = ship.getId();
 			this.currentLevel = ship.getLevel();
 			this.currentExp = ship.getCurrentExp();
-			this.gaizhaoLevel = FunctionUtils.notNull(ship.getMasterData(), md -> md.getGaizhaoLv(), 0);
+			this.gaizhaoLevel = FunctionUtils.notNull(ship.getMasterData(), MasterShipDto::getGaizhaoLv, 0);
 		}
 
 		@Override
@@ -371,28 +379,6 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 		@Override
 		public int getGaizhaoLevel() {
 			return this.gaizhaoLevel;
-		}
-	}
-
-	protected class CalcuExpData {
-		private final int currentLevel;
-		private final int currentExp;
-		private final int targetLevel;
-		private final int targetExp;
-
-		public CalcuExpData(int currentLevel, int currentExp, int targetLevel) {
-			this.currentLevel = currentLevel;
-			this.currentExp = currentExp;
-			this.targetLevel = targetLevel;
-			this.targetExp = ShipExp.EXPMAP.get(targetLevel);
-		}
-
-		public boolean targetIsCurrent() {
-			return this.targetLevel == this.currentLevel;
-		}
-
-		public int needExp() {
-			return this.targetExp - this.currentExp;
 		}
 	}
 
@@ -426,6 +412,28 @@ public class CalcuExpTable extends CalcuTable<CalcuExpTable.CalcuExpData> {
 			SEAEXPMAP.put("5-5", 450);
 			SEAEXPMAP.put("6-1", 380);
 			SEAEXPMAP.put("6-2", 420);
+		}
+	}
+
+	protected class CalcuExpData {
+		private final int currentLevel;
+		private final int currentExp;
+		private final int targetLevel;
+		private final int targetExp;
+
+		public CalcuExpData(int currentLevel, int currentExp, int targetLevel) {
+			this.currentLevel = currentLevel;
+			this.currentExp = currentExp;
+			this.targetLevel = targetLevel;
+			this.targetExp = ShipExp.EXPMAP.get(targetLevel);
+		}
+
+		public boolean targetIsCurrent() {
+			return this.targetLevel == this.currentLevel;
+		}
+
+		public int needExp() {
+			return this.targetExp - this.currentExp;
 		}
 	}
 }

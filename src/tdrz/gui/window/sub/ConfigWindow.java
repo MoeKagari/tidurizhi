@@ -20,13 +20,13 @@ import org.eclipse.swt.widgets.Text;
 
 import tdrz.core.config.AppConfig;
 import tdrz.core.util.SwtUtils;
-import tdrz.gui.window.listener.ControlSelectionListener;
-import tdrz.gui.window.listener.WindowConfigChangedAdapter;
+import tdrz.gui.other.ControlSelectionListener;
+import tdrz.gui.other.WindowConfigChangedAdapter;
+import tdrz.gui.window.AbstractWindowBase;
 import tdrz.gui.window.main.ApplicationMain;
 import tdrz.gui.window.main.MainStart;
-import tdrz.gui.window.sup.WindowBase;
 
-public class ConfigWindow extends WindowBase {
+public class ConfigWindow extends AbstractWindowBase {
 	private final TabFolder tabFolder;
 
 	public ConfigWindow() {

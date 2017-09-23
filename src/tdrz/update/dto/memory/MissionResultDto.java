@@ -7,14 +7,13 @@ import javax.json.JsonObject;
 import javax.json.JsonValue;
 
 import tdrz.core.util.JsonUtils;
-import tdrz.update.dto.AbstractMemory;
 
 /**
  * 远征结果
+ * 
  * @author MoeKagari
- *
  */
-public class MissionResultDto extends AbstractMemory {
+public class MissionResultDto extends AbstractRecord {
 	private static final long serialVersionUID = 1L;
 	private final int deckId;
 	private final int state;//0=失败,1=成功,2=大成功

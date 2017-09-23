@@ -7,13 +7,13 @@ import org.eclipse.swt.widgets.Composite;
 import tdrz.core.config.AppConstants;
 import tdrz.core.util.SwtUtils;
 import tdrz.gui.composite.FleetWindow;
-import tdrz.gui.window.sup.WindowBase;
+import tdrz.gui.window.AbstractWindowBase;
 
 /**
  * 舰队面板-单
  * @author MoeKagari
  */
-public abstract class FleetWindowOut extends WindowBase {
+public abstract class FleetWindowOut extends AbstractWindowBase {
 	private final FleetWindow fleetWindow;
 
 	public FleetWindowOut() {

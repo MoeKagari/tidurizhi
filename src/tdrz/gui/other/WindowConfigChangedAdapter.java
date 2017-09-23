@@ -1,4 +1,4 @@
-package tdrz.gui.window.listener;
+package tdrz.gui.other;
 
 public class WindowConfigChangedAdapter implements WindowConfigChangedListener {
 	@Override

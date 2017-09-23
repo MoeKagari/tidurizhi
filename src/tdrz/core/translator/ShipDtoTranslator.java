@@ -27,7 +27,10 @@ public class ShipDtoTranslator {
 
 	public static String getTypeString(ShipDto ship) {
 		if (ship == null) return "";
-		MasterShipDto msdd = ship.getMasterData();
+		return getTypeString(ship.getMasterData());
+	}
+
+	public static String getTypeString(MasterShipDto msdd) {
 		if (msdd == null) return "";
 		int type = msdd.getType();
 		switch (type) {

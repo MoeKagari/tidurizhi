@@ -10,13 +10,14 @@ import tdrz.update.dto.AbstractWord;
 
 /**
  * 舰队编成
+ * 
  * @author MoeKagari
  */
 public class DeckDto extends AbstractWord {
+	private final long time;//此deck的刷新时间
 	private String name;
 	private int[] ships;
-	private DeckMissionDto deckMission;
-	private final long time;//此deck的刷新时间
+	private final DeckMissionDto deckMission;
 
 	public DeckDto(JsonObject json, long time) {
 		this.time = time;

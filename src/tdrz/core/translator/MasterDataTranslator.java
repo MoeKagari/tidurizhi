@@ -45,6 +45,6 @@ public class MasterDataTranslator {
 	}
 
 	private static <T> T getMasterData(int id, Function<MasterDataDto, Map<Integer, T>> fun) {
-		return FunctionUtils.notNull(GlobalContext.getMasterData(), md -> fun.apply(md).get(id), null);
+		return fun.apply(GlobalContext.getMasterData()).get(id);
 	}
 }

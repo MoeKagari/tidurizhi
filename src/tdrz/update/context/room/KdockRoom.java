@@ -8,14 +8,14 @@ import javax.json.JsonValue;
 
 import tdrz.update.context.GlobalContext;
 import tdrz.update.context.data.ApiData;
-import tdrz.update.dto.memory.CreateshipDto;
+import tdrz.update.dto.memory.CreateShipDto;
 import tdrz.update.dto.word.KdockDto;
 import tool.function.FunctionUtils;
 
 public class KdockRoom {
 	private final int id;
 	private KdockDto kdock = null;
-	private CreateshipDto createshipDto;//当前的建造信息,用于createship-kdock-material的api链
+	private CreateShipDto createshipDto;//当前的建造信息,用于createship-kdock-material的api链
 
 	public KdockRoom(int id) {
 		this.id = id;
@@ -36,6 +36,7 @@ public class KdockRoom {
 			this.createshipDto.setShipId(this.kdock.getShipId());
 			GlobalContext.getMemorylist().add(this.createshipDto);
 		}
+
 		this.createshipDto = null;
 	}
 
@@ -55,7 +56,9 @@ public class KdockRoom {
 
 		//虽然后接material,但是为了记录,所以setResource
 		GlobalContext.getCurrentMaterial().setMaterial(highspeed ? "高速建造" : "建造", data.getTime(), mm, false);
-		this.createshipDto = new CreateshipDto(GlobalContext.getSecretaryShip(), mm, data.getTime(), large_flag, highspeed);
+		if (GlobalContext.getSecretaryShip() != null) {
+			this.createshipDto = new CreateShipDto(GlobalContext.getSecretaryShip(), mm, data.getTime(), large_flag, highspeed);
+		}
 		//后接kdock,material
 	}
 

@@ -1,14 +1,14 @@
 package tdrz.update.dto.memory;
 
-import tdrz.update.dto.AbstractMemory;
 import tdrz.update.dto.word.ResourceDto;
 import tool.function.FunctionUtils;
 
 /**
  * 资源记录
+ * 
  * @author MoeKagari
  */
-public class ResourceRecordDto extends AbstractMemory {
+public class ResourceRecordDto extends AbstractRecord {
 	private static final long serialVersionUID = 1L;
 	private final String event;
 	private final long time;

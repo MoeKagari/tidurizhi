@@ -17,8 +17,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
+import tdrz.gui.other.ControlSelectionListener;
 import tdrz.gui.window.WindowResource;
-import tdrz.gui.window.listener.ControlSelectionListener;
 import tool.function.FunctionUtils;
 
 public final class SwtUtils {

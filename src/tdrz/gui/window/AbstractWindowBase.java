@@ -1,4 +1,4 @@
-package tdrz.gui.window.sup;
+package tdrz.gui.window;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
@@ -10,8 +10,8 @@ import tdrz.update.context.data.DataType;
  * 呼出式窗口的super class
  * @author MoeKagari
  */
-public abstract class WindowBase extends AbstractWindow {
-	public WindowBase() {
+public abstract class AbstractWindowBase extends AbstractWindow {
+	public AbstractWindowBase() {
 		this.shell.addListener(SWT.Close, ev -> {
 			ev.doit = false;
 			this.hiddenWindow();

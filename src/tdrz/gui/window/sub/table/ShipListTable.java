@@ -22,7 +22,7 @@ import tdrz.core.translator.DeckDtoTranslator;
 import tdrz.core.translator.ItemDtoTranslator;
 import tdrz.core.translator.ShipDtoTranslator;
 import tdrz.core.util.SwtUtils;
-import tdrz.gui.window.listener.ControlSelectionListener;
+import tdrz.gui.other.ControlSelectionListener;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.word.ItemDto;

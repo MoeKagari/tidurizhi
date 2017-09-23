@@ -27,7 +27,7 @@ public class MainStart {
 		FunctionUtils.ifRunnable(applicationLockCheck(), MainStart::start);
 	}
 
-	/**	  没有锁住(false),代表本次启动为多重启动	 */
+	/** 没有锁住(false),代表本次启动为多重启动 */
 	private static boolean applicationLockCheck() {
 		if (!applicationLock.isError() && applicationLock.isLocked()) return true;
 

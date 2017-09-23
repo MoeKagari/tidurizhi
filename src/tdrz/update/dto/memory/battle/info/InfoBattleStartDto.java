@@ -13,6 +13,7 @@ public class InfoBattleStartDto extends AbstractInfoBattleStartNext {
 
 	public InfoBattleStartDto(boolean combined, ApiData data, JsonObject json) {
 		super(data, json);
+
 		this.combined = combined;
 		this.deckId = Integer.parseInt(data.getField("api_deck_id"));
 		this.start = json.getInt("api_from_no");

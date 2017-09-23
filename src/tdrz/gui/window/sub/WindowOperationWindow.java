@@ -12,12 +12,12 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Scale;
 
 import tdrz.core.util.SwtUtils;
-import tdrz.gui.window.listener.ControlSelectionListener;
-import tdrz.gui.window.listener.WindowConfigChangedAdapter;
-import tdrz.gui.window.sup.AbstractWindow;
-import tdrz.gui.window.sup.WindowBase;
+import tdrz.gui.other.ControlSelectionListener;
+import tdrz.gui.other.WindowConfigChangedAdapter;
+import tdrz.gui.window.AbstractWindow;
+import tdrz.gui.window.AbstractWindowBase;
 
-public class WindowOperationWindow extends WindowBase {
+public class WindowOperationWindow extends AbstractWindowBase {
 	private final Composite contentComposite;
 	private final List<AbstractOperationComposite> aocs = new ArrayList<>();
 

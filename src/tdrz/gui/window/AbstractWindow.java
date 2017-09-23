@@ -1,4 +1,4 @@
-package tdrz.gui.window.sup;
+package tdrz.gui.window;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.eclipse.swt.SWT;
 
 import tdrz.core.config.WindowConfig;
-import tdrz.gui.window.listener.WindowConfigChangedListener;
+import tdrz.gui.other.WindowConfigChangedListener;
 
 /**
  * 所有窗口的super class
@@ -29,10 +29,6 @@ public abstract class AbstractWindow extends AbstractWindowSuper {
 		//在添加监听Resize和Move的listener前,恢复location,size
 		this.shell.setSize(this.windowConfig.getSize());//会产生Resize事件
 		this.shell.setLocation(this.windowConfig.getLocation());//会产生Resize和Move事件
-		this.shell.setMinimized(this.windowConfig.isMinimized());
-		this.changeOpacity(this.windowConfig.getOpacity());
-		this.toggleTitlebar(this.windowConfig.isShowTitleBar());
-		this.ignoreMouse(this.windowConfig.isIgnoreMouse());
 
 		this.shell.addListener(SWT.Iconify, ev -> {//[最小化]事件
 			this.windowConfig.setMinimized(true);
@@ -94,6 +90,10 @@ public abstract class AbstractWindow extends AbstractWindowSuper {
 
 	/** 恢复窗口配置 */
 	public final void restoreWindowConfig() {
+		this.shell.setMinimized(this.windowConfig.isMinimized());
+		this.changeOpacity(this.windowConfig.getOpacity());
+		this.toggleTitlebar(this.windowConfig.isShowTitleBar());
+		this.ignoreMouse(this.windowConfig.isIgnoreMouse());
 		if (this.windowConfig.isVisible()) {
 			this.displayWindow();
 		} else {

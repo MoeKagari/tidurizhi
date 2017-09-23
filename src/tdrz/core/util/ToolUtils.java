@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.function.DoubleToIntFunction;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.ToIntFunction;
 import java.util.stream.IntStream;
 
 public class ToolUtils {
@@ -13,6 +14,10 @@ public class ToolUtils {
 
 	public static int[] doubleToIntegerFloor(double[] ds) {
 		return doubleToInteger(ds, d -> (int) Math.floor(d));
+	}
+
+	public static <S> int[] toIntArray(S[] ss, ToIntFunction<S> fun) {
+		return Arrays.stream(ss).mapToInt(fun).toArray();
 	}
 
 	public static String[] toStringArray(int[] is, IntFunction<String> fun) {

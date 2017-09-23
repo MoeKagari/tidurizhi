@@ -21,9 +21,9 @@ import org.eclipse.swt.widgets.TableItem;
 
 import tdrz.core.util.SwtUtils;
 import tdrz.core.util.ToolUtils;
-import tdrz.gui.window.listener.ControlSelectionListener;
-import tdrz.gui.window.listener.WindowConfigChangedAdapter;
-import tdrz.gui.window.sup.WindowBase;
+import tdrz.gui.other.ControlSelectionListener;
+import tdrz.gui.other.WindowConfigChangedAdapter;
+import tdrz.gui.window.AbstractWindowBase;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.context.data.DataType;
 import tool.function.FunctionUtils;
@@ -32,7 +32,7 @@ import tool.function.FunctionUtils;
  * 所有table的超类
  * @author MoeKagari
  */
-public abstract class AbstractTable<T> extends WindowBase {
+public abstract class AbstractTable<T> extends AbstractWindowBase {
 	private final Table table;
 	private final Predicate<T> filter;
 	private final List<TableColumnManager> tcms = new ArrayList<>();

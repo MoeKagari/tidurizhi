@@ -4,11 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import javax.json.JsonArray;
-import javax.json.JsonNumber;
 import javax.json.JsonObject;
-import javax.json.JsonString;
-import javax.json.JsonValue;
 
 import tdrz.core.config.AppConstants;
 import tdrz.core.translator.DeckDtoTranslator;
@@ -27,7 +23,8 @@ public abstract class AbstractBattle extends BattleDto {
 	private final int[] formation;
 	private final int[] search;
 
-	public AbstractBattle(JsonObject json) {
+	public AbstractBattle(long time, JsonObject json) {
+		super(time);
 		//BattleDeck的初始化
 		{
 			int[] nowhps = JsonUtils.getIntArray(json, "api_nowhps");
@@ -54,27 +51,27 @@ public abstract class AbstractBattle extends BattleDto {
 		} else {
 			String[] names;
 			if (json.containsKey("api_deck_id")) {
-				names = DeckDtoTranslator.getShipNames(dissociateInt(json.get("api_deck_id"), 1));
+				names = DeckDtoTranslator.getShipNames(JsonUtils.dissociateInt(json.get("api_deck_id")));
 			} else if (json.containsKey("api_dock_id")) {
-				names = DeckDtoTranslator.getShipNames(dissociateInt(json.get("api_dock_id"), 1));
+				names = DeckDtoTranslator.getShipNames(JsonUtils.dissociateInt(json.get("api_dock_id")));
 			} else {
 				names = AppConstants.EMPTY_NAMES;
 			}
 			this.fDeck.setNames(names);
 		}
 		{//敌方
-			int[] ids = dissociateIntarray(json, "api_ship_ke");
+			int[] ids = JsonUtils.dissociateIntArray(json, "api_ship_ke");
 			this.eDeck.setNames(ToolUtils.toStringArray(Arrays.copyOfRange(ids, 1, 7), MasterDataTranslator::getShipName));
 		}
 		if (json.containsKey("api_ship_ke_combined")) {
-			int[] ids = dissociateIntarray(json, "api_ship_ke_combined");
+			int[] ids = JsonUtils.dissociateIntArray(json, "api_ship_ke_combined");
 			this.eDeckCombine.setNames(ToolUtils.toStringArray(Arrays.copyOfRange(ids, 1, 7), MasterDataTranslator::getShipName));
 		}
 
 		//索敌
-		this.search = dissociateIntarray(json, "api_search");
+		this.search = JsonUtils.dissociateIntArray(json, "api_search");
 		//阵型和航向,[自-阵型,敌-阵型,航向]
-		this.formation = dissociateIntarray(json, "api_formation");
+		this.formation = JsonUtils.dissociateIntArray(json, "api_formation");
 
 		//退避
 		if (json.containsKey("api_escape_idx")) {
@@ -135,35 +132,13 @@ public abstract class AbstractBattle extends BattleDto {
 
 	/*--------------------------------------------------------------------------------------------------------------------*/
 
-	protected static int[] dissociateIntarray(JsonObject json, String key) {
-		int[] intArray = null;
-		if (json.containsKey(key)) {
-			JsonArray array = json.getJsonArray(key);
-			intArray = new int[array.size()];
-			for (int i = 0; i < array.size(); i++) {
-				intArray[i] = dissociateInt(array.get(i), 0);
-			}
-		}
-		return intArray;
-	}
-
-	private static int dissociateInt(JsonValue value, int defaultValue) {
-		switch (value.getValueType()) {
-			case STRING:
-				return Integer.parseInt(((JsonString) value).getString());
-			case NUMBER:
-				return ((JsonNumber) value).intValue();
-			default:
-				return defaultValue;
-		}
-	}
-
 	public static boolean existBattleDeck(BattleDeck deck) {
 		return FunctionUtils.notNull(deck, BattleDeck::exist, false);
 	}
 
 	/**
 	 * 战斗时的舰队的信息
+	 * 
 	 * @author MoeKagari
 	 */
 	public static class BattleDeck implements Serializable {
@@ -225,11 +200,12 @@ public abstract class AbstractBattle extends BattleDto {
 
 	/**
 	 * 昼战开幕反潜,三次炮击战,夜战
+	 * 
 	 * @author MoeKagari
 	 */
 	public static class BattleOneAttack implements Serializable {
 		private static final long serialVersionUID = 1L;
-		/** 敌联合舰队时存在(因为有混战)  */
+		/** 敌联合舰队时存在(因为有混战) */
 		public final Boolean enemyAttack;
 		public final int attackIndex;//攻击方位置(1-12),enemyAttack所代表的两只舰队,非联合舰队时,自方舰队在前,联合舰队时,第一舰队在前
 		public final int[] defenseIndexs;//attackIndex的对方
@@ -259,6 +235,7 @@ public abstract class AbstractBattle extends BattleDto {
 
 	/**
 	 * 接收{@link BattleOneAttack}进行模拟
+	 * 
 	 * @author MoeKagari
 	 */
 	public static class BattleOneAttackSimulator implements Serializable {
@@ -273,7 +250,8 @@ public abstract class AbstractBattle extends BattleDto {
 		public final int[] eattco = new int[6];
 
 		/**
-		 * @param fcombine 自方参战deck是否是联合舰队
+		 * @param fcombine
+		 *                自方参战deck是否是联合舰队
 		 */
 		public void accept(BattleOneAttack boa, Boolean fcombine) {
 			Boolean enemyAttack = boa.enemyAttack;
@@ -307,6 +285,7 @@ public abstract class AbstractBattle extends BattleDto {
 	/**
 	 * BattleDeck 的attack和damage<br>
 	 * 供每个 BattleStage 用
+	 * 
 	 * @author MoeKagari
 	 */
 	public static class BattleDeckAttackDamage implements Serializable {

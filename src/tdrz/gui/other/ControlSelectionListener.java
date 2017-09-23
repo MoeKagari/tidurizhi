@@ -1,4 +1,4 @@
-package tdrz.gui.window.listener;
+package tdrz.gui.other;
 
 import java.util.function.Consumer;
 

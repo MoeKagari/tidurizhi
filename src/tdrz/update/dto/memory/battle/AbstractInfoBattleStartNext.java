@@ -23,12 +23,14 @@ public abstract class AbstractInfoBattleStartNext extends AbstractInfoBattle {
 	private final int nextEventKind;
 	private final int nextCount;
 
-	private List<BattleStartNext_GetItem> items = null;
-	private BattleStartNext_DestructionBattle destructionBattle = null;
+	private List<GetItem> items = null;
+	private DestructionBattle destructionBattle = null;
 	private int[] airsearch = null;//[侦察机种类,侦察结果]
 	private int[] happening = null;//[涡潮种类,有无电探,掉落量]
 
 	public AbstractInfoBattleStartNext(ApiData data, JsonObject json) {
+		super(data.getTime());
+
 		this.mapareaId = json.getInt("api_maparea_id");
 		this.mapareaNo = json.getInt("api_mapinfo_no");
 		this.next = json.getInt("api_no");
@@ -40,16 +42,16 @@ public abstract class AbstractInfoBattleStartNext extends AbstractInfoBattle {
 		if (json.containsKey("api_itemget")) {
 			JsonValue api_itemget = json.get("api_itemget");
 			if (api_itemget instanceof JsonArray) {//资源点
-				this.items = ((JsonArray) api_itemget).stream().map(BattleStartNext_GetItem::new).collect(Collectors.toList());
+				this.items = ((JsonArray) api_itemget).stream().map(GetItem::new).collect(Collectors.toList());
 			} else if (api_itemget instanceof JsonObject) {//航空侦察点
 				this.items = new ArrayList<>();
-				this.items.add(new BattleStartNext_GetItem(api_itemget));
+				this.items.add(new GetItem(api_itemget));
 			}
 		}
 
 		//基地受损
 		if (json.containsKey("api_destruction_battle")) {
-			this.destructionBattle = new BattleStartNext_DestructionBattle(json.getJsonObject("api_destruction_battle"));
+			this.destructionBattle = new DestructionBattle(json.getJsonObject("api_destruction_battle"));
 		}
 
 		if (json.containsKey("api_airsearch")) {
@@ -68,11 +70,20 @@ public abstract class AbstractInfoBattleStartNext extends AbstractInfoBattle {
 			JsonObject api_happening = json.getJsonObject("api_happening");
 			this.happening = new int[] { api_happening.getInt("api_mst_id"), api_happening.getInt("api_dentan"), api_happening.getInt("api_count") };
 		}
-		/*
-		 * (1-6) "api_get_eo_rate": 75, "api_itemget_eo_result": {
-		 * "api_usemst": 5, "api_id": 60, "api_getcount": 1 },
-		 * "api_itemget_eo_comment": { "api_usemst": 4, "api_id": 1,
-		 * "api_getcount": 1000 }
+
+		/*  (1-6) 
+		  "api_get_eo_rate": 75,
+		  "api_itemget_eo_result": {
+		  	"api_usemst": 5, 
+		  	"api_id": 60, 
+		  	"api_getcount": 1 
+		  },
+		  
+		  "api_itemget_eo_comment": { 
+		  	"api_usemst": 4, 
+		  	"api_id": 1,
+		  	"api_getcount": 1000 
+		  }
 		 */
 	}
 
@@ -115,11 +126,11 @@ public abstract class AbstractInfoBattleStartNext extends AbstractInfoBattle {
 		return this.airsearch == null ? null : new String[] { getKind.apply(this.airsearch[0]), getResult.apply(this.airsearch[1]) };
 	}
 
-	public List<BattleStartNext_GetItem> getItems() {
+	public List<GetItem> getItems() {
 		return this.items;
 	}
 
-	public BattleStartNext_DestructionBattle getDestructionBattle() {
+	public DestructionBattle getDestructionBattle() {
 		return this.destructionBattle;
 	}
 
@@ -151,18 +162,15 @@ public abstract class AbstractInfoBattleStartNext extends AbstractInfoBattle {
 		return this.mapareaId + "-" + this.mapareaNo;
 	}
 
-	public class BattleStartNext_GetItem implements Serializable {
+	public class GetItem implements Serializable {
 		private static final long serialVersionUID = 1L;
 		private final int id;
 		private final int count;
 
-		public BattleStartNext_GetItem(JsonObject json) {
+		public GetItem(JsonValue value) {
+			JsonObject json = (JsonObject) value;
 			this.id = json.getInt("api_id");
 			this.count = json.getInt("api_getcount");
-		}
-
-		public BattleStartNext_GetItem(JsonValue value) {
-			this((JsonObject) value);
 		}
 
 		@Override
@@ -196,7 +204,7 @@ public abstract class AbstractInfoBattleStartNext extends AbstractInfoBattle {
 		}
 	}
 
-	public class BattleStartNext_DestructionBattle implements Serializable {
+	public class DestructionBattle implements Serializable {
 		private static final long serialVersionUID = 1L;
 		public final int[] nowhps;
 		public final int[] maxhps;
@@ -205,7 +213,7 @@ public abstract class AbstractInfoBattleStartNext extends AbstractInfoBattle {
 		private final int lostKind;
 		private final Integer seiku;
 
-		public BattleStartNext_DestructionBattle(JsonObject json) {
+		public DestructionBattle(JsonObject json) {
 			this.nowhps = Arrays.copyOfRange(JsonUtils.getIntArray(json, "api_nowhps"), 1, 7);
 			this.maxhps = Arrays.copyOfRange(JsonUtils.getIntArray(json, "api_maxhps"), 1, 7);
 			this.lostKind = json.getInt("api_lost_kind");

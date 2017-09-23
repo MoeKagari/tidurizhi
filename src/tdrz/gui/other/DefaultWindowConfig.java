@@ -1,9 +1,9 @@
-package tdrz.gui.window.listener;
+package tdrz.gui.other;
 
 import org.eclipse.swt.graphics.Point;
 
 public interface DefaultWindowConfig {
-	public abstract Point defaultSize();
+	public Point defaultSize();
 
 	public boolean defaultVisible();
 }

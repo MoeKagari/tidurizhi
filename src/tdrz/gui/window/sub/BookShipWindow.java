@@ -1,9 +1,9 @@
 package tdrz.gui.window.sub;
 
-import tdrz.gui.window.sup.WindowBase;
+import tdrz.gui.window.AbstractWindowBase;
 
 /** 舰船图鉴 */
-public class BookShipWindow extends WindowBase {
+public class BookShipWindow extends AbstractWindowBase {
 	public BookShipWindow() {
 		//TODO
 	}

@@ -7,6 +7,7 @@ import javax.json.JsonObject;
 import javax.json.JsonValue;
 
 import tdrz.update.context.data.ApiData;
+import tool.function.FunctionUtils;
 
 public abstract class AbstractInfoBattleResult extends AbstractInfoBattle {
 	private static final long serialVersionUID = 1L;
@@ -15,16 +16,18 @@ public abstract class AbstractInfoBattleResult extends AbstractInfoBattle {
 
 	private final String questName;
 	private final String deckName;
-	private final BattleResult_GetShip getShip;
+	private final GetShip getShip;
 
 	private final int mvp;
 	private final int mvpCombined;
 
 	public AbstractInfoBattleResult(ApiData data, JsonObject json) {
+		super(data.getTime());
+
 		this.rank = json.getString("api_win_rank");
-		this.questName = json.getString("api_quest_name", null);
+		this.questName = json.getString("api_quest_name");
 		this.deckName = json.getJsonObject("api_enemy_info").getString("api_deck_name");
-		this.getShip = json.containsKey("api_get_ship") ? (new BattleResult_GetShip(json.getJsonObject("api_get_ship"))) : null;
+		this.getShip = FunctionUtils.notNull(json.getJsonObject("api_get_ship"), GetShip::new, null);
 		this.mvp = json.getInt("api_mvp");
 
 		//随伴舰队MVP,-1表示无随伴舰队
@@ -59,17 +62,17 @@ public abstract class AbstractInfoBattleResult extends AbstractInfoBattle {
 		return this.deckName;
 	}
 
-	public BattleResult_GetShip getNewShip() {
+	public GetShip getNewShip() {
 		return this.getShip;
 	}
 
-	public class BattleResult_GetShip implements Serializable {
+	public class GetShip implements Serializable {
 		private static final long serialVersionUID = 1L;
 		private final int id;
 		private final String type;
 		private final String name;
 
-		public BattleResult_GetShip(JsonObject json) {
+		public GetShip(JsonObject json) {
 			this.id = json.getInt("api_ship_id");
 			this.type = json.getString("api_ship_type");
 			this.name = json.getString("api_ship_name");

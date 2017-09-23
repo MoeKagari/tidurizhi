@@ -1,4 +1,4 @@
-package tdrz.gui.window.sup;
+package tdrz.gui.window;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
@@ -6,9 +6,9 @@ import org.eclipse.swt.internal.win32.OS;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
-import tdrz.gui.window.listener.DefaultWindowConfig;
-import tdrz.gui.window.listener.MouseDragListener;
-import tdrz.gui.window.listener.WindowCanBeOperated;
+import tdrz.gui.other.DefaultWindowConfig;
+import tdrz.gui.other.MouseDragListener;
+import tdrz.gui.other.WindowCanBeOperated;
 import tdrz.update.context.data.ApiDataListener;
 import tool.function.FunctionUtils;
 
@@ -23,7 +23,7 @@ public abstract class AbstractWindowSuper extends AbstractCompositeBase implemen
 
 	@Override
 	protected final int defaultShellStyle() {
-		return SWT.SHELL_TRIM | SWT.CLOSE | SWT.RESIZE | SWT.TITLE | SWT.MIN | (this.canMaxSize() ? SWT.MAX : SWT.NONE);
+		return SWT.CLOSE | SWT.RESIZE | SWT.TITLE | SWT.MIN | (this.canMaxSize() ? SWT.MAX : SWT.NONE);
 	}
 
 	/*--------------------------------DefaultWindowConfig----------------------------------------------------------------------------*/

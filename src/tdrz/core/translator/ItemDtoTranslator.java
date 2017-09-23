@@ -297,26 +297,26 @@ public class ItemDtoTranslator {
 			ITEMDATA.put(165, new ItemData(165, "二式水戦改", '战'));
 			ITEMDATA.put(166, new ItemData(166, "大発動艇(八九式中戦車&陸戦隊)", '车'));
 			ITEMDATA.put(167, new ItemData(167, "特二式内火艇", '内'));
-			ITEMDATA.put(168, new ItemData(168, "九六式陸攻", '陆'));
-			ITEMDATA.put(169, new ItemData(169, "一式陸攻", '陆'));
-			ITEMDATA.put(170, new ItemData(170, "一式陸攻(野中隊)", '陆'));
+			ITEMDATA.put(168, new ItemData(168, "九六式陸攻", ' '));
+			ITEMDATA.put(169, new ItemData(169, "一式陸攻", ' '));
+			ITEMDATA.put(170, new ItemData(170, "一式陸攻(野中隊)", ' '));
 			ITEMDATA.put(171, new ItemData(171, "OS2U", '侦'));
 			ITEMDATA.put(172, new ItemData(172, "5inch連装砲 Mk.28 mod.2", '大'));
 			ITEMDATA.put(173, new ItemData(173, "Bofors 40mm四連装機関砲", '铳'));
 			ITEMDATA.put(174, new ItemData(174, "53cm連装魚雷", '雷'));
-			ITEMDATA.put(175, new ItemData(175, "雷電", '陆'));
-			ITEMDATA.put(176, new ItemData(176, "三式戦 飛燕", '陆'));
+			ITEMDATA.put(175, new ItemData(175, "雷電", ' '));
+			ITEMDATA.put(176, new ItemData(176, "三式戦 飛燕", ' '));
 			ITEMDATA.put(177, new ItemData(177, "三式戦 飛燕(飛行第244戦隊)", '陆'));
 			ITEMDATA.put(178, new ItemData(178, "PBY-5A Catalina", '艇'));
 			ITEMDATA.put(179, new ItemData(179, "試製61cm六連装(酸素)魚雷", '雷'));
-			ITEMDATA.put(180, new ItemData(180, "一式陸攻 二二型甲", '陆'));
+			ITEMDATA.put(180, new ItemData(180, "一式陸攻 二二型甲", ' '));
 			ITEMDATA.put(181, new ItemData(181, "零式艦戦32型", '战'));
 			ITEMDATA.put(182, new ItemData(182, "零式艦戦32型(熟練)", '战'));
 			ITEMDATA.put(183, new ItemData(183, "16inch三連装砲 Mk.7+GFCS", '大'));
 			ITEMDATA.put(184, new ItemData(184, "Re.2001 OR改", '战'));
-			ITEMDATA.put(185, new ItemData(185, "三式戦 飛燕一型丁", '陆'));
-			ITEMDATA.put(186, new ItemData(186, "一式陸攻 三四型", '陆'));
-			ITEMDATA.put(187, new ItemData(187, "銀河", '陆'));
+			ITEMDATA.put(185, new ItemData(185, "三式戦 飛燕一型丁", ' '));
+			ITEMDATA.put(186, new ItemData(186, "一式陸攻 三四型", ' '));
+			ITEMDATA.put(187, new ItemData(187, "銀河", ' '));
 			ITEMDATA.put(188, new ItemData(188, "Re.2001 G改", '攻'));
 			ITEMDATA.put(189, new ItemData(189, "Re.2005 改", '战'));
 			ITEMDATA.put(190, new ItemData(190, "38.1cm Mk.I連装砲", '大'));
@@ -348,11 +348,11 @@ public class ItemDtoTranslator {
 			ITEMDATA.put(217, new ItemData(217, "強風改", '战'));
 			ITEMDATA.put(219, new ItemData(219, "零式艦戦63型(爆戦)", '爆'));
 			ITEMDATA.put(220, new ItemData(220, "8cm高角砲改+増設機銃", '副'));
-			ITEMDATA.put(221, new ItemData(221, "一式戦 隼II型", '陆'));
-			ITEMDATA.put(222, new ItemData(222, "一式戦 隼III型甲", '陆'));
-			ITEMDATA.put(223, new ItemData(223, "一式戦 隼III型甲(54戦隊)", '陆'));
-			ITEMDATA.put(224, new ItemData(224, "爆装一式戦 隼III型改(55戦隊)", '陆'));
-			ITEMDATA.put(225, new ItemData(225, "一式戦 隼II型(64戦隊)", '陆'));
+			ITEMDATA.put(221, new ItemData(221, "一式戦 隼II型", ' '));
+			ITEMDATA.put(222, new ItemData(222, "一式戦 隼III型甲", ' '));
+			ITEMDATA.put(223, new ItemData(223, "一式戦 隼III型甲(54戦隊)", ' '));
+			ITEMDATA.put(224, new ItemData(224, "爆装一式戦 隼III型改(55戦隊)", ' '));
+			ITEMDATA.put(225, new ItemData(225, "一式戦 隼II型(64戦隊)", ' '));
 			ITEMDATA.put(226, new ItemData(226, "九五式爆雷", '投'));
 			ITEMDATA.put(227, new ItemData(227, "二式爆雷", '投'));
 			ITEMDATA.put(228, new ItemData(228, "九六式艦戦改", '战'));
@@ -376,6 +376,30 @@ public class ItemDtoTranslator {
 			ITEMDATA.put(237, new ItemData(237, "瑞雲(六三四空/熟練)", '爆'));
 			ITEMDATA.put(238, new ItemData(238, "零式水上偵察機11型乙", '侦'));
 			ITEMDATA.put(241, new ItemData(241, "戦闘糧食(特別なおにぎり)", '它'));
+			//end
+
+			//start 2017-9-22 0:51:21
+			ITEMDATA.put(242, new ItemData(242, "Swordfish", '攻'));
+			ITEMDATA.put(243, new ItemData(243, "Swordfish Mk.II(熟練)", '攻'));
+			ITEMDATA.put(244, new ItemData(244, "Swordfish Mk.III(熟練)", '攻'));
+			ITEMDATA.put(245, new ItemData(245, "38cm四連装砲", '大'));
+			ITEMDATA.put(246, new ItemData(246, "38cm四連装砲改", '大'));
+			ITEMDATA.put(247, new ItemData(247, "15.2cm三連装砲", '副'));
+			ITEMDATA.put(248, new ItemData(248, "Skua", '爆'));
+			ITEMDATA.put(249, new ItemData(249, "Fulmar", '战'));
+			ITEMDATA.put(250, new ItemData(250, "Spitfire Mk.I", ' '));
+			ITEMDATA.put(251, new ItemData(251, "Spitfire Mk.V", ' '));
+			ITEMDATA.put(252, new ItemData(252, "Seafire Mk.III改", ' '));
+			ITEMDATA.put(253, new ItemData(253, "Spitfire Mk.IX(熟練)", ' '));
+			ITEMDATA.put(254, new ItemData(254, "F6F-3N", '夜'));
+			ITEMDATA.put(255, new ItemData(255, "F6F-5N", '夜'));
+			ITEMDATA.put(256, new ItemData(256, "TBF", '攻'));
+			ITEMDATA.put(257, new ItemData(257, "TBM-3D", '夜'));
+			ITEMDATA.put(258, new ItemData(258, "夜間作戦航空要員", '夜'));
+			ITEMDATA.put(259, new ItemData(259, "夜間作戦航空要員+熟練甲板員", '夜'));
+
+			ITEMDATA.put(577, new ItemData(577, "深海15inch四連装砲", ' '));
+			ITEMDATA.put(578, new ItemData(578, "深海15inch連装砲後期型", ' '));
 			//end
 
 			ITEMDATA.put(501, new ItemData(501, "5inch単装砲", ' '));
@@ -470,6 +494,7 @@ public class ItemDtoTranslator {
 
 		/**
 		 * 装备信息
+		 * 
 		 * @author MoeKagari
 		 */
 		public static class ItemData {

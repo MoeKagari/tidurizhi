@@ -8,6 +8,7 @@ import tdrz.update.context.GlobalContext;
 import tdrz.update.context.data.ApiData;
 import tdrz.update.dto.word.NdockDto;
 import tdrz.update.dto.word.ShipDto;
+import tool.function.FunctionUtils;
 
 public class NdockRoom {
 	private final int id;
@@ -40,6 +41,7 @@ public class NdockRoom {
 		boolean highspeed = Integer.parseInt(data.getField("api_highspeed")) == 1;
 		if (highspeed) {
 			//使用高速修复,后无ndock
+			FunctionUtils.notNull(ship, ShipDto::nyukyoEnd);
 			GlobalContext.getCurrentMaterial().setMaterial("高速修复", data.getTime(), new int[] { 0, 0, 0, 0, 0, 1, 0, 0 }, false);
 			this.ndock = null;
 		} else {
@@ -47,12 +49,13 @@ public class NdockRoom {
 		}
 	}
 
-	public void doNyukyoSpeedchange(ApiData data, JsonValue api_data) {
+	public void doNyukyoSpeedChange(ApiData data, JsonValue api_data) {
 		if (Integer.parseInt(data.getField("api_ndock_id")) != this.id) return;
 
 		if (this.ndock != null) {
-			GlobalContext.getCurrentMaterial().setMaterial("高速修复(单独)", data.getTime(), new int[] { 0, 0, 0, 0, 0, 1, 0, 0 }, false);
+			GlobalContext.updateShip(this.ndock.getShipId(), ShipDto::nyukyoEnd);
 			this.ndock = null;
 		}
+		GlobalContext.getCurrentMaterial().setMaterial("高速修复(单独)", data.getTime(), new int[] { 0, 0, 0, 0, 0, 1, 0, 0 }, false);
 	}
 }

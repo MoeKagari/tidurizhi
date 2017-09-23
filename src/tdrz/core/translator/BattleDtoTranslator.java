@@ -40,9 +40,9 @@ import tdrz.update.dto.memory.battle.AbstractBattleDay.OpeningTaisen;
 import tdrz.update.dto.memory.battle.AbstractBattleMidnight;
 import tdrz.update.dto.memory.battle.AbstractInfoBattle;
 import tdrz.update.dto.memory.battle.AbstractInfoBattleResult;
-import tdrz.update.dto.memory.battle.AbstractInfoBattleResult.BattleResult_GetShip;
+import tdrz.update.dto.memory.battle.AbstractInfoBattleResult.GetShip;
 import tdrz.update.dto.memory.battle.AbstractInfoBattleStartNext;
-import tdrz.update.dto.memory.battle.AbstractInfoBattleStartNext.BattleStartNext_DestructionBattle;
+import tdrz.update.dto.memory.battle.AbstractInfoBattleStartNext.DestructionBattle;
 import tdrz.update.dto.memory.battle.BattleDto;
 import tdrz.update.dto.memory.battle.info.InfoBattleGobackPortDto;
 import tdrz.update.dto.memory.battle.info.InfoBattleShipdeckDto;
@@ -240,11 +240,11 @@ public class BattleDtoTranslator {
 	private static BTResult newBattleStartNext(AbstractInfoBattleStartNext battleNext) {
 		ArrayList<String> deckInformations = new ArrayList<>();
 
-		String text = "地图:" + battleNext.getMapString() + ",Cell:" + battleNext.getNext() + "(" +
+		String text = "地图:" + battleNext.getMapString() + ",Cell:" + battleNext.getNext() + "(" +//
 		//下一点的类型
 				battleNext.getNextType() +
 				//获得资源
-				FunctionUtils.notNull(battleNext.getItems(), items -> items.stream().map(item -> "," + item.toString()).reduce("", String::concat), "") +
+				FunctionUtils.notNull(battleNext.getItems(), items -> StringUtils.join(items, ','), "") +
 				//终点?
 				(battleNext.isGoal() ? ",终点" : "") + ")";
 		deckInformations.add(text);
@@ -257,7 +257,7 @@ public class BattleDtoTranslator {
 		}
 
 		//基地受损
-		BattleStartNext_DestructionBattle destructionBattle = battleNext.getDestructionBattle();
+		DestructionBattle destructionBattle = battleNext.getDestructionBattle();
 		if (destructionBattle != null) {
 			{
 				int len = destructionBattle.getBaseNumber();
@@ -284,7 +284,7 @@ public class BattleDtoTranslator {
 		String text = "战斗结果:" + battleResult.getRank() + " " + "MVP:" + battleResult.getMvp() + (battleResult.getMvpCombined() > 0 ? ("," + battleResult.getMvpCombined()) : "");
 		deckInformations.add(text);
 
-		BattleResult_GetShip newShip = battleResult.getNewShip();
+		GetShip newShip = battleResult.getNewShip();
 		if (newShip != null) {
 			deckInformations.add(newShip.getType() + "-" + newShip.getName() + " 加入镇守府");
 		}

@@ -1,10 +1,10 @@
 package tdrz.update.dto.memory.battle;
 
-import tdrz.core.logic.TimeString;
 import tdrz.update.dto.AbstractMemory;
 
 /**
  * 出击之后到回港之前所有dto的超类
+ * 
  * @author MoeKagari
  */
 public abstract class BattleDto extends AbstractMemory {
@@ -198,7 +198,11 @@ public abstract class BattleDto extends AbstractMemory {
 	}
 
 	/*-----------------------------------------------------------------------------*/
-	private final long time = TimeString.getCurrentTime();
+	private final long time;
+
+	public BattleDto(long time) {
+		this.time = time;
+	}
 
 	@Override
 	public long getTime() {

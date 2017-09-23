@@ -12,7 +12,7 @@ import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.AbstractMemory;
 import tdrz.update.dto.memory.battle.AbstractBattle;
 import tdrz.update.dto.memory.battle.AbstractInfoBattleResult;
-import tdrz.update.dto.memory.battle.AbstractInfoBattleResult.BattleResult_GetShip;
+import tdrz.update.dto.memory.battle.AbstractInfoBattleResult.GetShip;
 import tdrz.update.dto.memory.battle.AbstractInfoBattleStartNext;
 import tdrz.update.dto.memory.battle.BattleDto;
 import tdrz.update.dto.memory.battle.info.InfoBattleStartAirBaseDto;
@@ -61,8 +61,8 @@ public class DropListTable extends AbstractTable<DropListTable.SortDrop> {
 				return rank;
 			}
 		}));
-		tcms.add(new TableColumnManager("舰种", rd -> FunctionUtils.notNull(rd.battleResult.getNewShip(), BattleResult_GetShip::getType, "")));
-		tcms.add(new TableColumnManager("舰名", rd -> FunctionUtils.notNull(rd.battleResult.getNewShip(), BattleResult_GetShip::getName, "")));
+		tcms.add(new TableColumnManager("舰种", rd -> FunctionUtils.notNull(rd.battleResult.getNewShip(), GetShip::getType, "")));
+		tcms.add(new TableColumnManager("舰名", rd -> FunctionUtils.notNull(rd.battleResult.getNewShip(), GetShip::getName, "")));
 
 	}
 

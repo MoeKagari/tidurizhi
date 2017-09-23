@@ -6,6 +6,7 @@ import tdrz.update.dto.AbstractWord;
 
 /**
  * 路基详情
+ * 
  * @author MoeKagari
  */
 public class AirbaseDto extends AbstractWord {

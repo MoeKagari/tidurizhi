@@ -1,7 +1,7 @@
-package tdrz.gui.window.listener;
+package tdrz.gui.other;
 
+import tdrz.gui.window.AbstractWindowSuper;
 import tdrz.gui.window.sub.WindowOperationWindow;
-import tdrz.gui.window.sup.AbstractWindowSuper;
 
 /** {@link AbstractWindowSuper}实现 , {@link WindowOperationWindow}中操作 */
 public interface WindowCanBeOperated {

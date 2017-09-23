@@ -228,7 +228,7 @@ public class ShipDto extends AbstractWord {
 		return new int[] { this.ndockCost[0], 0, this.ndockCost[1], 0, 0, 0, 0, 0 };
 	}
 
-	public void setLocked(boolean b) {
+	public void setShipLocked(boolean b) {
 		this.locked = b;
 	}
 

@@ -7,5 +7,4 @@ public abstract class AbstractMemory extends AbstractData implements Serializabl
 
 	/** 此对象事件发生的时间 */
 	public abstract long getTime();
-
 }

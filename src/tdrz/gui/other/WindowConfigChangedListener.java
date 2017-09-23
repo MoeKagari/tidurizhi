@@ -1,4 +1,4 @@
-package tdrz.gui.window.listener;
+package tdrz.gui.other;
 
 public interface WindowConfigChangedListener {
 	public default void visibleChangedBefore(boolean visible) {

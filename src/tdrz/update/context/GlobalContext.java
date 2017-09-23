@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import java.util.Optional;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.json.Json;
@@ -45,6 +47,7 @@ import tdrz.update.dto.memory.CreateItemDto;
 import tdrz.update.dto.memory.DestroyItemDto;
 import tdrz.update.dto.memory.DestroyShipDto;
 import tdrz.update.dto.memory.MissionResultDto;
+import tdrz.update.dto.memory.RemodleRecordDto;
 import tdrz.update.dto.memory.ResourceRecordDto;
 import tdrz.update.dto.memory.battle.BattleDto;
 import tdrz.update.dto.memory.battle.day.BattleDayDto;
@@ -104,14 +107,25 @@ public class GlobalContext {
 			LOG.warn("MasterData读取失败", e);
 		}
 
-		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(AppConstants.MEMORY_FILE))) {
-			((List<?>) ois.readObject()).forEach(ele -> {
-				if (ele instanceof AbstractMemory) {
-					memoryList.memorys.add((AbstractMemory) ele);
+		try {
+			for (File memoryFile : AppConstants.MEMORYS_FILE.listFiles(file -> {
+				try {
+					AppConstants.MEMORYS_FILE_FORMAT.parse(file.getName());
+					return true;
+				} catch (Exception ex) {
+					return false;
 				}
-			});
-		} catch (Exception e) {
-			LOG.warn("memory读取失败", e);
+			})) {
+				try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(memoryFile))) {
+					((List<?>) ois.readObject()).forEach(ele -> {
+						if (ele instanceof AbstractMemory) {
+							memoryList.memorys.add((AbstractMemory) ele);
+						}
+					});
+				} catch (Exception ex) {}
+			}
+		} catch (Exception ex) {
+			LOG.warn("memorys读取失败", ex);
 		}
 
 		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(AppConstants.ITEM_FILE))) {
@@ -128,18 +142,18 @@ public class GlobalContext {
 
 	public static void store() {
 		try {
-			if (masterData != null) {
-				FileUtils.write(AppConstants.MASTERDATA_FILE, masterData.getJson().toString(), Charset.forName("utf-8"));
-			}
+			FileUtils.write(AppConstants.MASTERDATA_FILE, masterData.getJson().toString(), Charset.forName("utf-8"));
 		} catch (Exception e) {
 			LOG.warn("MasterData保存失败", e);
 		}
 
-		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(AppConstants.MEMORY_FILE))) {
-			oos.writeObject(memoryList.memorys);
-		} catch (Exception e) {
-			LOG.warn("memory保存失败", e);
-		}
+		memoryList.memorys.stream()//
+				.collect(Collectors.groupingBy(memory -> AppConstants.MEMORYS_FILE_FORMAT.format(memory.getTime())))//
+				.forEach((name, memorys) -> {
+					try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(AppConstants.MEMORYS_FILE.toPath().resolve(name)))) {
+						oos.writeObject(memorys);
+					} catch (Exception e) {}
+				});
 
 		try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(AppConstants.ITEM_FILE))) {
 			oos.writeObject(new ArrayList<>(itemMap.values()));
@@ -625,7 +639,9 @@ public class GlobalContext {
 				};
 
 				currentMaterial.setMaterial("开发", time, mm, false);
-				memoryList.add(new CreateItemDto(time, success, mm, slotitemId, GlobalContext.getSecretaryShip()));
+				if (GlobalContext.getSecretaryShip() != null) {
+					memoryList.add(new CreateItemDto(time, success, mm, slotitemId, GlobalContext.getSecretaryShip()));
+				}
 			}
 				break;
 			case DESTROYSHIP: {
@@ -660,7 +676,7 @@ public class GlobalContext {
 				FunctionUtils.forEach(ndockRooms, FunctionUtils.getConsumer(NdockRoom::doNyukyoStart, data, api_data));
 				break;
 			case NDOCK_NYUKYO_SPEEDCHANGE:
-				FunctionUtils.forEach(ndockRooms, FunctionUtils.getConsumer(NdockRoom::doNyukyoSpeedchange, data, api_data));
+				FunctionUtils.forEach(ndockRooms, FunctionUtils.getConsumer(NdockRoom::doNyukyoSpeedChange, data, api_data));
 				break;
 
 			case DECK:
@@ -678,7 +694,7 @@ public class GlobalContext {
 			case DECK_SHIP_LOCK: {
 				int id = Integer.parseInt(data.getField("api_ship_id"));
 				int lock_value = ((JsonObject) api_data).getInt("api_locked");
-				GlobalContext.updateShip(id, ship -> ship.setLocked(lock_value == 1));
+				GlobalContext.updateShip(id, ship -> ship.setShipLocked(lock_value == 1));
 			}
 				break;
 			case DECK_PRESET_DECK:
@@ -710,21 +726,22 @@ public class GlobalContext {
 				JsonObject json = (JsonObject) api_data;
 
 				int slotId = Integer.parseInt(data.getField("api_slot_id"));
-				//boolean certain = Integer.parseInt(data.getField("api_certain_flag")) == 1;
-				//boolean success = json.getInt("api_remodel_flag") == 1;
-				//ItemDto item = GlobalContext.getItem(slotId);
+				boolean certain = Integer.parseInt(data.getField("api_certain_flag")) == 1;
+				boolean success = json.getInt("api_remodel_flag") == 1;
+				ItemDto item = GlobalContext.getItem(slotId);
+
+				ItemDto newItem = null;
 				if (json.containsKey("api_after_slot")) {
-					//TODO 未确定
-					//更新装备时,两装备的ID不同
-					ItemDto newItem = GlobalContext.addNewItem(json.getJsonObject("api_after_slot"));
-					if (newItem.getId() != slotId) {
-						GlobalContext.destroyItem(time, "改修更新", slotId, 1);
-					}
+					//更新装备时,两装备的ID相同
+					newItem = GlobalContext.addNewItem(json.getJsonObject("api_after_slot"));
 				}
+
 				if (json.containsKey("api_use_slot_id")) {
 					int[] useSlotIds = JsonUtils.getIntArray(json, "api_use_slot_id");
 					FunctionUtils.forEachInt(useSlotIds, id -> GlobalContext.destroyItem(time, "改修消耗", id, useSlotIds.length));
 				}
+
+				memoryList.add(new RemodleRecordDto(time, slotId, certain, success, item, newItem));
 				currentMaterial.setMaterial("改修", time, JsonUtils.getIntArray(json, "api_after_material"));
 			}
 				break;
@@ -732,8 +749,9 @@ public class GlobalContext {
 			case KAISOU_POWERUP: {
 				String[] ids = data.getField("api_id_items").trim().split(",");
 				JsonObject json = (JsonObject) api_data;
-//				boolean success = json.getInt("api_powerup_flag") == 1;
-//				ShipDto oldship = GlobalContext.getShip(Integer.parseInt(data.getField("api_id")));
+
+				//boolean success = json.getInt("api_powerup_flag") == 1;
+				//ShipDto oldship = GlobalContext.getShip(Integer.parseInt(data.getField("api_id")));
 
 				FunctionUtils.forEach(ids, id -> GlobalContext.destroyShip(time, "近代化改修", Integer.parseInt(id)));
 				GlobalContext.addNewShip(json.getJsonObject("api_ship"));
@@ -864,7 +882,7 @@ public class GlobalContext {
 				memoryList.add(new InfoBattleShipdeckDto(data, (JsonObject) api_data));
 				break;
 			case BATTLE_GOBACK_PORT:
-				memoryList.add(new InfoBattleGobackPortDto());
+				memoryList.add(new InfoBattleGobackPortDto(time));
 				break;
 			case BATTLE_START_AIR_BASE:
 				memoryList.add(new InfoBattleStartAirBaseDto(data, (JsonObject) api_data));

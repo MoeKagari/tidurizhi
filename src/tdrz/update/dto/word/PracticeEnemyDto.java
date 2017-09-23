@@ -7,13 +7,17 @@ import tdrz.update.dto.AbstractWord;
 
 /**
  * 演习对象
+ * 
  * @author MoeKagari
  */
 public class PracticeEnemyDto extends AbstractWord {
 	private final PracticeEnemyShip[] ships;
 
 	public PracticeEnemyDto(JsonObject json) {
-		this.ships = json.getJsonObject("api_deck").getJsonArray("api_ships").getValuesAs(JsonObject.class).stream().map(jo -> jo.size() == 1 ? null : new PracticeEnemyShip(jo)).toArray(PracticeEnemyShip[]::new);
+		this.ships = json.getJsonObject("api_deck").getJsonArray("api_ships")//
+				.getValuesAs(JsonObject.class).stream()//
+				.map(jo -> jo.size() == 1 ? null : new PracticeEnemyShip(jo))//
+				.toArray(PracticeEnemyShip[]::new);
 	}
 
 	public PracticeEnemyShip[] getShips() {

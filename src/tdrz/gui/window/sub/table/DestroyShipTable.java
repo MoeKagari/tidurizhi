@@ -9,6 +9,7 @@ import tdrz.update.dto.memory.DestroyShipDto;
 
 /**
  * 解体记录
+ * 
  * @author MoeKagari
  */
 public class DestroyShipTable extends AbstractTable<DestroyShipDto> {
@@ -21,9 +22,9 @@ public class DestroyShipTable extends AbstractTable<DestroyShipDto> {
 	protected void initTCMS(List<TableColumnManager> tcms) {
 		tcms.add(new TableColumnManager("日期", rd -> TimeString.formatForTable(rd.getTime())));
 		tcms.add(new TableColumnManager("事件", DestroyShipDto::getEvent));
-		tcms.add(new TableColumnManager("舰娘", DestroyShipDto::getName));
-		tcms.add(new TableColumnManager("ID", true, DestroyShipDto::getId));
-		tcms.add(new TableColumnManager("等级", true, DestroyShipDto::getLevel));
+		tcms.add(new TableColumnManager("舰娘", rd -> rd.getShip().getName()));
+		tcms.add(new TableColumnManager("ID", true, rd -> rd.getShip().getId()));
+		tcms.add(new TableColumnManager("等级", true, rd -> rd.getShip().getLevel()));
 	}
 
 	@Override

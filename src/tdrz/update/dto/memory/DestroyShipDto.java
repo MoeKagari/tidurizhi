@@ -1,27 +1,26 @@
 package tdrz.update.dto.memory;
 
-import tdrz.core.translator.ShipDtoTranslator;
-import tdrz.update.dto.AbstractMemory;
 import tdrz.update.dto.word.ShipDto;
 
 /**
  * 解体舰娘
+ * 
  * @author MoeKagari
  */
-public class DestroyShipDto extends AbstractMemory {
+public class DestroyShipDto extends AbstractRecord {
 	private static final long serialVersionUID = 1L;
 	private final long time;
 	private final String event;
-	private final int id;
-	private final String name;
-	private final int level;
+	private final Ship ship;
 
 	public DestroyShipDto(long time, String event, ShipDto ship) {
 		this.time = time;
 		this.event = event;
-		this.id = ship.getId();
-		this.name = ShipDtoTranslator.getName(ship);
-		this.level = ship.getLevel();
+		this.ship = new Ship(ship);
+	}
+
+	public Ship getShip() {
+		return this.ship;
 	}
 
 	@Override
@@ -31,17 +30,5 @@ public class DestroyShipDto extends AbstractMemory {
 
 	public String getEvent() {
 		return this.event;
-	}
-
-	public int getId() {
-		return this.id;
-	}
-
-	public String getName() {
-		return this.name;
-	}
-
-	public int getLevel() {
-		return this.level;
 	}
 }

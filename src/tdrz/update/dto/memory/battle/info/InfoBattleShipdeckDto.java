@@ -12,7 +12,11 @@ public class InfoBattleShipdeckDto extends AbstractInfoBattle {
 	private final boolean hasDapo;
 
 	public InfoBattleShipdeckDto(ApiData data, JsonObject json) {
-		this.hasDapo = json.getJsonArray("api_ship_data").getValuesAs(JsonObject.class).stream().map(ShipDto::new).anyMatch(ShipDtoTranslator::dapo);
+		super(data.getTime());
+
+		this.hasDapo = json.getJsonArray("api_ship_data").getValuesAs(JsonObject.class).stream()//
+				.map(ShipDto::new)//
+				.anyMatch(ShipDtoTranslator::dapo);
 	}
 
 	public boolean hasDapo() {

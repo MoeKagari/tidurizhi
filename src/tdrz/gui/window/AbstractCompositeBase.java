@@ -1,4 +1,4 @@
-package tdrz.gui.window.sup;
+package tdrz.gui.window;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;

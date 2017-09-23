@@ -58,29 +58,29 @@ public class AsyncExecApplicationMain extends Thread {
 
 	/** 新的一天时,在console输出 */
 	private static class UpdateNewDayConsole {
-		//2017-2-21 0:00:00
-		//1487606400000
+		// 2017-2-21 0:00:00
+		// 1487606400000
 		private static final TimerCounter timerCounter = new TimerCounter(1487606400000L, -1, true, TimeUnit.DAYS.toSeconds(1));
 
 		public static void update(ApplicationMain main, long currentTime) {
-			if (timerCounter.needNotify2(currentTime)) {
-				main.printNewDay(currentTime + TimeUnit.HOURS.toMillis(1));//姑且加上一个小时
+			if (timerCounter.needNotify(currentTime)) {
+				main.printNewDay(currentTime + TimeUnit.HOURS.toMillis(1));// 姑且加上一个小时
 			}
 		}
 	}
 
-	//更新主面板的 远征(或者疲劳)和入渠
+	// 更新主面板的 远征(或者疲劳)和入渠
 	private static class UpdateDeckNdockTask {
 		public static void update(ApplicationMain main, TrayMessageBox box, long currentTime) {
 			if (main.shell.isDisposed()) return;
 
-			//main.getDeckGroup().setRedraw(false);
+			// main.getDeckGroup().setRedraw(false);
 			updateDeck(main, box, currentTime);
-			//main.getDeckGroup().setRedraw(true);
+			// main.getDeckGroup().setRedraw(true);
 
-			//main.getNdockGroup().setRedraw(false);
+			// main.getNdockGroup().setRedraw(false);
 			updateNdock(main, box, currentTime);
-			//main.getNdockGroup().setRedraw(true);
+			// main.getNdockGroup().setRedraw(true);
 		}
 
 		private static void updateDeck(ApplicationMain main, TrayMessageBox box, long currentTime) {
@@ -94,7 +94,7 @@ public class AsyncExecApplicationMain extends Thread {
 				DeckMissionDto dmd = deck.getDeckMission();
 				if (dmd.getState() != 0) {
 					long rest = (dmd.getTime() - currentTime) / 1000;
-					if (dmd.getTimerCounter().needNotify2(currentTime)) {
+					if (dmd.getTimerCounter().needNotify(currentTime)) {
 						if ((AppConfig.get().isNoticeDeckmission() && rest >= 0) || (AppConfig.get().isNoticeDeckmissionAgain() && rest < 0)) {
 							box.add("远征", String.format("%s-远征已归还", AppConstants.DEFAULT_FLEET_NAME[index]));
 						}
@@ -102,12 +102,12 @@ public class AsyncExecApplicationMain extends Thread {
 
 					nameLabelText = dmd.getName();
 					timeLabelText = TimeString.toDateRestString(rest, "");
-					if (rest > 24 * 60 * 60) {//超过24小时,显示日期
+					if (rest > 24 * 60 * 60) {// 超过24小时,显示日期
 						timeLabelTooltipText = AppConstants.DECK_NDOCK_COMPLETE_TIME_FORMAT_LONG.format(dmd.getTime());
 					} else {
 						timeLabelTooltipText = AppConstants.DECK_NDOCK_COMPLETE_TIME_FORMAT.format(dmd.getTime());
 					}
-				} else {//疲劳回复时间
+				} else {// 疲劳回复时间
 					PLTime PLTIME = GlobalContext.getPLTIME();
 					if (PLTIME != null) {
 						int min = IntStream.of(deck.getShips()).mapToObj(GlobalContext::getShip).filter(FunctionUtils::isNotNull).mapToInt(ShipDto::getCond).min().orElse(Integer.MAX_VALUE);
@@ -118,7 +118,7 @@ public class AsyncExecApplicationMain extends Thread {
 							long rest = (end - currentTime) / 1000;
 							if (rest == 0 && AppConfig.get().isNoticeCond()) {
 								if (AppConfig.get().isNoticeCondOnlyMainFleet() && index != 0) {
-									//只通知第一舰队,并且此deck非第一舰队
+									// 只通知第一舰队,并且此deck非第一舰队
 								} else {
 									box.add("疲劳", String.format("%s-疲劳已恢复", AppConstants.DEFAULT_FLEET_NAME[index]));
 								}
@@ -149,7 +149,7 @@ public class AsyncExecApplicationMain extends Thread {
 					if (ship != null) {
 						String name = ShipDtoTranslator.getName(ship);
 						long rest = (ndock.getTime() - currentTime) / 1000;
-						if (AppConfig.get().isNoticeNdock() && ndock.getTimerCounter().needNotify2(currentTime)) {
+						if (AppConfig.get().isNoticeNdock() && ndock.getTimerCounter().needNotify(currentTime)) {
 							box.add("入渠", String.format("%s(Lv.%d)-入渠已完了", name, ship.getLevel()));
 						}
 

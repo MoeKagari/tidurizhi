@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 
 import tdrz.core.util.SwtUtils;
-import tdrz.gui.window.listener.ControlSelectionListener;
+import tdrz.gui.other.ControlSelectionListener;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.context.data.DataType;
 import tdrz.update.dto.word.PracticeEnemyDto;

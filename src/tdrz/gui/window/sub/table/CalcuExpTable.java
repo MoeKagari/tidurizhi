@@ -23,7 +23,7 @@ import tdrz.core.config.AppConfig;
 import tdrz.core.translator.ShipDtoTranslator;
 import tdrz.core.util.SwtUtils;
 import tdrz.core.util.ToolUtils;
-import tdrz.gui.window.listener.ControlSelectionListener;
+import tdrz.gui.other.ControlSelectionListener;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.word.ShipDto;
 import tool.function.FunctionUtils;

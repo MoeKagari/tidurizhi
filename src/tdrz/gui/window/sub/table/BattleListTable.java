@@ -64,13 +64,17 @@ public class BattleListTable extends AbstractTable<BattleListTable.SortBattle> {
 	protected void initTCMS(List<TableColumnManager> tcms) {
 		tcms.add(new TableColumnManager("时间", rd -> AppConstants.TABLE_TIME_FORMAT.format(rd.getTime())));
 		tcms.add(new TableColumnManager("舰队", SortBattle::getFleet));
-		tcms.add(new TableColumnManager("地图", SortBattle::getMap));
+		{
+			TableColumnManager tcm = new TableColumnManager("地图", SortBattle::getMap);
+			tcm.setComparator(Comparator.comparingInt(rd -> rd.start.getMapareaId() * 10 + rd.start.getMapareaNo()));
+			tcms.add(tcm);
+		}
 		tcms.add(new TableColumnManager("起点", true, SortBattle::getStart));
-		tcms.add(new TableColumnManager("道中撤退", true, rd -> {
-			return rd.getBattleStream().filter(battle -> battle instanceof AbstractInfoBattleStartNext)//
-					.map(battle -> (AbstractInfoBattleStartNext) battle)//
-					.anyMatch(AbstractInfoBattleStartNext::isGoal) ? "" : "是";
-		}));
+		tcms.add(new TableColumnManager("道中撤退", true,//
+				rd -> rd.getBattleStream().filter(battle -> battle instanceof AbstractInfoBattleStartNext)//
+						.map(battle -> (AbstractInfoBattleStartNext) battle)//
+						.anyMatch(AbstractInfoBattleStartNext::isGoal) ? "" : "是"//
+		));
 	}
 
 	@Override
@@ -83,6 +87,7 @@ public class BattleListTable extends AbstractTable<BattleListTable.SortBattle> {
 		Iterator<BattleDto> iter = GlobalContext.getMemorylist().memorys.stream()//
 				.filter(memory -> memory instanceof BattleDto)//
 				.map(memory -> (BattleDto) memory)//
+				.filter(battle -> FunctionUtils.isFalse(battle.isPractice()))//
 				.sorted(Comparator.comparingLong(BattleDto::getTime)).iterator();
 
 		SortBattle data = null;
@@ -114,8 +119,8 @@ public class BattleListTable extends AbstractTable<BattleListTable.SortBattle> {
 	}
 
 	protected class SortBattle {
-		private final InfoBattleStartDto start;
-		private final List<BattleDto> battles = new ArrayList<>();
+		protected final InfoBattleStartDto start;
+		protected final List<BattleDto> battles = new ArrayList<>();
 
 		public SortBattle(InfoBattleStartDto battle) {
 			this.start = battle;

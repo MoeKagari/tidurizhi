@@ -7,10 +7,10 @@ import tdrz.core.translator.MasterDataTranslator;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.dto.memory.CreateItemDto;
-import tool.function.FunctionUtils;
 
 /**
  * 开发记录
+ * 
  * @author MoeKagari
  */
 public class CreateItemTable extends AbstractTable<CreateItemDto> {
@@ -28,9 +28,9 @@ public class CreateItemTable extends AbstractTable<CreateItemDto> {
 		tcms.add(new TableColumnManager("弹", true, rd -> rd.getMaterial()[1]));
 		tcms.add(new TableColumnManager("钢", true, rd -> rd.getMaterial()[2]));
 		tcms.add(new TableColumnManager("铝", true, rd -> rd.getMaterial()[3]));
-		tcms.add(new TableColumnManager("秘书舰舰种", rd -> FunctionUtils.notNull(rd.getSecretaryShipType(), FunctionUtils::returnSelf, "")));
-		tcms.add(new TableColumnManager("秘书舰", rd -> FunctionUtils.notNull(rd.getSecretaryShip(), FunctionUtils::returnSelf, "")));
-		tcms.add(new TableColumnManager("秘书舰等级", rd -> FunctionUtils.ifFunction(rd.getSecretaryShipLevel(), level -> level > 0, String::valueOf, "")));
+		tcms.add(new TableColumnManager("秘书舰舰种", rd -> rd.getSecretaryShip().getTypeString()));
+		tcms.add(new TableColumnManager("秘书舰", rd -> rd.getSecretaryShip().getName()));
+		tcms.add(new TableColumnManager("秘书舰等级", rd -> rd.getSecretaryShip().getLevel()));
 	}
 
 	@Override

@@ -31,5 +31,6 @@ public class AppConstants {
 	public static final File ITEM_FILE = new File("item").getAbsoluteFile();
 
 	/** 记录文件 */
-	public static final File MEMORY_FILE = new File("memory").getAbsoluteFile();
+	public static final File MEMORYS_FILE = new File("memorys").getAbsoluteFile();
+	public static final SimpleDateFormat MEMORYS_FILE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 }

@@ -16,13 +16,13 @@ public abstract class AbstractBattleMidnight extends AbstractBattle {
 	public final BattleMidnightStage battleMidnightStage;
 
 	public AbstractBattleMidnight(ApiData data, JsonObject json) {
-		super(json);
+		super(data.getTime(), json);
 
-		this.flare = AbstractBattle.dissociateIntarray(json, "api_flare_pos");
-		this.touchPlane = AbstractBattle.dissociateIntarray(json, "api_touch_plane");
+		this.flare = JsonUtils.dissociateIntArray(json, "api_flare_pos");
+		this.touchPlane = JsonUtils.dissociateIntArray(json, "api_touch_plane");
 		this.battleMidnightStage = new BattleMidnightStage(json.getJsonObject("api_hougeki"));
 		if (json.containsKey("api_active_deck")) {
-			this.activeDeck = AbstractBattle.dissociateIntarray(json, "api_active_deck");
+			this.activeDeck = JsonUtils.dissociateIntArray(json, "api_active_deck");
 		} else {
 			if (existBattleDeck(this.getfDeckCombine())) {
 				this.activeDeck = new int[] { 2, 1 };

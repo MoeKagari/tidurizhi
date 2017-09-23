@@ -36,9 +36,11 @@ import tdrz.core.logic.DeckBuilder;
 import tdrz.core.logic.TimeString;
 import tdrz.core.util.SwtUtils;
 import tdrz.gui.composite.FleetWindow;
+import tdrz.gui.other.ControlSelectionListener;
+import tdrz.gui.other.WindowConfigChangedAdapter;
+import tdrz.gui.window.AbstractWindow;
+import tdrz.gui.window.AbstractWindowBase;
 import tdrz.gui.window.WindowResource;
-import tdrz.gui.window.listener.ControlSelectionListener;
-import tdrz.gui.window.listener.WindowConfigChangedAdapter;
 import tdrz.gui.window.sub.BattleFlowWindow;
 import tdrz.gui.window.sub.BattleWindow;
 import tdrz.gui.window.sub.BookItemWindow;
@@ -60,11 +62,10 @@ import tdrz.gui.window.sub.table.MapListTable;
 import tdrz.gui.window.sub.table.MaterialRecordTable;
 import tdrz.gui.window.sub.table.MissionResultTable;
 import tdrz.gui.window.sub.table.QuestListTable;
+import tdrz.gui.window.sub.table.RemodleRecordTable;
 import tdrz.gui.window.sub.table.ShipGroupTable;
 import tdrz.gui.window.sub.table.ShipListTable;
 import tdrz.gui.window.sub.table.UserItemListTable;
-import tdrz.gui.window.sup.AbstractWindow;
-import tdrz.gui.window.sup.WindowBase;
 import tdrz.update.context.GlobalContext;
 import tdrz.update.context.GlobalContextUpdater;
 import tdrz.update.context.data.DataType;
@@ -107,6 +108,8 @@ public final class ApplicationMain extends AbstractWindow {
 	private DestroyShipTable destroyShipTable;
 	/** 废弃记录 */
 	private DestroyItemTable destroyItemTable;
+	/** 改修记录 */
+	private RemodleRecordTable remodleRecordTable;
 
 	/** 战斗记录 */
 	private BattleListTable battleListTable;
@@ -216,7 +219,7 @@ public final class ApplicationMain extends AbstractWindow {
 				this.shipListTable1, this.shipListTable2, this.shipListTable3, null, //
 				this.itemListTable, this.userItemListTable, this.questListTable, null, //
 				this.shipGroupTable, this.configWindow, this.windowOperationWindow, null, //
-				this.bookShipWindow, this.bookItemWindow, null, null//
+				this.bookShipWindow, this.bookItemWindow, this.remodleRecordTable, null//
 		);
 
 		//恢复窗口配置
@@ -280,6 +283,7 @@ public final class ApplicationMain extends AbstractWindow {
 			SwtUtils.makeSeparatorMenuItem(recordMenu);
 			this.destroyShipTable = this.addMenuItemForWindow(recordMenu, new DestroyShipTable());
 			this.destroyItemTable = this.addMenuItemForWindow(recordMenu, new DestroyItemTable());
+			this.remodleRecordTable = this.addMenuItemForWindow(recordMenu, new RemodleRecordTable());
 			SwtUtils.makeSeparatorMenuItem(recordMenu);
 			this.battleListTable = this.addMenuItemForWindow(recordMenu, new BattleListTable());
 			this.dropListTable = this.addMenuItemForWindow(recordMenu, new DropListTable());
@@ -312,7 +316,7 @@ public final class ApplicationMain extends AbstractWindow {
 		}
 	}
 
-	private <T extends WindowBase> T addMenuItemForWindow(Menu parent, T window) {
+	private <T extends AbstractWindowBase> T addMenuItemForWindow(Menu parent, T window) {
 		MenuItem menuItem = new MenuItem(parent, SWT.CHECK);
 		menuItem.setText(window.defaultTitle());
 		menuItem.addSelectionListener(new ControlSelectionListener(ev -> {
@@ -373,12 +377,15 @@ public final class ApplicationMain extends AbstractWindow {
 
 			//更新主面板的 资源
 			Optional.ofNullable(GlobalContext.getCurrentMaterial().getMaterial()).ifPresent(currentMaterial -> {
-				FunctionUtils.forEach(this.resourceGroup.labels, currentMaterial.getResourceForApplicationMain(), (label, resource) -> SwtUtils.setText(label, String.valueOf(resource)));
+				FunctionUtils.forEach(//
+						this.resourceGroup.labels, currentMaterial.getResourceForApplicationMain(),//
+						(label, resource) -> SwtUtils.setText(label, String.valueOf(resource))//
+				);
 			});
 		}
 	}
 
-	/** 更新标题  */
+	/** 更新标题 */
 	public void updateTitle() {
 		Optional.ofNullable(GlobalContext.getBasicInformation()).ifPresent(basic -> {
 			String title = AppConstants.MAINWINDOWNAME;
@@ -479,6 +486,7 @@ public final class ApplicationMain extends AbstractWindow {
 				SwtUtils.makeSeparatorMenuItem(recordMenu);
 				this.makeNewMenuItem(recordMenu, ApplicationMain.this.destroyShipTable);
 				this.makeNewMenuItem(recordMenu, ApplicationMain.this.destroyItemTable);
+				this.makeNewMenuItem(recordMenu, ApplicationMain.this.remodleRecordTable);
 				SwtUtils.makeSeparatorMenuItem(recordMenu);
 				this.makeNewMenuItem(recordMenu, ApplicationMain.this.battleListTable);
 				this.makeNewMenuItem(recordMenu, ApplicationMain.this.dropListTable);
@@ -507,7 +515,7 @@ public final class ApplicationMain extends AbstractWindow {
 			SwtUtils.makeMenuItem(this.menu, SWT.NONE, "退出", ApplicationMain.this.shell::close);
 		}
 
-		private MenuItem makeNewMenuItem(Menu parent, WindowBase window) {
+		private MenuItem makeNewMenuItem(Menu parent, AbstractWindowBase window) {
 			return SwtUtils.makeMenuItem(parent, SWT.NONE, window.defaultTitle(), window::displayWindow);
 		}
 

@@ -10,14 +10,12 @@ import tdrz.update.dto.word.MasterDataDto.MasterSlotitemDto;
 
 /**
  * 舰娘的装备
+ * 
  * @author MoeKagari
  */
 public class ItemDto extends AbstractWord implements Serializable {
 	private static final long serialVersionUID = 1L;
-	private final int id;
-	private final int slotitemId;
-	private final int level;
-	private final int alv;
+	private final int id, slotitemId, level, alv;
 	private boolean isLocked;
 	private transient MasterSlotitemDto msdd;
 

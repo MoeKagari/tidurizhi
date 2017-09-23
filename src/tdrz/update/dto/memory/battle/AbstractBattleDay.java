@@ -21,7 +21,7 @@ public abstract class AbstractBattleDay extends AbstractBattle {
 	public final ArrayList<BattleDayStage> battleDayStage = new ArrayList<>();
 
 	public AbstractBattleDay(ApiData data, JsonObject json) {
-		super(json);
+		super(data.getTime(), json);
 
 		if (json.containsKey("api_air_base_injection")) {
 			this.battleDayStage.add(new AirbaseInjection(json.getJsonObject("api_air_base_injection")));
@@ -376,22 +376,22 @@ public abstract class AbstractBattleDay extends AbstractBattle {
 	public class OpeningTaisen extends BattleDayStage {
 		private static final long serialVersionUID = 1L;
 		/**
-		 *  0,开幕对潜<br>
-		 *  1,第一轮炮击战<br>
-		 *  2,第二轮炮击战<br>
-		 *  3,第三轮炮击战
+		 * 0,开幕对潜<br>
+		 * 1,第一轮炮击战<br>
+		 * 2,第二轮炮击战<br>
+		 * 3,第三轮炮击战
 		 */
 		private final int index;
 
-		/**开幕反潜用*/
+		/** 开幕反潜用 */
 		public OpeningTaisen(JsonObject json) {
 			this(0, json);
 		}
 
-		/**炮击战用*/
+		/** 炮击战用 */
 		public OpeningTaisen(int index, JsonObject json) {
 			this.index = index;
-			/** 敌联合舰队时存在(因为有混战)  */
+			/** 敌联合舰队时存在(因为有混战) */
 			JsonArray at_eflag = json.containsKey("api_at_eflag") ? json.getJsonArray("api_at_eflag") : null;
 			JsonArray at_list = json.getJsonArray("api_at_list");
 			JsonArray at_type = json.getJsonArray("api_at_type");

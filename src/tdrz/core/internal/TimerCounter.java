@@ -5,15 +5,16 @@ public class TimerCounter {
 	private final long advance;
 	private final long interval;
 	private final boolean notifyZero;
-	private boolean haveUpdatedAdvance = false;
-	private boolean haveUpdated = false;
-	private boolean haveUpdatedAgain = false;
 
 	/**
-	 * @param endTime 到点时间戳(毫秒)
-	 * @param advance 提前多少时间提醒(秒),不大于0为不提醒
-	 * @param notifyZero 到endTime时是否提醒
-	 * @param interval endTime之后再次提醒间隔(秒),不大于0为不提醒
+	 * @param endTime
+	 *                到点时间戳(毫秒)
+	 * @param advance
+	 *                提前多少时间提醒(秒),不大于0为不提醒
+	 * @param notifyZero
+	 *                到endTime时是否提醒
+	 * @param interval
+	 *                endTime之后再次提醒间隔(秒),不大于0为不提醒
 	 */
 	public TimerCounter(long endTime, long advance, boolean notifyZero, long interval) {
 		this.endTime = endTime;
@@ -22,6 +23,23 @@ public class TimerCounter {
 		this.interval = interval;
 	}
 
+	public boolean needNotify(long currentTime) {
+		long space = (this.endTime - currentTime) / 1000;
+		if (this.advance > 0 && space == this.advance) {
+			return true;
+		} else if (this.notifyZero && space == 0) {
+			return true;
+		} else if (this.interval > 0 && space < 0 && (-1 * space) % this.interval == 0) {
+			return true;
+		}
+		return false;
+	}
+
+	/*
+	private boolean haveUpdatedAdvance = false;
+	private boolean haveUpdated = false;
+	private boolean haveUpdatedAgain = false;
+	
 	public boolean needNotify(long currentTime) {
 		long space = (this.endTime - currentTime) / 1000;
 		if (this.advance > 0 && (space == this.advance - 1 || space == this.advance || space == this.advance + 1)) {
@@ -44,16 +62,5 @@ public class TimerCounter {
 		}
 		return false;
 	}
-
-	public boolean needNotify2(long currentTime) {
-		long space = (this.endTime - currentTime) / 1000;
-		if (this.advance > 0 && space == this.advance) {
-			return true;
-		} else if (this.notifyZero && space == 0) {
-			return true;
-		} else if (this.interval > 0 && space < 0 && (-1 * space) % this.interval == 0) {
-			return true;
-		}
-		return false;
-	}
+	*/
 }

@@ -1,11 +1,11 @@
-package tdrz.gui.window.listener;
+package tdrz.gui.other;
 
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.graphics.Point;
 
-import tdrz.gui.window.sup.AbstractWindowSuper;
+import tdrz.gui.window.AbstractWindowSuper;
 
 /** shell跟随鼠标的拖动而移动 */
 public class MouseDragListener extends MouseAdapter implements MouseMoveListener {

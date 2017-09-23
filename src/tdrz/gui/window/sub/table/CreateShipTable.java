@@ -6,14 +6,14 @@ import tdrz.core.logic.TimeString;
 import tdrz.core.translator.MasterDataTranslator;
 import tdrz.gui.window.sub.AbstractTable;
 import tdrz.update.context.GlobalContext;
-import tdrz.update.dto.memory.CreateshipDto;
-import tool.function.FunctionUtils;
+import tdrz.update.dto.memory.CreateShipDto;
 
 /**
  * 建造记录
+ * 
  * @author MoeKagari
  */
-public class CreateShipTable extends AbstractTable<CreateshipDto> {
+public class CreateShipTable extends AbstractTable<CreateShipDto> {
 	@Override
 	public String defaultTitle() {
 		return "建造记录";
@@ -31,16 +31,16 @@ public class CreateShipTable extends AbstractTable<CreateshipDto> {
 		tcms.add(new TableColumnManager("大型建造", rd -> rd.largeflag() ? "是" : ""));
 		tcms.add(new TableColumnManager("高速建造", rd -> rd.highspeed() ? "是" : ""));
 		tcms.add(new TableColumnManager("空渠", true, rd -> String.valueOf(rd.getEmptyCount())));
-		tcms.add(new TableColumnManager("秘书舰舰种", rd -> FunctionUtils.notNull(rd.getSecretaryShipType(), FunctionUtils::returnSelf, "")));
-		tcms.add(new TableColumnManager("秘书舰", rd -> FunctionUtils.notNull(rd.getSecretaryShip(), FunctionUtils::returnSelf, "")));
-		tcms.add(new TableColumnManager("秘书舰等级", rd -> FunctionUtils.ifFunction(rd.getSecretaryShipLevel(), level -> level > 0, String::valueOf, "")));
+		tcms.add(new TableColumnManager("秘书舰舰种", rd -> rd.getSecretaryShip().getTypeString()));
+		tcms.add(new TableColumnManager("秘书舰", rd -> rd.getSecretaryShip().getName()));
+		tcms.add(new TableColumnManager("秘书舰等级", rd -> rd.getSecretaryShip().getLevel()));
 	}
 
 	@Override
-	protected void updateData(List<CreateshipDto> datas) {
+	protected void updateData(List<CreateShipDto> datas) {
 		GlobalContext.getMemorylist().memorys.forEach(memory -> {
-			if (memory instanceof CreateshipDto) {
-				datas.add((CreateshipDto) memory);
+			if (memory instanceof CreateShipDto) {
+				datas.add((CreateShipDto) memory);
 			}
 		});
 	}
